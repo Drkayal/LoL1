@@ -902,3 +902,9 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:35:49,853 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:35:50,264 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:35:50,713 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:58,264 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 12:35:58,593 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:35:58,594 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:35:58,594 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:35:58,594 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:35:58,594 - pyrogram.session.session - INFO - Session stopped
