@@ -1872,3 +1872,9 @@ ValueError: Peer id invalid: -1002727115068
 2025-07-31 13:04:30,444 - Maker.Makr - INFO - Found 0 bots to restore
 2025-07-31 13:04:32,183 - Maker.Makr - INFO - Found 0 bots to restore
 2025-07-31 13:04:32,709 - Maker.Makr - INFO - Found 0 bots to restore
+2025-07-31 13:05:13,579 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 13:05:14,615 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 13:05:14,616 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 13:05:14,616 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 13:05:14,616 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 13:05:14,616 - pyrogram.session.session - INFO - Session stopped
