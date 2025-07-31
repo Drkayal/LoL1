@@ -2,61 +2,72 @@ import os
 import sys
 import asyncio
 import subprocess
-from pyrogram import filters, Client
-from pyrogram import Client as app
-from asyncio import sleep
-from pyrogram import Client, filters
-from pyrogram import types
-from pyrogram import enums
-from sys import version as pyver
-from pyrogram import __version__ as pyrover
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ChatPrivileges, Message
-from pyrogram.errors import (ApiIdInvalid, PhoneNumberInvalid, PhoneCodeInvalid, PhoneCodeExpired, SessionPasswordNeeded, PasswordHashInvalid, FloodWait)
-from pymongo import MongoClient
-from motor.motor_asyncio import AsyncIOMotorClient as mongo_client
-from pyrogram.errors import FloodWait
-from bot import bot, bot_id
 import re
 import shutil
+import logging
 import psutil
-from typing import List, Union, Callable, Dict
-from os import execle, environ
-import random
-import requests
 import uuid
-from pyrogram.errors import PeerIdInvalid
-from pyrogram.raw.functions.phone import (
-    CreateGroupCall,
-    DiscardGroupCall,
-    GetGroupParticipants,
+import json
+from datetime import datetime
+from typing import List, Union, Callable, Dict
+from os import execle, environ, path
+from pyrogram import filters, Client, enums
+from pyrogram import Client as app
+from pyrogram import __version__ as pyrover
+from pyrogram.types import (
+    InlineKeyboardMarkup, 
+    InlineKeyboardButton, 
+    ReplyKeyboardMarkup, 
+    ChatPrivileges, 
+    Message
 )
-from random import randint
-from pyrogram.raw.functions.phone import CreateGroupCall
-from pyrogram.types import ChatPrivileges
-from pyrogram.types import ReplyKeyboardRemove
+from pyrogram.errors import (
+    ApiIdInvalid, PhoneNumberInvalid, PhoneCodeInvalid, 
+    PhoneCodeExpired, SessionPasswordNeeded, PasswordHashInvalid, 
+    FloodWait, PeerIdInvalid
+)
+from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient as mongo_client
 from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, CHANNEL, GROUP, PHOTO, VIDEO
 
-Bots = []
-off = True
+# إعداد نظام التسجيل (Logging)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("factory_bot.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
+
+# إعداد اتصال MongoDB
 km = MongoClient(MONGO_DB_URL)
 mongo_async = mongo_client(MONGO_DB_URL)
 mongodb = mongo_async.AnonX
 users = mongodb.tgusersdb
 chats = mongodb.chats
 db = km["Yousef"]
-db = db.botpsb # دالته تغير تخزين الصانع
+db = db.botpsb
 mkchats = db.chatss
 blocked = []
 blockeddb = db.blocked
-mk = []
 broadcasts_collection = db["broadcasts"]
-devs_collection = db["devs"]  
+devs_collection = db["devs"]
+bots_collection = db["bots"]
+factory_settings = db["factory_settings"]
 
+# حالة المصنع الافتراضية
+off = True
+
+# وظيفة للتحقق من صلاحيات المطور
 def is_dev(user_id):
     return user_id in OWNER_ID or devs_collection.find_one({"user_id": user_id}) is not None
-    
+
+# وظائف إدارة المستخدمين
 async def is_user(user_id):
     return await users.find_one({"user_id": int(user_id)})
 
@@ -69,6 +80,7 @@ async def del_user(user_id):
 async def get_users():
     return [user["user_id"] async for user in users.find()]
 
+# وظائف البث
 def set_broadcast_status(user_id, bot_id, key):
     broadcasts_collection.update_one(
         {"user_id": user_id, "bot_id": bot_id},
@@ -86,10 +98,112 @@ def delete_broadcast_status(user_id, bot_id, *keys):
         {"$unset": {key: "" for key in keys}}
     )
 
+# وظائف إدارة البوتات
+def get_bot_info(bot_username):
+    return bots_collection.find_one({"username": bot_username})
+
+def save_bot_info(bot_username, dev_id, pid, config_data):
+    bots_collection.update_one(
+        {"username": bot_username},
+        {"$set": {
+            "dev_id": dev_id,
+            "pid": pid,
+            "config": config_data,
+            "created_at": datetime.now(),
+            "status": "running"
+        }},
+        upsert=True
+    )
+
+def update_bot_status(bot_username, status):
+    bots_collection.update_one(
+        {"username": bot_username},
+        {"$set": {"status": status}}
+    )
+
+def delete_bot_info(bot_username):
+    bots_collection.delete_one({"username": bot_username})
+
+def get_all_bots():
+    return list(bots_collection.find())
+
+def get_running_bots():
+    return list(bots_collection.find({"status": "running"}))
+
+# وظائف إدارة المصنع
+def get_factory_state():
+    settings = factory_settings.find_one({"name": "factory"})
+    return settings.get("enabled", True) if settings else True
+
+def set_factory_state(enabled):
+    factory_settings.update_one(
+        {"name": "factory"},
+        {"$set": {"enabled": enabled}},
+        upsert=True
+    )
+
+# وظائف إدارة العمليات
+def start_bot_process(bot_username):
+    bot_path = path.join("Maked", bot_username)
+    main_file = path.join(bot_path, "__main__.py")
+    
+    if not path.exists(main_file):
+        logger.error(f"Main file not found for bot: {bot_username}")
+        return None
+    
+    try:
+        process = subprocess.Popen(
+            [sys.executable, main_file],
+            cwd=bot_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        logger.info(f"Started bot {bot_username} with PID: {process.pid}")
+        return process.pid
+    except Exception as e:
+        logger.error(f"Failed to start bot {bot_username}: {str(e)}")
+        return None
+
+def stop_bot_process(pid):
+    try:
+        process = psutil.Process(pid)
+        process.terminate()
+        logger.info(f"Stopped process with PID: {pid}")
+        return True
+    except psutil.NoSuchProcess:
+        logger.warning(f"Process with PID {pid} not found")
+        return False
+    except Exception as e:
+        logger.error(f"Error stopping process {pid}: {str(e)}")
+        return False
+
+# تهيئة المصنع عند التشغيل
+async def initialize_factory():
+    global off
+    off = get_factory_state()
+    
+    # استعادة البوتات المشتغلة
+    running_bots = get_running_bots()
+    for bot in running_bots:
+        if bot["status"] == "running":
+            pid = start_bot_process(bot["username"])
+            if pid:
+                bots_collection.update_one(
+                    {"username": bot["username"]},
+                    {"$set": {"pid": pid}}
+                )
+            else:
+                update_bot_status(bot["username"], "stopped")
+
+# ================================================
+# ============== HANDLERS START HERE =============
+# ================================================
+
 @bot.on_message(filters.text & filters.private, group=5662)
 async def cmd(bot, msg):
     uid = msg.from_user.id
-    if uid not in OWNER_ID:
+    if not is_dev(uid):
         return
 
     if msg.text == "الغاء":
@@ -101,7 +215,15 @@ async def cmd(bot, msg):
 
     elif msg.text == "❲ الاحصائيات ❳":
         user_list = await get_users()
-        await msg.reply(f"**≭︰عدد الاعضاء  **{len(user_list)}\n**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}", quote=True)
+        bots_count = bots_collection.count_documents({})
+        running_bots = len(get_running_bots())
+        await msg.reply(
+            f"**≭︰عدد الاعضاء  **{len(user_list)}\n"
+            f"**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}\n"
+            f"**≭︰عدد البوتات المصنوعة  **{bots_count}\n"
+            f"**≭︰عدد البوتات المشتغلة  **{running_bots}",
+            quote=True
+        )
 
     elif msg.text == "❲ اذاعه ❳":
         set_broadcast_status(uid, bot_id, "broadcast")
@@ -121,7 +243,7 @@ async def cmd(bot, msg):
 @bot.on_message(filters.private, group=368388)
 async def forbroacasts(bot, msg):
     uid = msg.from_user.id
-    if uid not in OWNER_ID:
+    if not is_dev(uid):
         return
 
     text = msg.text
@@ -140,7 +262,7 @@ async def forbroacasts(bot, msg):
                 if i % 5 == 0:
                     await message.edit(f"» نسبه الاذاعه {progress}%")
             except PeerIdInvalid:
-                del_user(int(user))
+                await del_user(int(user))
         await message.edit("» تمت الاذاعه بنجاح")
 
     elif get_broadcast_status(uid, bot_id, "pinbroadcast"):
@@ -155,7 +277,7 @@ async def forbroacasts(bot, msg):
                 if i % 5 == 0:
                     await message.edit(f"» نسبه الاذاعه {progress}%")
             except PeerIdInvalid:
-                del_user(int(user))
+                await del_user(int(user))
         await message.edit("» تمت الاذاعه بنجاح")
 
     elif get_broadcast_status(uid, bot_id, "fbroadcast"):
@@ -169,7 +291,7 @@ async def forbroacasts(bot, msg):
                 if i % 5 == 0:
                     await message.edit(f"• نسبه الاذاعه {progress}%")
             except PeerIdInvalid:
-                del_user(int(user))
+                await del_user(int(user))
         await message.edit("» تمت الاذاعه بنجاح")
 
 @bot.on_message(filters.command("start") & filters.private)
@@ -193,64 +315,43 @@ async def new_user(bot, msg):
             except PeerIdInvalid:
                 pass
 
-
-
-
-def ss():
-    dbb = db.find({})
-    for x in dbb:
-        xx = [x["username"], x["dev"]]
-        Bots.append(xx)
-    ddb = mkchats.find({})
-    for x in ddb:
-        mk.append(int(x["chat_id"]))
-    
-    bb = blockeddb.find({})
-    for x in bb:
-        blocked.append(int(x["user_id"]))
-    
-    return
-
-ss()
-
-
 @bot.on_message(filters.command("start") & filters.private, group=162728)
 async def admins(bot, message: Message):
-    if off:
-       if not is_dev(message.chat.id):
-            return await message.reply_text(
-                f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**"
-            )
-       else:
-            keyboard = [
-                [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
-                [("❲ فتح المصنع ❳"), ("❲ قفل المصنع ❳")],
-                [("❲ ايقاف بوت ❳"), ("❲ تشغيل بوت ❳")],
-                [("❲ ايقاف البوتات ❳"), ("❲ تشغيل البوتات ❳")],
-                [("❲ البوتات المشتغلة ❳")],
-                [("❲ البوتات المصنوعه ❳"), ("❲ تحديث الصانع ❳")],
-                [("❲ الاحصائيات ❳")],
-                [("❲ رفع مطور ❳"), ("❲ تنزيل مطور ❳")],
-                [("❲ المطورين ❳")],
-                [("❲ اذاعه ❳"), ("❲ اذاعه بالتوجيه ❳"), ("❲ اذاعه بالتثبيت ❳")],
-                [("❲ استخراج جلسه ❳"), ("❲ الاسكرينات المفتوحه ❳")],
-                ["❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳"],
-                [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
-                [("❲ اخفاء الكيبورد ❳")]
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await message.reply("** ≭︰اهلا بك عزيزي المطور  **", reply_markup=reply_markup, quote=True)
+    global off
+    off = get_factory_state()
+    
+    keyboard = []
+    
+    if is_dev(message.chat.id):
+        keyboard = [
+            [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
+            [("❲ فتح المصنع ❳"), ("❲ قفل المصنع ❳")],
+            [("❲ ايقاف بوت ❳"), ("❲ تشغيل بوت ❳")],
+            [("❲ ايقاف البوتات ❳"), ("❲ تشغيل البوتات ❳")],
+            [("❲ البوتات المشتغلة ❳")],
+            [("❲ البوتات المصنوعه ❳"), ("❲ تحديث الصانع ❳")],
+            [("❲ الاحصائيات ❳")],
+            [("❲ رفع مطور ❳"), ("❲ تنزيل مطور ❳")],
+            [("❲ المطورين ❳")],
+            [("❲ اذاعه ❳"), ("❲ اذاعه بالتوجيه ❳"), ("❲ اذاعه بالتثبيت ❳")],
+            [("❲ استخراج جلسه ❳"), ("❲ الاسكرينات المفتوحه ❳")],
+            ["❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳"],
+            [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
+            [("❲ اخفاء الكيبورد ❳")]
+        ]
+        await message.reply("** ≭︰اهلا بك عزيزي المطور  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
     else:
+        if off:
+            await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
+            return
+            
         keyboard = [
             [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
             [("❲ استخراج جلسه ❳")],
             [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
             [("❲ اخفاء الكيبورد ❳")]
         ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=reply_markup, quote=True)
-    
-
+        await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
 
 @Client.on_message(filters.private)
 async def me(client, message):
@@ -262,17 +363,28 @@ async def me(client, message):
         return await message.reply_text("انت محظور من صانع عزيزي")
 
     try:
-        member = await client.get_chat_member(ch, message.from_user.id)
-        # التحقق من حالة العضوية
-        if member.status in ["left", "kicked"]:
-            return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+        # التحقق من الاشتراك مع التخزين المؤقت
+        cache_key = f"subscription_{message.from_user.id}"
+        cached = factory_settings.find_one({"key": cache_key})
+        
+        if cached and (datetime.now() - cached["timestamp"]).hours < 24:
+            if not cached["status"]:
+                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+        else:
+            member = await client.get_chat_member(ch, message.from_user.id)
+            status = member.status not in ["left", "kicked"]
+            factory_settings.update_one(
+                {"key": cache_key},
+                {"$set": {"status": status, "timestamp": datetime.now()}},
+                upsert=True
+            )
+            if not status:
+                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
     except Exception as e:
-        # في حالة عدم العثور على المستخدم في القناة
+        logger.error(f"Subscription check error: {str(e)}")
         return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
     
     message.continue_propagation()
-
-
 
 @app.on_message(filters.command(["❲ السورس ❳"], ""))
 async def alivehi(client: Client, message):
@@ -295,7 +407,6 @@ async def alivehi(client: Client, message):
         caption="**≭︰Welcome to Source Music **",
         reply_markup=keyboard,
     )
-
 
 @Client.on_message(filters.command(["❲ مطور السورس ❳"], ""))
 async def you(client: Client, message):
@@ -320,7 +431,6 @@ async def you(client: Client, message):
 
             return user.id, name, username_text, bio, photo_path
 
-        # الحصول على معرف المطور من OWNER_ID
         developer_id = OWNER_ID[0] if isinstance(OWNER_ID, list) and OWNER_ID else OWNER_ID
         user_id, name, username, bio, photo_path = await get_user_info(developer_id)
 
@@ -361,15 +471,14 @@ async def you(client: Client, message):
             os.remove(photo_path)
 
     except Exception as e:
-        pass
-
+        logger.error(f"Error in developer info: {str(e)}")
 
 @Client.on_message(filters.command("❲ رفع مطور ❳", ""))
 async def add_dev(client, message: Message):
     if not is_dev(message.from_user.id):
         return await message.reply("**≭︰ليس لديك صلاحيات**")
 
-    m = await client.ask(message.chat.id, "**≭︰ارسل معرف المستخدم الآن**")
+    m = await client.ask(message.chat.id, "**≭︰ارسل معرف المستخدم الآن**", timeout=120)
     username = m.text.replace("@", "")
     
     try:
@@ -379,7 +488,8 @@ async def add_dev(client, message: Message):
         
         devs_collection.insert_one({"user_id": user.id})
         return await message.reply(f"**≭︰تم رفع {user.first_name} كمطور بنجاح**")
-    except:
+    except Exception as e:
+        logger.error(f"Add dev error: {str(e)}")
         return await message.reply("**≭︰فشل في العثور على المستخدم، تحقق من المعرف**")
 
 @Client.on_message(filters.command("❲ تنزيل مطور ❳", ""))
@@ -387,7 +497,7 @@ async def remove_dev(client, message: Message):
     if not is_dev(message.from_user.id):
         return await message.reply("**≭︰ليس لديك صلاحيات**")
 
-    m = await client.ask(message.chat.id, "**≭︰ارسل المعرف الآن**")
+    m = await client.ask(message.chat.id, "**≭︰ارسل المعرف الآن**", timeout=120)
     username = m.text.replace("@", "")
     
     try:
@@ -397,7 +507,8 @@ async def remove_dev(client, message: Message):
 
         devs_collection.delete_one({"user_id": user.id})
         return await message.reply(f"**≭︰تم تنزيل {user.first_name} من المطورين بنجاح**")
-    except:
+    except Exception as e:
+        logger.error(f"Remove dev error: {str(e)}")
         return await message.reply("**≭︰فشل في العثور على المستخدم، تحقق من المعرف**")
 
 @Client.on_message(filters.command("❲ المطورين ❳", ""))
@@ -414,6 +525,7 @@ async def list_devs(client, message: Message):
             response += f"<b>{i}- {mention}</b> (المالك)\n"
         except:
             continue
+            
     devs = list(devs_collection.find({"user_id": {"$nin": OWNER_ID}}))
     if devs:
         for i, dev in enumerate(devs, start=len(OWNER_ID)+1):
@@ -429,402 +541,285 @@ async def list_devs(client, message: Message):
 
     await message.reply_text(response, parse_mode=enums.ParseMode.HTML)
 
-
-
-
-       
 @Client.on_message(filters.command(["❲ فتح المصنع ❳", "❲ قفل المصنع ❳"], "") & filters.private)
 async def onoff(client, message):
-  if not is_dev(message.from_user.id):
-    return
-  global off
-  if message.text == "❲ فتح المصنع ❳":
-    off = None  
-    await message.reply_text("** ≭︰تم فتح المصنع **")
-  else:
-    off = True  
-    await message.reply_text("** ≭︰تم قفل المصنع **")
+    if not is_dev(message.from_user.id):
+        return
+        
+    if message.text == "❲ فتح المصنع ❳":
+        set_factory_state(False)
+        await message.reply_text("** ≭︰تم فتح المصنع **")
+    else:
+        set_factory_state(True)
+        await message.reply_text("** ≭︰تم قفل المصنع **")
     
-    
-
 @app.on_message(filters.command("❲ صنع بوت ❳", "") & filters.private)
 async def maked(client, message):
+    if not is_dev(message.from_user.id):
+        user_bots = list(bots_collection.find({"dev_id": message.from_user.id}))
+        if user_bots:
+            return await message.reply_text("<b> ≭︰لـقـد قـمت بـصـنع بـوت مـن قـبل </b>")
+
     # التأكد من وجود مجلد Maked
     if not os.path.exists("Maked"):
         os.makedirs("Maked", exist_ok=True)
     
-    if not is_dev(message.from_user.id):
-        for bot in Bots:
-            if int(bot[1]) == message.from_user.id:
-                return await message.reply_text("<b> ≭︰لـقـد قـمت بـصـنع بـوت مـن قـبل </b>")
-
     try:
-        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل تـوكـن الـبوت </b>", timeout=75)
-        TOKEN = ask.text
+        # طلب توكن البوت
+        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل تـوكـن الـبوت </b>", timeout=120)
+        TOKEN = ask.text.strip()
+        
+        # التحقق من صحة التوكن
         bot = Client(":memory:", api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN, in_memory=True)
         await bot.start()
         bot_me = await bot.get_me()
         username = bot_me.username
         bot_id = bot_me.id
         await bot.stop()
-    except:
+    except Exception as e:
+        logger.error(f"Token validation error: {str(e)}")
         return await message.reply_text("<b> ≭︰توكن البوت غير صحيح</b>")
 
     try:
-        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل كـود الـجلسـه </b>", timeout=75)
-        SESSION = ask.text
+        # طلب كود الجلسة
+        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل كـود الـجلسـه </b>", timeout=120)
+        SESSION = ask.text.strip()
+        
+        # التحقق من صحة الجلسة
         user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, in_memory=True)
         await user.start()
+        user_me = await user.get_me()
         await user.stop()
-    except:
+    except Exception as e:
+        logger.error(f"Session validation error: {str(e)}")
         return await message.reply_text("<b> ≭︰كود الجلسة غير صحيح</b>")
 
     Dev = message.from_user.id
     if message.from_user.id in OWNER_ID:
         try:
-            ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل ايدي المطور </b>", timeout=75)
+            ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل ايدي المطور </b>", timeout=120)
             Dev = int(ask.text.strip())
             await client.get_users(Dev)
         except:
             return await message.reply_text("<b>يرجى إرسال آيدي المطور الصحيح</b>")
 
-    id = username
-    if os.path.exists(f"Maked/{id}"):
-        os.system(f"rm -rf Maked/{id}")
+    bot_folder = os.path.join("Maked", username)
+    if os.path.exists(bot_folder):
+        shutil.rmtree(bot_folder)
 
-    # إنشاء المجلد أولاً قبل النسخ
-    os.makedirs(f"Maked/{id}", exist_ok=True)
-
-    # نسخ ملفات AnonXMusic الكاملة للحصول على جميع الوظائف
-    os.system(f"cp -r Make/AnonXMusic Maked/{id}/")
+    # إنشاء مجلد البوت الجديد
+    os.makedirs(bot_folder, exist_ok=True)
     
-    # التأكد من صحة ملف Youtube.py بعد النسخ
-    try:
-        import ast
-        with open(f'Maked/{id}/AnonXMusic/platforms/Youtube.py', 'r') as f:
-            content = f.read()
-        ast.parse(content)
-        print(f"✅ تم نسخ Youtube.py بنجاح للبوت {id}")
-    except SyntaxError as e:
-        print(f"❌ خطأ في Youtube.py للبوت {id}: {e}")
-        # إعادة نسخ الملف مرة أخرى
-        os.system(f"cp Make/AnonXMusic/platforms/Youtube.py Maked/{id}/AnonXMusic/platforms/Youtube.py")
-        print(f"🔄 تم إعادة نسخ Youtube.py للبوت {id}")
-    except Exception as e:
-        print(f"❌ خطأ آخر في فحص Youtube.py: {e}")
-    
-    # التأكد من صحة ملف Youtube.py بعد النسخ
-    try:
-        import ast
-        with open(f'Maked/{id}/AnonXMusic/platforms/Youtube.py', 'r') as f:
-            content = f.read()
-        ast.parse(content)
-        print(f"✅ تم نسخ Youtube.py بنجاح للبوت {id}")
-    except SyntaxError as e:
-        print(f"❌ خطأ في Youtube.py للبوت {id}: {e}")
-        # إعادة نسخ الملف مرة أخرى
-        os.system(f"cp Make/AnonXMusic/platforms/Youtube.py Maked/{id}/AnonXMusic/platforms/Youtube.py")
-        print(f"🔄 تم إعادة نسخ Youtube.py للبوت {id}")
-    except Exception as e:
-        print(f"❌ خطأ آخر في فحص Youtube.py: {e}")
-    os.system(f"cp -r Make/strings Maked/{id}/")
-    os.system(f"cp -r Make/cookies Maked/{id}/")
-    os.system(f"cp Make/config.py Maked/{id}/")
-    os.system(f"cp Make/requirements.txt Maked/{id}/")
-    os.system(f"cp Make/__main__.py Maked/{id}/")
-    os.system(f"cp Make/start Maked/{id}/")
+    # نسخ محتويات مجلد Make إلى مجلد البوت الجديد
+    make_dir = "Make"
+    for item in os.listdir(make_dir):
+        source = os.path.join(make_dir, item)
+        destination = os.path.join(bot_folder, item)
+        
+        if os.path.isdir(source):
+            shutil.copytree(source, destination)
+        else:
+            shutil.copy2(source, destination)
 
     try:
+        # إنشاء مجموعة التخزين
         user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, in_memory=True)
         await user.start()
-        loger = await user.create_supergroup("تخزين ميوزك", "مجموعة تخزين سورس ميوزك")
         
-        # طباعة معرف المجموعة للتأكد
-        print(f"🆔 معرف مجموعة السجل: {loger.id}")
-        print(f"📝 سيتم حفظ LOGGER_ID كـ: {loger.id}")
+        group_name = f"تخزين ميوزك {uuid.uuid4().hex[:4]}"
+        loger = await user.create_supergroup(group_name, "مجموعة تخزين سورس ميوزك")
+        logger.info(f"Created storage group: {loger.id}")
+        
         loggerlink = await user.export_chat_invite_link(loger.id)
         await user.add_chat_members(loger.id, username)
-        await user.promote_chat_member(loger.id, username, ChatPrivileges(
-            can_change_info=True,
-            can_invite_users=True,
-            can_delete_messages=True,
-            can_restrict_members=True,
-            can_pin_messages=True,
-            can_promote_members=True,
-            can_manage_chat=True,
-            can_manage_video_chats=True
-        ))
-        await user.invoke(CreateGroupCall(peer=(await user.resolve_peer(loger.id)), random_id=randint(10000, 999999999)))
+        
+        # منح صلاحيات للبوت
+        await user.promote_chat_member(
+            loger.id,
+            username,
+            ChatPrivileges(
+                can_change_info=True,
+                can_invite_users=True,
+                can_delete_messages=True,
+                can_restrict_members=True,
+                can_pin_messages=True,
+                can_promote_members=True,
+                can_manage_chat=True,
+                can_manage_video_chats=True
+            )
+        )
+        
+        # إنشاء مكالمة جماعية
+        await user.invoke(CreateGroupCall(
+            peer=(await user.resolve_peer(loger.id)),
+            random_id=randint(10000, 999999999)
+        )
+        
         await user.send_message(loger.id, "تم فتح الاتصال لتفعيل الحساب.")
         await user.stop()
-
         
-        # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
-        import shutil
+        # تحديث ملف config.py للبوت المصنوع
+        config_path = os.path.join(bot_folder, "config.py")
+        with open(config_path, "r", encoding="utf-8") as f:
+            config_content = f.read()
         
-        # تحديث ملف config.py بالمعلومات الجديدة
-        config_update = f"""import re
-from os import getenv
-
-from dotenv import load_dotenv
-from pyrogram import filters
-
-load_dotenv()
-
-MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
-
-# Get this value from my.telegram.org/apps
-API_ID = 17490746
-API_HASH = "ed923c3d59d699018e79254c6f8b6671"
-
-# Get your token from @BotFather on Telegram.
-BOT_TOKEN = "{TOKEN}"
-
-DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
-
-# Chat id of a group for logging bot's activities
-LOGGER_ID = PLACEHOLDER_LOGGER_ID
-
-# Get this value from @FallenxBot on Telegram by /id
-OWNER_ID = {Dev}
-
-## Fill these variables if you're deploying on heroku.
-# Your heroku app name
-HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
-# Get it from http://dashboard.heroku.com/account
-HEROKU_API_KEY = getenv("HEROKU_API_KEY")
-
-UPSTREAM_REPO = getenv(
-    "UPSTREAM_REPO",
-    "https://github.com/BLAKAQ/a",
-)
-UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "master")
-GIT_TOKEN = getenv("GIT_TOKEN", None)  
-
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/K55DD")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/YMMYN")
-
-# Set this to True if you want the assistant to automatically leave chats after an interval
-AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", "True"))
-
-# Get your pyrogram v2 session from @StringFatherBot on Telegram
-STRING1 = "{SESSION}"
-STRING2 = getenv("STRING_SESSION2", None)
-STRING3 = getenv("STRING_SESSION3", None)
-STRING4 = getenv("STRING_SESSION4", None)
-STRING5 = getenv("STRING_SESSION5", None)
-
-# Get this credentials from https://developer.spotify.com/dashboard
-SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", None)
-SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", None)
-
-# Maximum limit for fetching playlist's track from youtube, spotify, apple links.
-PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", 25))
-
-# Telegram audio and video file size limit (in bytes)
-TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", 104857600))
-TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
-
-BANNED_USERS = filters.user()
-adminlist = {{}}
-lyrical = {{}}
-votemode = {{}}
-autoclean = []
-confirmer = {{}}
-
-START_IMG_URL = getenv(
-    "START_IMG_URL", "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-)
-PING_IMG_URL = getenv(
-    "PING_IMG_URL", "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-)
-PLAYLIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-STATS_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-TELEGRAM_AUDIO_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-TELEGRAM_VIDEO_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-STREAM_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SOUNCLOUD_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-YOUTUBE_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_ARTIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_ALBUM_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_PLAYLIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-
-def time_to_seconds(time):
-    stringt = str(time)
-    return sum(int(x) * 60**i for i, x in enumerate(reversed(stringt.split(":"))))
-
-DURATION_LIMIT = int(time_to_seconds(f"{{DURATION_LIMIT_MIN}}:00"))
-
-if SUPPORT_CHANNEL:
-    if not re.match("(?:http|https)://", SUPPORT_CHANNEL):
-        raise SystemExit(
-            "[ERROR] - Your SUPPORT_CHANNEL url is wrong. Please ensure that it starts with https://"
-        )
-
-if SUPPORT_CHAT:
-    if not re.match("(?:http|https)://", SUPPORT_CHAT):
-        raise SystemExit(
-            "[ERROR] - Your SUPPORT_CHAT url is wrong. Please ensure that it starts with https://"
-        )
-"""
+        # استبدال المتغيرات الأساسية
+        replacements = {
+            "BOT_TOKEN = getenv(\"BOT_TOKEN\", \"\")": f"BOT_TOKEN = \"{TOKEN}\"",
+            "STRING1 = getenv(\"STRING_SESSION\", \"\")": f"STRING1 = \"{SESSION}\"",
+            "OWNER_ID = int(getenv(\"OWNER_ID\", 0))": f"OWNER_ID = {Dev}",
+            "LOGGER_ID = int(getenv(\"LOGGER_ID\", -100))": f"LOGGER_ID = {loger.id}",
+            "CACHE_CHANNEL_USERNAME = getenv(\"CACHE_CHANNEL_USERNAME\", \"\")": f"CACHE_CHANNEL_USERNAME = \"{loger.id}\""
+        }
         
-        with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
-            # استبدال المتغيرات في config_update
-            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION).replace("PLACEHOLDER_LOGGER_ID", str(loger.id))
-            f.write(final_config)
-
-
+        # استبدال المتغيرات الإضافية
+        additional_replacements = {
+            "MONGO_DB_URI = getenv(\"MONGO_DB_URI\", \"\")": f"MONGO_DB_URI = \"mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{username}_db?retryWrites=true&w=majority&appName=Cluster0\"",
+            "SUPPORT_CHANNEL = getenv(\"SUPPORT_CHANNEL\", \"https://t.me/A1DIIU\")": "SUPPORT_CHANNEL = \"https://t.me/K55DD\"",
+            "SUPPORT_CHAT = getenv(\"SUPPORT_CHAT\", \"https://t.me/A1DIIU\")": "SUPPORT_CHAT = \"https://t.me/YMMYN\"",
+            "OWNER = [\"AAAKP\"]": "OWNER = []",
+            "OWNER__ID = 985612253": f"OWNER__ID = {Dev}",
+            "OWNER_NAME = \"𝐷𝑣. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺\"": f"OWNER_NAME = \"{message.from_user.first_name}\""
+        }
         
-        # إنشاء ملف __main__.py للبوت الجديد
-        main_content = f"""import asyncio
-import sys
-import os
-from pyrogram import idle
-
-# إضافة المسار الحالي
-sys.path.insert(0, os.path.dirname(__file__))
-
-try:
-    from AnonXMusic import app
-    print("✅ تم تحميل البوت بنجاح")
-except Exception as e:
-    print(f"❌ خطأ في تحميل البوت: {{e}}")
-    sys.exit(1)
-
-async def main():
-    try:
-        print(f"🚀 بدء تشغيل البوت {id}...")
-        await app.start()
-        me = await app.get_me()
-        print(f"✅ تم تشغيل البوت بنجاح: {{me.first_name}} (@{{me.username}})")
-        print("🔄 البوت في وضع الانتظار...")
-        await idle()
-        await app.stop()
-        print("🔴 تم إيقاف البوت")
-    except Exception as e:
-        print(f"❌ خطأ في تشغيل البوت: {{e}}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-"""
-        with open(f"Maked/{id}/__main__.py", "w", encoding="utf-8") as main_file:
-            main_file.write(main_content)
-
-        # التحقق من وجود الملفات المطلوبة
-        required_files = ['AnonXMusic', 'config.py']
-        missing_files = []
-        for file in required_files:
-            if not os.path.exists(f"Maked/{id}/{file}"):
-                missing_files.append(file)
+        # تطبيق جميع الاستبدالات
+        for old, new in {**replacements, **additional_replacements}.items():
+            config_content = config_content.replace(old, new)
         
-        if missing_files:
-            os.system(f"rm -rf Maked/{id}")
-            return await message.reply_text(f"<b>فشل التنصيب: ملفات مفقودة {missing_files}</b>")
+        with open(config_path, "w", encoding="utf-8") as f:
+            f.write(config_content)
         
-        # لا حاجة لتثبيت متطلبات معقدة، سنستخدم المكتبات الموجودة
+        # بدء تشغيل البوت
+        pid = start_bot_process(username)
+        if not pid:
+            shutil.rmtree(bot_folder)
+            return await message.reply_text("<b>فشل في تشغيل البوت</b>")
         
-        # التحقق من وجود الملفات الأساسية فقط
-        essential_check = os.path.exists(f"Maked/{id}/AnonXMusic") and os.path.exists(f"Maked/{id}/config.py")
-        if not essential_check:
-            os.system(f"rm -rf Maked/{id}")
-            return await message.reply_text("<b>فشل في إنشاء الملفات الأساسية، تم إلغاء التنصيب وحذف الملفات.</b>")
-
-        # إعادة تشغيل البوت رسميًا باستخدام nohup
-        os.system(f"cd Maked/{id} && nohup python3 __main__.py > bot_{id}.log 2>&1 &")
-        Bots.append([id, Dev])
-        db.insert_one({"username": id, "dev": Dev})
-
-        for chat in OWNER:
+        # حفظ معلومات البوت
+        config_data = {
+            "TOKEN": TOKEN,
+            "SESSION": SESSION,
+            "LOGGER_ID": loger.id,
+            "OWNER_ID": Dev
+        }
+        save_bot_info(username, Dev, pid, config_data)
+        
+        # إرسال التنبيه للمطورين
+        for chat in OWNER_ID:
             try:
-                await client.send_message(chat,
+                await client.send_message(
+                    chat,
                     f"<b> ≭︰تنصيب جديد </b>\n\n"
-                    f"<b>معرف البوت ↫ </b>@{id}\n"
-                    f"<b>توكن ↫ </b>`{TOKEN}`\n"
-                    f"<b>كود الجلسة ↫ </b>`{SESSION}`\n"
+                    f"<b>معرف البوت ↫ </b>@{username}\n"
                     f"<b>ايدي المطور ↫ </b>{Dev}\n"
-                    f"<b>الصانع ↫ </b>{message.from_user.mention}")
-            except: pass
-
-        await message.reply_text(f"**≭︰تم تشغيل البوت**\n\n**≭︰معرف البوت ↫ @{username}\n**≭︰اليك رابط مجموعه اشعارات التشغيل**\n[ {loggerlink} ]", disable_web_page_preview=True)
+                    f"<b>الصانع ↫ </b>{message.from_user.mention}"
+                )
+            except Exception as e:
+                logger.error(f"Send message error: {str(e)}")
+        
+        await message.reply_text(
+            f"**≭︰تم تشغيل البوت**\n\n"
+            f"**≭︰معرف البوت ↫ @{username}\n"
+            f"**≭︰اليك رابط مجموعه اشعارات التشغيل**\n[ {loggerlink} ]",
+            disable_web_page_preview=True
+        )
 
     except Exception as e:
-        os.system(f"rm -rf Maked/{id}")
-        return await message.reply_text(f"<b>فشل التنصيب وتم حذف الملفات\nالسبب: {e}</b>")
+        if os.path.exists(bot_folder):
+            shutil.rmtree(bot_folder)
+        logger.error(f"Bot creation error: {str(e)}")
+        await message.reply_text(f"<b>فشل التنصيب: {str(e)}</b>")
 
-
-  
 @Client.on_message(filters.command("❲ حذف بوت ❳", "") & filters.private)
 async def deletbot(client, message):
-   if not is_dev(message.from_user.id):
-     for x in Bots:
-         bot = x[0]
-         if int(x[1]) == message.from_user.id:       
-           os.system(f"sudo rm -fr Maked/{bot}")
-           os.system(f"pkill -f 'Maked/{bot}'")
-           Bots.remove(x)
-           xx = {"username": bot}
-           db.delete_one(xx)
-           return await message.reply_text("** ≭︰تم حذف بوتك من المصنع   **.")
-     return await message.reply_text("** ≭︰لم تقم ب صنع بوت   **")
-   try:
-      bot = await client.ask(message.chat.id, "** ≭︰ ارسل يوزر البوت   **", timeout=15)
-   except:
-      return
-   bot = bot.text.replace("@", "")
-   for x in Bots:
-       if x[0] == bot:
-          Bots.remove(x)
-          xx = {"username": bot}
-          db.delete_one(xx)
-   os.system(f"sudo rm -fr Maked/{bot}")
-   os.system(f"pkill -f 'Maked/{bot}'")
-   await message.reply_text("** ≭︰ تم حـذف البـوت بنـجاح   **")
-
-
+    if not is_dev(message.from_user.id):
+        user_bots = list(bots_collection.find({"dev_id": message.from_user.id}))
+        if not user_bots:
+            return await message.reply_text("** ≭︰لم تقم ب صنع بوت   **")
+        
+        bot_username = user_bots[0]["username"]
+        bot_info = get_bot_info(bot_username)
+        
+        # إيقاف البوت
+        if bot_info and "pid" in bot_info:
+            stop_bot_process(bot_info["pid"])
+        
+        # حذف الملفات
+        bot_folder = os.path.join("Maked", bot_username)
+        if os.path.exists(bot_folder):
+            shutil.rmtree(bot_folder)
+        
+        # حذف المعلومات
+        delete_bot_info(bot_username)
+        return await message.reply_text("** ≭︰تم حذف بوتك من المصنع   **.")
+    
+    try:
+        bot = await client.ask(message.chat.id, "** ≭︰ ارسل يوزر البوت   **", timeout=60)
+        bot_username = bot.text.replace("@", "").strip()
+    except:
+        return
+    
+    bot_info = get_bot_info(bot_username)
+    if not bot_info:
+        return await message.reply_text("** ≭︰هذا البوت غير موجود **")
+    
+    # إيقاف البوت
+    if "pid" in bot_info:
+        stop_bot_process(bot_info["pid"])
+    
+    # حذف الملفات
+    bot_folder = os.path.join("Maked", bot_username)
+    if os.path.exists(bot_folder):
+        shutil.rmtree(bot_folder)
+    
+    # حذف المعلومات
+    delete_bot_info(bot_username)
+    await message.reply_text("** ≭︰ تم حـذف البـوت بنـجاح   **")
 
 @Client.on_message(filters.command("❲ البوتات المصنوعه ❳", ""))
 async def botat(client, message):
     if not is_dev(message.from_user.id):
         return
     
-    o = 0
-    text = "** ≭︰ اليك قائمة البوتات المصنوعه **\n\n"
-    
-    for x in Bots:
-        o += 1
-        bot_username = x[0]  
-        owner_id = x[1]  
-        try:
-            owner = await client.get_users(owner_id)
-            owner_username = f"@{owner.username}" if owner.username else "غير متوفر"
-        except PeerIdInvalid:
-            owner_username = "غير متوفر"
-        
-        text += f"{o}- @{bot_username} : {owner_username}\n"
-    
-    if o == 0:
+    all_bots = get_all_bots()
+    if not all_bots:
         return await message.reply_text("** ≭︰ لا يوجد بوتات مصنوعه عزيزي المطور   **")
     
+    text = "** ≭︰ اليك قائمة البوتات المصنوعه **\n\n"
+    for i, bot in enumerate(all_bots, 1):
+        try:
+            user = await client.get_users(bot["dev_id"])
+            dev_name = user.first_name
+        except:
+            dev_name = "غير معروف"
+            
+        status = "🟢" if bot.get("status", "stopped") == "running" else "🔴"
+        text += f"{i}. {status} @{bot['username']} - المطور: {dev_name}\n"
+    
     await message.reply_text(text)
-
-
 
 @Client.on_message(filters.command(["❲ الاسكرينات المفتوحه ❳"], ""))
 async def kinhsker(client: Client, message):
     if not is_dev(message.from_user.id):
         return await message.reply_text("** ≭︰هذا الامر يخص المطور **")
     
-    n = 0
-    response_message = "** ≭︰قائمة الاسكرينات المفتوحه **\n\n"
     try:
-        for screen in os.listdir("/var/run/screen/S-root"):
-            n += 1
-            response_message += f"{n} - ( `{screen}` )\n"
-        await message.reply_text(response_message)
-    except:
-        await message.reply_text("** ≭︰لا يوجد اسكرينات مفتوحه **")
-
+        screens = []
+        if sys.platform == "linux":
+            output = subprocess.check_output("screen -list | grep 'Detached'", shell=True).decode()
+            screens = [line.split()[0] for line in output.splitlines() if 'Detached' in line]
+        
+        if not screens:
+            return await message.reply_text("** ≭︰لا يوجد اسكرينات مفتوحه **")
+        
+        text = "** ≭︰قائمة الاسكرينات المفتوحه **\n\n"
+        for i, screen in enumerate(screens, 1):
+            text += f"{i}. `{screen}`\n"
+        
+        await message.reply_text(text)
+    except Exception as e:
+        logger.error(f"Screen list error: {str(e)}")
+        await message.reply_text("** ≭︰فشل في الحصول على الاسكرينات **")
 
 @Client.on_message(filters.command("❲ تحديث الصانع ❳", ""))
 async def update_factory(client: Client, message):
@@ -833,57 +828,42 @@ async def update_factory(client: Client, message):
     
     try:
         msg = await message.reply("** ≭︰جاري تحديث المصنع **")
+        
+        # إيقاف جميع البوتات
+        running_bots = get_running_bots()
+        for bot in running_bots:
+            if "pid" in bot:
+                stop_bot_process(bot["pid"])
+                update_bot_status(bot["username"], "stopped")
+        
+        # إعادة تشغيل المصنع
         args = [sys.executable, "main.py"] 
         environ = os.environ  
         execle(sys.executable, *args, environ) 
-        await message.reply_text("** ≭︰تم تحديث الصانع بنجاح **")
     except Exception as e:
+        logger.error(f"Factory update error: {str(e)}")
         await message.reply_text(f"** ≭︰فشل تحديث المصنع: {e} **")
-
-
-def is_bot_running(name):
-    try:
-        # البحث عن العملية باستخدام طرق متعددة
-        # 1. البحث في مجلد البوت
-        output1 = subprocess.check_output(f"ps aux | grep 'Maked/{name}' | grep -v grep", shell=True)
-        if len(output1.strip()) > 0:
-            return True
-        
-        # 2. البحث عن اسم البوت في العملية
-        output2 = subprocess.check_output(f"ps aux | grep '{name}' | grep python3 | grep -v grep", shell=True)
-        if len(output2.strip()) > 0:
-            return True
-            
-        return False
-    except subprocess.CalledProcessError:
-        return False
 
 @Client.on_message(filters.command("❲ ايقاف بوت ❳", ""))
 async def stop_specific_bot(c, message):
     if not is_dev(message.from_user.id):
         return await message.reply_text("** ≭︰هذا الامر يخص المطور فقط **")
         
-    bot_username = await c.ask(message.chat.id, "** ≭︰ارسـل مـعرف البوت **", timeout=300)
+    bot_username = await c.ask(message.chat.id, "** ≭︰ارسـل مـعرف البوت **", timeout=120)
     bot_username = bot_username.text.replace("@", "").strip()
 
-    if not bot_username:
-        await message.reply_text("** ≭︰خطأ: يجب عليك تحديد اسم البوت **")
-        return
-
-    if not os.path.exists('Maked'):
-        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-        return
-
-    bot_found = False
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and bot_username in folder:
-            bot_found = True
-            os.system(f'pkill -f "Maked/{folder}"')
-            await message.reply_text(f"** ≭︰تم ايقاف البوت @{bot_username} بنجاح **")
-            break
-
-    if not bot_found:
-        await message.reply_text(f"** ≭︰لم يتم العثور على البوت @{bot_username} **")
+    bot_info = get_bot_info(bot_username)
+    if not bot_info:
+        return await message.reply_text("** ≭︰هذا البوت غير موجود **")
+    
+    if "pid" not in bot_info:
+        return await message.reply_text("** ≭︰هذا البوت غير مشتغل **")
+    
+    if stop_bot_process(bot_info["pid"]):
+        update_bot_status(bot_username, "stopped")
+        await message.reply_text(f"** ≭︰تم ايقاف البوت @{bot_username} بنجاح **")
+    else:
+        await message.reply_text(f"** ≭︰فشل في ايقاف البوت @{bot_username} **")
 
 @Client.on_message(filters.command("❲ البوتات المشتغلة ❳", ""))
 async def show_running_bots(client, message):
@@ -891,62 +871,62 @@ async def show_running_bots(client, message):
         await message.reply_text("** ≭︰هذا الامر يخص المطور **")
         return
 
-    if not os.path.exists('Maked'):
-        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-        return
-
-    running_bots = []
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and is_bot_running(folder):
-            running_bots.append(folder)
-
+    running_bots = get_running_bots()
     if not running_bots:
         await message.reply_text("** ≭︰لا يوجد أي بوت يعمل حالياً **")
     else:
-        bots_list = "\n".join(f"- @{b}" for b in running_bots)
-        await message.reply_text(f"** ≭︰البوتات المشتغلة حالياً:**\n\n{bots_list}")
+        text = "** ≭︰البوتات المشتغلة حالياً:**\n\n"
+        for i, bot in enumerate(running_bots, 1):
+            text += f"{i}. @{bot['username']}\n"
+        await message.reply_text(text)
 
 @Client.on_message(filters.command("❲ تشغيل البوتات ❳", ""))
 async def start_Allusers(client, message):
     if not is_dev(message.from_user.id):
          await message.reply_text("** ≭︰هذا الامر يخص المطور **")
          return
-    if not os.path.exists('Maked'):
-        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-        return
-
-    n = 0
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder):
-            if is_bot_running(folder):
-                continue 
-            subprocess.Popen(
-                f'cd Maked/{folder} && nohup python3 __main__.py > bot_{folder}.log 2>&1 &',
-                shell=True
+    
+    all_bots = get_all_bots()
+    if not all_bots:
+        return await message.reply_text("** ≭︰لا يوجد بوتات مصنوعة **")
+    
+    started_count = 0
+    for bot in all_bots:
+        if bot.get("status") == "running":
+            continue
+            
+        pid = start_bot_process(bot["username"])
+        if pid:
+            update_bot_status(bot["username"], "running")
+            bots_collection.update_one(
+                {"username": bot["username"]},
+                {"$set": {"pid": pid}}
             )
-            n += 1
+            started_count += 1
 
-    if n == 0:
+    if started_count == 0:
         await message.reply_text("** ≭︰كل البوتات تعمل بالفعل، لا يوجد بوتات لتشغيلها **")
     else:
-        await message.reply_text(f"** ≭︰تم تشغيل {n} بوت بنجاح **")
+        await message.reply_text(f"** ≭︰تم تشغيل {started_count} بوت بنجاح **")
 
 @Client.on_message(filters.command("❲ ايقاف البوتات ❳", ""))
 async def stooop_Allusers(client, message):
     if not is_dev(message.from_user.id):
          await message.reply_text("** ≭︰هذا الامر يخص المطور **")
          return
-    if not os.path.exists('Maked'):
-        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-        return
-    n = 0
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder):
-            # إيقاف البوت باستخدام pkill بدلاً من screen
-            result = os.system(f'pkill -f "Maked/{folder}"')
-            if result == 0:
-                n += 1
-    if n == 0:
+         
+    stopped_count = 0
+    running_bots = get_running_bots()
+    for bot in running_bots:
+        if "pid" in bot:
+            if stop_bot_process(bot["pid"]):
+                update_bot_status(bot["username"], "stopped")
+                stopped_count += 1
+
+    if stopped_count == 0:
         await message.reply_text("** ≭︰لم يتم ايقاف أي بوتات **")
     else:
-        await message.reply_text(f"** ≭︰تم ايقاف {n} بوت بنجاح **")       
+        await message.reply_text(f"** ≭︰تم ايقاف {stopped_count} بوت بنجاح **")
+
+# تهيئة المصنع عند التشغيل
+asyncio.create_task(initialize_factory())
