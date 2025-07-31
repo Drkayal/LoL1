@@ -200,8 +200,8 @@ async def initialize_factory():
 # ============== HANDLERS START HERE =============
 # ================================================
 
-@bot.on_message(filters.text & filters.private, group=5662)
-async def cmd(bot, msg):
+@Client.on_message(filters.text & filters.private, group=5662)
+async def cmd(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
         return
@@ -240,8 +240,8 @@ async def cmd(bot, msg):
         delete_broadcast_status(uid, bot_id, "broadcast", "fbroadcast")
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
-@bot.on_message(filters.private, group=368388)
-async def forbroacasts(bot, msg):
+@Client.on_message(filters.private, group=368388)
+async def forbroacasts(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
         return
@@ -294,8 +294,8 @@ async def forbroacasts(bot, msg):
                 await del_user(int(user))
         await message.edit("» تمت الاذاعه بنجاح")
 
-@bot.on_message(filters.command("start") & filters.private)
-async def new_user(bot, msg):
+@Client.on_message(filters.command("start") & filters.private)
+async def new_user(client, msg):
     if not await is_user(msg.from_user.id):
         await add_new_user(msg.from_user.id) 
         text = f"""
@@ -315,8 +315,8 @@ async def new_user(bot, msg):
             except PeerIdInvalid:
                 pass
 
-@bot.on_message(filters.command("start") & filters.private, group=162728)
-async def admins(bot, message: Message):
+@Client.on_message(filters.command("start") & filters.private, group=162728)
+async def admins(client, message: Message):
     global off
     off = get_factory_state()
     
@@ -653,7 +653,7 @@ async def maked(client, message):
         await user.invoke(CreateGroupCall(
             peer=(await user.resolve_peer(loger.id)),
             random_id=randint(10000, 999999999)
-        )
+        ))
         
         await user.send_message(loger.id, "تم فتح الاتصال لتفعيل الحساب.")
         await user.stop()
