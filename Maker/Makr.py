@@ -473,7 +473,7 @@ async def maked(client, message):
     try:
         ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل كـود الـجلسـه </b>", timeout=75)
         SESSION = ask.text
-        user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, test_mode=True, in_memory=True)
+        user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, in_memory=True)
         await user.start()
         await user.stop()
     except:
@@ -535,9 +535,13 @@ async def maked(client, message):
     os.system(f"cp Make/start Maked/{id}/")
 
     try:
-        user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, test_mode=True, in_memory=True)
+        user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, in_memory=True)
         await user.start()
         loger = await user.create_supergroup("تخزين ميوزك", "مجموعة تخزين سورس ميوزك")
+        
+        # طباعة معرف المجموعة للتأكد
+        print(f"🆔 معرف مجموعة السجل: {loger.id}")
+        print(f"📝 سيتم حفظ LOGGER_ID كـ: {loger.id}")
         loggerlink = await user.export_chat_invite_link(loger.id)
         await user.add_chat_members(loger.id, username)
         await user.promote_chat_member(loger.id, username, ChatPrivileges(
