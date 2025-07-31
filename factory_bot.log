@@ -1639,3 +1639,114 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:50:13,611 - pyrogram.session.session - INFO - NetworkTask stopped
 2025-07-31 12:50:13,611 - pyrogram.connection.connection - INFO - Disconnected
 2025-07-31 12:50:13,611 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:53:24,392 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:53:24,393 - pyrogram.client - INFO - [bot_maker] Successfully loaded 21 plugins from "Maker"
+2025-07-31 12:53:24,393 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:53:55,284 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-07-31 12:53:55,284 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:53:55,370 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-07-31 12:53:57,330 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-07-31 12:53:57,331 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:53:57,333 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:53:57,415 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-07-31 12:53:57,415 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:53:57,796 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:53:57,796 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:53:57,796 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:53:57,796 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:53:57,797 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:53:57,887 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:53:57,887 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:53:57,887 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:53:57,887 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:53:57,888 - pyrogram.session.auth - INFO - Start creating a new auth key on DC4
+2025-07-31 12:53:57,888 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:53:57,968 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:53:59,196 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-07-31 12:53:59,196 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:53:59,198 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:53:59,279 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:53:59,279 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:53:59,730 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:53:59,730 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:53:59,730 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:53:59,730 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:53:59,730 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:54:00,058 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:54:00,156 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:54:00,156 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:54:00,156 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:54:00,156 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:54:00,156 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:54:01,621 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:54:01,703 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:54:01,703 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:54:02,627 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:54:02,627 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:54:02,627 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:54:02,627 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:54:02,628 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:54:02,866 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:54:02,966 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:54:02,966 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:54:02,966 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:54:02,966 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:54:02,966 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:54:08,336 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:54:08,418 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:54:08,419 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:54:09,234 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:54:09,234 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:54:09,234 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:54:09,234 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:54:09,235 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:54:09,429 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:54:09,571 - Maker.Makr - INFO - Created storage group: -1002764048881
+2025-07-31 12:54:10,443 - asyncio - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-147' coro=<Client.handle_updates() done, defined at /workspace/venv/lib/python3.13/site-packages/pyrogram/client.py:535> exception=ValueError('Peer id invalid: -1002727115068')>
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 62, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/storage/sqlite_storage.py", line 142, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: -1002727115068'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/client.py", line 569, in handle_updates
+    channel=await self.resolve_peer(utils.get_channel_id(channel_id)),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 89, in resolve_peer
+    peer_type = utils.get_peer_type(peer_id)
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/utils.py", line 246, in get_peer_type
+    raise ValueError(f"Peer id invalid: {peer_id}")
+ValueError: Peer id invalid: -1002727115068
+2025-07-31 12:54:10,541 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:54:10,541 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:54:10,542 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:54:10,542 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:54:10,542 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:54:10,542 - Maker.Makr - INFO - Started bot AAAK2BOT with PID: 17797
+2025-07-31 12:54:10,918 - pyrogram.parser.html - INFO - Unclosed tags: <b> (x1)
