@@ -4,7 +4,6 @@ import asyncio
 import subprocess
 import re
 import shutil
-import logging
 import psutil
 import uuid
 import json
@@ -13,9 +12,6 @@ from datetime import datetime, timedelta
 from typing import List, Union, Callable, Dict, Optional, Any
 from os import execle, environ, path
 from random import randint
-import tempfile
-import functools
-from collections import OrderedDict
 from pyrogram import filters, Client, enums
 from pyrogram import Client as app
 from pyrogram import __version__ as pyrover
@@ -37,119 +33,25 @@ from pymongo import MongoClient
 from motor.motor_asyncio import AsyncIOMotorClient as mongo_client
 from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, CHANNEL, GROUP, PHOTO, VIDEO
 
-# إعداد نظام التسجيل (Logging)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("factory_bot.log"),
-        logging.StreamHandler()
-    ]
+# استيراد الأدوات المساعدة من مجلد utils
+from utils import (
+    logger,
+    ValidationError,
+    DatabaseError,
+    ProcessError,
+    BroadcastError,
+    CacheError,
+    cache_manager,
+    temp_file_manager,
+    rate_limit_manager
 )
-logger = logging.getLogger(__name__)
 
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 
-# أنواع الأخطاء المخصصة لتحسين معالجة الأخطاء
-class ValidationError(Exception):
-    """خطأ في التحقق من صحة المدخلات"""
-    pass
+# أنواع الأخطاء المخصصة تم نقلها إلى utils/errors.py
 
-class DatabaseError(Exception):
-    """خطأ في قاعدة البيانات"""
-    pass
-
-class ProcessError(Exception):
-    """خطأ في إدارة العمليات"""
-    pass
-
-class BroadcastError(Exception):
-    """خطأ في عمليات البث"""
-    pass
-
-class CacheError(Exception):
-    """خطأ في التخزين المؤقت"""
-    pass
-
-# مدير التخزين المؤقت للاستعلامات المتكررة
-class CacheManager:
-    def __init__(self, max_size: int = 100, ttl: int = 300):
-        self.max_size = max_size
-        self.ttl = ttl  # Time To Live بالثواني
-        self.cache = OrderedDict()
-        self.timestamps = {}
-    
-    def get(self, key: str) -> Optional[Any]:
-        """الحصول على قيمة من التخزين المؤقت"""
-        try:
-            if key in self.cache:
-                # التحقق من انتهاء صلاحية البيانات
-                if time.time() - self.timestamps[key] > self.ttl:
-                    self.delete(key)
-                    return None
-                
-                # نقل العنصر إلى النهاية (LRU)
-                value = self.cache.pop(key)
-                self.cache[key] = value
-                return value
-            return None
-        except Exception as e:
-            logger.warning(f"Cache get error for key {key}: {str(e)}")
-            return None
-    
-    def set(self, key: str, value: Any) -> bool:
-        """تعيين قيمة في التخزين المؤقت"""
-        try:
-            # إزالة العنصر إذا كان موجوداً
-            if key in self.cache:
-                self.cache.pop(key)
-            
-            # التحقق من حجم التخزين المؤقت
-            if len(self.cache) >= self.max_size:
-                # إزالة أقدم عنصر
-                oldest_key = next(iter(self.cache))
-                self.cache.pop(oldest_key)
-                if oldest_key in self.timestamps:
-                    del self.timestamps[oldest_key]
-            
-            # إضافة العنصر الجديد
-            self.cache[key] = value
-            self.timestamps[key] = time.time()
-            return True
-        except Exception as e:
-            logger.warning(f"Cache set error for key {key}: {str(e)}")
-            return False
-    
-    def delete(self, key: str) -> bool:
-        """حذف عنصر من التخزين المؤقت"""
-        try:
-            if key in self.cache:
-                self.cache.pop(key)
-                if key in self.timestamps:
-                    del self.timestamps[key]
-                return True
-            return False
-        except Exception as e:
-            logger.warning(f"Cache delete error for key {key}: {str(e)}")
-            return False
-    
-    def clear(self) -> bool:
-        """مسح التخزين المؤقت بالكامل"""
-        try:
-            self.cache.clear()
-            self.timestamps.clear()
-            return True
-        except Exception as e:
-            logger.warning(f"Cache clear error: {str(e)}")
-            return False
-    
-    def size(self) -> int:
-        """الحصول على حجم التخزين المؤقت"""
-        return len(self.cache)
-
-# إنشاء مدير التخزين المؤقت العام
-cache_manager = CacheManager(max_size=200, ttl=600)  # 200 عنصر، صلاحية 10 دقائق
+# مدير التخزين المؤقت تم نقله إلى utils/cache.py
 
 # إعداد اتصال MongoDB مع إدارة محسنة
 class DatabaseManager:
@@ -194,94 +96,9 @@ db_manager = DatabaseManager()
 db = db_manager.get_sync_db()
 mongodb = db_manager.get_async_db()
 
-# مدير الملفات المؤقتة
-class TempFileManager:
-    def __init__(self):
-        self.temp_files = set()
-        self.temp_dir = tempfile.gettempdir()
-    
-    def create_temp_file(self, suffix: str = "", prefix: str = "factory_") -> str:
-        """إنشاء ملف مؤقت"""
-        try:
-            temp_file = tempfile.NamedTemporaryFile(
-                suffix=suffix,
-                prefix=prefix,
-                delete=False,
-                dir=self.temp_dir
-            )
-            temp_path = temp_file.name
-            temp_file.close()
-            self.temp_files.add(temp_path)
-            logger.debug(f"Created temp file: {temp_path}")
-            return temp_path
-        except Exception as e:
-            logger.error(f"Failed to create temp file: {str(e)}")
-            raise ProcessError(f"Failed to create temp file: {str(e)}")
-    
-    def cleanup_temp_file(self, file_path: str) -> bool:
-        """تنظيف ملف مؤقت"""
-        try:
-            if file_path in self.temp_files:
-                if os.path.exists(file_path):
-                    os.unlink(file_path)
-                self.temp_files.remove(file_path)
-                logger.debug(f"Cleaned up temp file: {file_path}")
-                return True
-            return False
-        except Exception as e:
-            logger.warning(f"Failed to cleanup temp file {file_path}: {str(e)}")
-            return False
-    
-    def cleanup_all_temp_files(self) -> int:
-        """تنظيف جميع الملفات المؤقتة"""
-        cleaned_count = 0
-        for file_path in list(self.temp_files):
-            if self.cleanup_temp_file(file_path):
-                cleaned_count += 1
-        logger.info(f"Cleaned up {cleaned_count} temp files")
-        return cleaned_count
-    
-    def get_temp_files_count(self) -> int:
-        """الحصول على عدد الملفات المؤقتة"""
-        return len(self.temp_files)
+# مدير الملفات المؤقتة تم نقله إلى utils/tempfiles.py
 
-# إنشاء مدير الملفات المؤقتة
-temp_file_manager = TempFileManager()
-
-# مدير التأخير لتجنب الحظر
-class RateLimitManager:
-    def __init__(self):
-        self.last_operations = {}
-        self.min_delays = {
-            'broadcast': 0.1,      # 100ms بين رسائل البث
-            'database': 0.05,      # 50ms بين عمليات قاعدة البيانات
-            'process': 0.5,        # 500ms بين عمليات التشغيل
-            'telegram': 0.2,       # 200ms بين عمليات Telegram
-            'default': 0.1         # 100ms للتأخير الافتراضي
-        }
-    
-    async def wait_if_needed(self, operation_type: str = 'default') -> None:
-        """انتظار إذا كان ضرورياً لتجنب الحظر"""
-        try:
-            current_time = time.time()
-            min_delay = self.min_delays.get(operation_type, self.min_delays['default'])
-            
-            if operation_type in self.last_operations:
-                time_since_last = current_time - self.last_operations[operation_type]
-                if time_since_last < min_delay:
-                    wait_time = min_delay - time_since_last
-                    await asyncio.sleep(wait_time)
-            
-            self.last_operations[operation_type] = time.time()
-        except Exception as e:
-            logger.warning(f"Rate limit wait error: {str(e)}")
-    
-    def get_last_operation_time(self, operation_type: str) -> Optional[float]:
-        """الحصول على وقت آخر عملية"""
-        return self.last_operations.get(operation_type)
-
-# إنشاء مدير التأخير
-rate_limit_manager = RateLimitManager()
+# مدير التأخير تم نقله إلى utils/rate_limit.py
 
 # تهيئة المجموعات
 users = mongodb.tgusersdb
