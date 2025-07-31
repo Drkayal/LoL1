@@ -204,7 +204,7 @@ async def initialize_factory():
 # ============== HANDLERS START HERE =============
 # ================================================
 
-@Client.on_message(filters.text & filters.private & ~filters.command, group=5662)
+@Client.on_message(filters.text & filters.private, group=5662)
 async def cmd(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
@@ -267,7 +267,7 @@ async def cmd(client, msg):
             logger.error(f"Restart cookies error: {str(e)}")
             await msg.reply("**حدث خطأ في إعادة تشغيل الكوكيز**", quote=True)
 
-@Client.on_message(filters.private & ~filters.command, group=368388)
+@Client.on_message(filters.private, group=368388)
 async def forbroacasts(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
