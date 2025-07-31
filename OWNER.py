@@ -6,7 +6,7 @@ OWNER_NAME = "𝐷𝑟. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"
 #اسم التي سيظهر على صورة
 infophoto = "LoL Music"
 #توكن
-BOT_TOKEN = "7941972743:AAFMmZgx2gRBgOaiY4obfhawleO9p1_TYn8"
+BOT_TOKEN = "7659739618:AAEEvi8sAm2cBV7KHH_sTjB9ffn5bvjKo6U"
 #مونجو
 DATABASE = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
 #قناة سورس
