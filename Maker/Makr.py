@@ -161,7 +161,6 @@ def is_dev(user_id, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to check dev status after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)  # انتظار ثانية قبل إعادة المحاولة
     return False
 
@@ -279,7 +278,6 @@ def set_broadcast_status(user_id, bot_id, key, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to set broadcast status after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -306,7 +304,6 @@ def get_broadcast_status(user_id, bot_id, key, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to get broadcast status after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -342,7 +339,6 @@ def delete_broadcast_status(user_id, bot_id, *keys, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to delete broadcast status after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -363,7 +359,6 @@ def get_bot_info(bot_username, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to get bot info after {max_retries} attempts")
                 return None
-            import time
             time.sleep(1)
     return None
 
@@ -400,7 +395,6 @@ def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to save bot info after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -433,7 +427,6 @@ def update_bot_status(bot_username, status, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to update bot status after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -458,7 +451,6 @@ def delete_bot_info(bot_username, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to delete bot info after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -474,7 +466,6 @@ def get_all_bots(max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to get all bots after {max_retries} attempts")
                 return []
-            import time
             time.sleep(1)
     return []
 
@@ -490,7 +481,6 @@ def get_running_bots(max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to get running bots after {max_retries} attempts")
                 return []
-            import time
             time.sleep(1)
     return []
 
@@ -508,7 +498,6 @@ def get_factory_state(max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to get factory state after {max_retries} attempts")
                 return True  # القيمة الافتراضية
-            import time
             time.sleep(1)
     return True
 
@@ -532,7 +521,6 @@ def set_factory_state(enabled, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to set factory state after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
@@ -572,7 +560,6 @@ def start_bot_process(bot_username, max_retries=3):
             )
             
             # انتظار قليل للتأكد من بدء العملية
-            import time
             time.sleep(2)
             
             # التحقق من أن العملية لا تزال تعمل
@@ -592,7 +579,6 @@ def start_bot_process(bot_username, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to start bot {validated_username} after {max_retries} attempts")
                 return None
-            import time
             time.sleep(2)
     return None
 
@@ -608,7 +594,6 @@ def stop_bot_process(pid, max_retries=3):
             process.terminate()
             
             # انتظار قليل للتأكد من إيقاف العملية
-            import time
             time.sleep(1)
             
             if process.poll() is None:
@@ -627,7 +612,6 @@ def stop_bot_process(pid, max_retries=3):
             if attempt == max_retries - 1:
                 logger.error(f"Failed to stop process {pid} after {max_retries} attempts")
                 return False
-            import time
             time.sleep(1)
     return False
 
