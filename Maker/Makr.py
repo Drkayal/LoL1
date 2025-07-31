@@ -1169,7 +1169,7 @@ async def cmd(client, msg):
         return
 
     if msg.text == "الغاء":
-        delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up")
+        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up")
         await msg.reply("» تم الغاء بنجاح", quote=True)
 
     elif msg.text == "❲ اخفاء الكيبورد ❳":
@@ -1188,25 +1188,25 @@ async def cmd(client, msg):
         )
 
     elif msg.text == "❲ اذاعه ❳":
-        set_broadcast_status(uid, bot_id, "broadcast")
-        delete_broadcast_status(uid, bot_id, "fbroadcast", "pinbroadcast")
+        await set_broadcast_status(uid, bot_id, "broadcast")
+        await delete_broadcast_status(uid, bot_id, "fbroadcast", "pinbroadcast")
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ اذاعه بالتوجيه ❳":
-        set_broadcast_status(uid, bot_id, "fbroadcast")
-        delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast")
+        await set_broadcast_status(uid, bot_id, "fbroadcast")
+        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast")
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ اذاعه بالتثبيت ❳":
-        set_broadcast_status(uid, bot_id, "pinbroadcast")
-        delete_broadcast_status(uid, bot_id, "broadcast", "fbroadcast")
+        await set_broadcast_status(uid, bot_id, "pinbroadcast")
+        await delete_broadcast_status(uid, bot_id, "broadcast", "fbroadcast")
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ تشغيل بوت ❳":
         # طلب معرف البوت من المستخدم
         await msg.reply("**أرسل معرف البوت الذي تريد تشغيله**", quote=True)
         # تعيين حالة انتظار معرف البوت
-        set_broadcast_status(uid, bot_id, "start_bot")
+        await set_broadcast_status(uid, bot_id, "start_bot")
 
     elif msg.text == "❲ تشغيل البوتات ❳":
         if not is_dev(uid):
@@ -1326,8 +1326,8 @@ async def forbroacasts(client, msg):
         return
 
     # معالجة تشغيل بوت محدد
-    if get_broadcast_status(uid, bot_id, "start_bot"):
-        delete_broadcast_status(uid, bot_id, "start_bot")
+    if await get_broadcast_status(uid, bot_id, "start_bot"):
+        await delete_broadcast_status(uid, bot_id, "start_bot")
         
         # التحقق من صحة معرف البوت
         is_valid, validated_username = validate_bot_username(text)
@@ -1358,8 +1358,8 @@ async def forbroacasts(client, msg):
             await msg.reply(f"**❌ فشل في تشغيل البوت @{validated_username}**", quote=True)
         return
 
-    if get_broadcast_status(uid, bot_id, "broadcast"):
-        delete_broadcast_status(uid, bot_id, "broadcast")
+    if await get_broadcast_status(uid, bot_id, "broadcast"):
+        await delete_broadcast_status(uid, bot_id, "broadcast")
         message = await msg.reply("• جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
@@ -1399,8 +1399,8 @@ async def forbroacasts(client, msg):
         
         await message.edit(f"» تمت الاذاعه بنجاح\n✅ نجح: {success_count}\n❌ فشل: {failed_count}")
 
-    elif get_broadcast_status(uid, bot_id, "pinbroadcast"):
-        delete_broadcast_status(uid, bot_id, "pinbroadcast")
+    elif await get_broadcast_status(uid, bot_id, "pinbroadcast"):
+        await delete_broadcast_status(uid, bot_id, "pinbroadcast")
         message = await msg.reply("» جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
@@ -1441,8 +1441,8 @@ async def forbroacasts(client, msg):
         
         await message.edit(f"» تمت الاذاعه بنجاح\n✅ نجح: {success_count}\n❌ فشل: {failed_count}")
 
-    elif get_broadcast_status(uid, bot_id, "fbroadcast"):
-        delete_broadcast_status(uid, bot_id, "fbroadcast")
+    elif await get_broadcast_status(uid, bot_id, "fbroadcast"):
+        await delete_broadcast_status(uid, bot_id, "fbroadcast")
         message = await msg.reply("» جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
