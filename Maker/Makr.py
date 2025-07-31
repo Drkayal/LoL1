@@ -63,6 +63,38 @@ from users import (
     set_dependencies
 )
 
+# استيراد دوال قاعدة البيانات من مجلد db
+from db import (
+    # Database Manager
+    db_manager,
+    get_sync_db,
+    get_async_db,
+    close_connections,
+    
+    # Broadcast Functions
+    set_broadcast_status,
+    get_broadcast_status,
+    delete_broadcast_status,
+    
+    # Bot Functions
+    get_bot_info,
+    save_bot_info,
+    update_bot_status,
+    delete_bot_info,
+    get_all_bots,
+    get_running_bots,
+    
+    # Factory Functions
+    get_factory_state,
+    set_factory_state,
+    
+    # Utility Functions
+    clear_bot_cache,
+    clear_factory_cache,
+    get_database_stats,
+    set_collections
+)
+
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 
@@ -70,54 +102,16 @@ ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 
 # مدير التخزين المؤقت تم نقله إلى utils/cache.py
 
-# إعداد اتصال MongoDB مع إدارة محسنة
-class DatabaseManager:
-    def __init__(self):
-        self.sync_client = None
-        self.async_client = None
-        self._initialize_connections()
-    
-    def _initialize_connections(self):
-        try:
-            self.sync_client = MongoClient(MONGO_DB_URL, serverSelectionTimeoutMS=5000)
-            self.async_client = mongo_client(MONGO_DB_URL, serverSelectionTimeoutMS=5000)
-            # اختبار الاتصال
-            self.sync_client.admin.command('ping')
-            logger.info("MongoDB connection established successfully")
-        except Exception as e:
-            logger.error(f"Failed to connect to MongoDB: {str(e)}")
-            raise
-    
-    def get_sync_db(self):
-        if not self.sync_client:
-            self._initialize_connections()
-        return self.sync_client["Yousef"].botpsb
-    
-    def get_async_db(self):
-        if not self.async_client:
-            self._initialize_connections()
-        return self.async_client.AnonX
-    
-    def close_connections(self):
-        try:
-            if self.sync_client:
-                self.sync_client.close()
-            if self.async_client:
-                self.async_client.close()
-            logger.info("Database connections closed")
-        except Exception as e:
-            logger.error(f"Error closing database connections: {str(e)}")
-
-# إنشاء مدير قاعدة البيانات
-db_manager = DatabaseManager()
-db = db_manager.get_sync_db()
-mongodb = db_manager.get_async_db()
+# مدير قاعدة البيانات تم نقله إلى db/manager.py
 
 # مدير الملفات المؤقتة تم نقله إلى utils/tempfiles.py
 
 # مدير التأخير تم نقله إلى utils/rate_limit.py
 
-# تهيئة المجموعات
+# تهيئة المجموعات باستخدام مدير قاعدة البيانات الجديد
+db = db_manager.get_sync_db()
+mongodb = db_manager.get_async_db()
+
 users = mongodb.tgusersdb
 chats = mongodb.chats
 mkchats = db.chatss
@@ -137,429 +131,9 @@ mk = []  # قائمة المحادثات
 
 # دوال إدارة المستخدمين تم نقلها إلى users/logic.py
 
-# وظائف البث مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
-async def set_broadcast_status(user_id, bot_id, key, max_retries=3):
-    """تعيين حالة البث مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
-        
-        if not is_valid_user or not is_valid_bot:
-            logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
-            return False
-        
-        if not key or not isinstance(key, str):
-            logger.error(f"Invalid key: {key}")
-            return False
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                broadcasts_collection.update_one(
-                    {"user_id": validated_user_id, "bot_id": validated_bot_id},
-                    {"$set": {key: True}},
-                    upsert=True
-                )
-                logger.info(f"Successfully set broadcast status for user {validated_user_id}, bot {validated_bot_id}, key {key}")
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to set broadcast status: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to set broadcast status after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in set_broadcast_status: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in set_broadcast_status function: {str(e)}")
-        return False
+# دوال البث تم نقلها إلى db/models.py
 
-async def get_broadcast_status(user_id, bot_id, key, max_retries=3):
-    """الحصول على حالة البث مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
-        
-        if not is_valid_user or not is_valid_bot:
-            logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
-            return False
-        
-        if not key or not isinstance(key, str):
-            logger.error(f"Invalid key: {key}")
-            return False
-        
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = f"broadcast_status_{validated_user_id}_{validated_bot_id}_{key}"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                doc = broadcasts_collection.find_one({"user_id": validated_user_id, "bot_id": validated_bot_id})
-                result = doc and doc.get(key)
-                cache_manager.set(cache_key, result)
-                return result
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get broadcast status: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get broadcast status after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in get_broadcast_status: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in get_broadcast_status function: {str(e)}")
-        return False
-
-async def delete_broadcast_status(user_id, bot_id, *keys, max_retries=3):
-    """حذف حالة البث مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
-        
-        if not is_valid_user or not is_valid_bot:
-            logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
-            return False
-        
-        if not keys:
-            logger.error("No keys provided for deletion")
-            return False
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                unset_dict = {key: "" for key in keys if key and isinstance(key, str)}
-                if not unset_dict:
-                    logger.error("No valid keys provided for deletion")
-                    return False
-                
-                broadcasts_collection.update_one(
-                    {"user_id": validated_user_id, "bot_id": validated_bot_id},
-                    {"$unset": unset_dict}
-                )
-                logger.info(f"Successfully deleted broadcast status for user {validated_user_id}, bot {validated_bot_id}, keys {keys}")
-                
-                # حذف من التخزين المؤقت
-                for key in keys:
-                    if key and isinstance(key, str):
-                        cache_key = f"broadcast_status_{validated_user_id}_{validated_bot_id}_{key}"
-                        cache_manager.delete(cache_key)
-                
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to delete broadcast status: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to delete broadcast status after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in delete_broadcast_status: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in delete_broadcast_status function: {str(e)}")
-        return False
-
-# وظائف إدارة البوتات مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
-def get_bot_info(bot_username, max_retries=3):
-    """الحصول على معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = f"bot_info_{bot_username}"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-        
-        is_valid, validated_username = validate_bot_username(bot_username)
-        if not is_valid:
-            logger.error(f"Invalid bot username: {bot_username}")
-            return None
-        
-        for attempt in range(max_retries):
-            try:
-                result = bots_collection.find_one({"username": validated_username})
-                if result:
-                    cache_manager.set(cache_key, result)
-                return result
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get bot info: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get bot info after {max_retries} attempts")
-                    return None
-                time.sleep(1)
-        return None
-    except ValidationError as e:
-        logger.error(f"Validation error in get_bot_info: {str(e)}")
-        return None
-    except Exception as e:
-        logger.error(f"Error in get_bot_info function: {str(e)}")
-        return None
-
-def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
-    """حفظ معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        is_valid_username, validated_username = validate_bot_username(bot_username)
-        is_valid_dev, validated_dev_id = validate_user_id(dev_id)
-        
-        if not is_valid_username or not is_valid_dev:
-            logger.error(f"Invalid bot_username or dev_id: {bot_username}, {dev_id}")
-            return False
-        
-        if not isinstance(config_data, dict):
-            logger.error("Config data must be a dictionary")
-            return False
-        
-        for attempt in range(max_retries):
-            try:
-                bot_data = {
-                    "dev_id": validated_dev_id,
-                    "pid": pid,
-                    "config": config_data,
-                    "created_at": datetime.now(),
-                    "status": "running"
-                }
-                
-                bots_collection.update_one(
-                    {"username": validated_username},
-                    {"$set": bot_data},
-                    upsert=True
-                )
-                logger.info(f"Successfully saved bot info for {validated_username}")
-                
-                # تحديث التخزين المؤقت
-                cache_key = f"bot_info_{validated_username}"
-                cache_manager.set(cache_key, bot_data)
-                
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to save bot info: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to save bot info after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in save_bot_info: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in save_bot_info function: {str(e)}")
-        return False
-
-def update_bot_status(bot_username, status, max_retries=3):
-    """تحديث حالة البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        is_valid, validated_username = validate_bot_username(bot_username)
-        if not is_valid:
-            logger.error(f"Invalid bot username: {bot_username}")
-            return False
-        
-        if not status or not isinstance(status, str):
-            logger.error(f"Invalid status: {status}")
-            return False
-        
-        valid_statuses = ["running", "stopped", "error"]
-        if status not in valid_statuses:
-            logger.error(f"Invalid status value: {status}. Must be one of {valid_statuses}")
-            return False
-        
-        for attempt in range(max_retries):
-            try:
-                bots_collection.update_one(
-                    {"username": validated_username},
-                    {"$set": {"status": status}}
-                )
-                logger.info(f"Successfully updated bot status for {validated_username} to {status}")
-                
-                # حذف من التخزين المؤقت لتحديث البيانات
-                cache_key = f"bot_info_{validated_username}"
-                cache_manager.delete(cache_key)
-                
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to update bot status: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to update bot status after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in update_bot_status: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in update_bot_status function: {str(e)}")
-        return False
-
-def delete_bot_info(bot_username, max_retries=3):
-    """حذف معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        is_valid, validated_username = validate_bot_username(bot_username)
-        if not is_valid:
-            logger.error(f"Invalid bot username: {bot_username}")
-            return False
-        
-        for attempt in range(max_retries):
-            try:
-                result = bots_collection.delete_one({"username": validated_username})
-                if result.deleted_count > 0:
-                    logger.info(f"Successfully deleted bot info for {validated_username}")
-                    
-                    # حذف من التخزين المؤقت
-                    cache_key = f"bot_info_{validated_username}"
-                    cache_manager.delete(cache_key)
-                    
-                    return True
-                else:
-                    logger.warning(f"Bot {validated_username} not found for deletion")
-                    return False
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to delete bot info: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to delete bot info after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in delete_bot_info: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in delete_bot_info function: {str(e)}")
-        return False
-
-def get_all_bots(max_retries=3):
-    """الحصول على جميع البوتات مع التخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "all_bots_list"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            logger.debug("Retrieved bots from cache")
-            return cached_result
-        
-        for attempt in range(max_retries):
-            try:
-                bots = list(bots_collection.find())
-                logger.info(f"Successfully retrieved {len(bots)} bots")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, bots)
-                return bots
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get all bots: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get all bots after {max_retries} attempts")
-                    return []
-                time.sleep(1)
-        return []
-    except Exception as e:
-        logger.error(f"Error in get_all_bots function: {str(e)}")
-        return []
-
-def get_running_bots(max_retries=3):
-    """الحصول على البوتات المشتغلة مع التخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "running_bots_list"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            logger.debug("Retrieved running bots from cache")
-            return cached_result
-        
-        for attempt in range(max_retries):
-            try:
-                bots = list(bots_collection.find({"status": "running"}))
-                logger.info(f"Successfully retrieved {len(bots)} running bots")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, bots)
-                return bots
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get running bots after {max_retries} attempts")
-                    return []
-                time.sleep(1)
-        return []
-    except Exception as e:
-        logger.error(f"Error in get_running_bots function: {str(e)}")
-        return []
-
-# وظائف إدارة المصنع مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
-def get_factory_state(max_retries=3):
-    """الحصول على حالة المصنع مع التخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "factory_state"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            logger.debug("Retrieved factory state from cache")
-            return cached_result
-        
-        for attempt in range(max_retries):
-            try:
-                settings = factory_settings.find_one({"name": "factory"})
-                enabled = settings.get("enabled", True) if settings else True
-                logger.info(f"Factory state retrieved: {enabled}")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, enabled)
-                return enabled
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get factory state: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get factory state after {max_retries} attempts")
-                    return True  # القيمة الافتراضية
-                time.sleep(1)
-        return True
-    except Exception as e:
-        logger.error(f"Error in get_factory_state function: {str(e)}")
-        return True
-
-def set_factory_state(enabled, max_retries=3):
-    """تعيين حالة المصنع مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        if not isinstance(enabled, bool):
-            logger.error(f"Invalid enabled value: {enabled}. Must be boolean")
-            return False
-        
-        for attempt in range(max_retries):
-            try:
-                factory_settings.update_one(
-                    {"name": "factory"},
-                    {"$set": {"enabled": enabled}},
-                    upsert=True
-                )
-                logger.info(f"Successfully set factory state to: {enabled}")
-                
-                # تحديث التخزين المؤقت
-                cache_key = "factory_state"
-                cache_manager.set(cache_key, enabled)
-                
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to set factory state: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to set factory state after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except Exception as e:
-        logger.error(f"Error in set_factory_state function: {str(e)}")
-        return False
+# دوال إدارة البوتات والمصنع تم نقلها إلى db/models.py
 
 # وظائف إدارة العمليات مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة
 def start_bot_process(bot_username, max_retries=3):
@@ -1787,7 +1361,7 @@ def cleanup_database_connections():
     """إغلاق اتصالات قاعدة البيانات وتنظيف الملفات المؤقتة بشكل آمن"""
     try:
         # إغلاق اتصالات قاعدة البيانات
-        db_manager.close_connections()
+        close_connections()
         logger.info("Database connections closed successfully")
         
         # تنظيف الملفات المؤقتة
@@ -1810,3 +1384,6 @@ atexit.register(cleanup_database_connections)
 
 # تعيين التبعيات لمجلد users
 set_dependencies(OWNER_ID, devs_collection, users)
+
+# تعيين المجموعات لمجلد db
+set_collections(broadcasts_collection, bots_collection, factory_settings)
