@@ -1464,3 +1464,23 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:45:04,124 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 7 seconds before continuing (required by "messages.SendMessage")
 2025-07-31 12:45:04,215 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 7 seconds before continuing (required by "messages.SendMessage")
 2025-07-31 12:45:04,216 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 7 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:45:11,221 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:45:11,311 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:45:11,311 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:45:13,788 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:14,412 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:14,596 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:45:14,597 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:45:14,597 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:45:14,597 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:45:14,597 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:45:15,035 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:15,658 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:16,281 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:16,905 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:17,529 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:45:20,849 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:45:20,849 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:45:20,849 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:45:20,850 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:45:20,850 - pyrogram.session.session - INFO - Session stopped
