@@ -50,3 +50,63 @@
 2025-07-31 12:20:40,478 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
 2025-07-31 12:20:40,478 - pyrogram.client - INFO - [bot_maker] Successfully loaded 21 plugins from "Maker"
 2025-07-31 12:20:40,479 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:21:06,198 - pyrogram.dispatcher - ERROR - name 'bot_id' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 254, in forbroacasts
+    if get_broadcast_status(uid, bot_id, "broadcast"):
+                                 ^^^^^^
+NameError: name 'bot_id' is not defined
+2025-07-31 12:21:10,195 - pyrogram.dispatcher - ERROR - name 'mk' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 358, in me
+    if not message.chat.id in mk:
+                              ^^
+NameError: name 'mk' is not defined. Did you mean: 'me'?
+2025-07-31 12:21:10,195 - pyrogram.dispatcher - ERROR - name 'bot_id' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 254, in forbroacasts
+    if get_broadcast_status(uid, bot_id, "broadcast"):
+                                 ^^^^^^
+NameError: name 'bot_id' is not defined
+2025-07-31 12:21:25,783 - pyrogram.dispatcher - ERROR - name 'bot_id' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 254, in forbroacasts
+    if get_broadcast_status(uid, bot_id, "broadcast"):
+                                 ^^^^^^
+NameError: name 'bot_id' is not defined
+2025-07-31 12:21:28,303 - pyrogram.dispatcher - ERROR - name 'mk' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 358, in me
+    if not message.chat.id in mk:
+                              ^^
+NameError: name 'mk' is not defined. Did you mean: 'me'?
+2025-07-31 12:21:28,303 - pyrogram.dispatcher - ERROR - name 'bot_id' is not defined
+Traceback (most recent call last):
+  File "/workspace/venv/lib/python3.13/site-packages/pyrogram/dispatcher.py", line 240, in handler_worker
+    await handler.callback(self.client, *args)
+  File "/workspace/venv/lib/python3.13/site-packages/pyromod/listen/listen.py", line 93, in resolve_listener
+    await self.user_callback(client, message, *args)
+  File "/workspace/Maker/Makr.py", line 254, in forbroacasts
+    if get_broadcast_status(uid, bot_id, "broadcast"):
+                                 ^^^^^^
+NameError: name 'bot_id' is not defined
