@@ -555,15 +555,52 @@ STRING1 = "{SESSION}"
 """
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as config_file:
             config_file.write(config_content)
+        
+        # إنشاء ملف requirements.txt مبسط
+        requirements_content = """pyrogram
+pyromod
+python-dotenv
+motor
+pymongo
+aiofiles
+aiohttp
+gitpython
+heroku3
+pillow
+psutil
+py-tgcalls
+requests
+speedtest-cli
+uvloop
+youtube-search-python
+yt-dlp"""
+        with open(f"Maked/{id}/requirements.txt", "w", encoding="utf-8") as req_file:
+            req_file.write(requirements_content)
 
-        # تجربة التشغيل داخل screen أولًا
-        check = os.system(f"cd Maked/{id} && screen -dmS {id}_check python3 -m AnonXMusic && sleep 5 && screen -S {id}_check -X quit")
+        # التحقق من وجود الملفات المطلوبة
+        required_files = ['AnonXMusic', 'config.py']
+        missing_files = []
+        for file in required_files:
+            if not os.path.exists(f"Maked/{id}/{file}"):
+                missing_files.append(file)
+        
+        if missing_files:
+            os.system(f"rm -rf Maked/{id}")
+            return await message.reply_text(f"<b>فشل التنصيب: ملفات مفقودة {missing_files}</b>")
+        
+        # تثبيت المتطلبات أولاً
+        install_check = os.system(f"cd Maked/{id} && pip3 install --no-cache-dir pyrogram pyromod python-dotenv motor pymongo")
+        if install_check != 0:
+            await message.reply_text("⚠️ تحذير: فشل تثبيت بعض المتطلبات، سيتم المحاولة مع المتطلبات الموجودة")
+        
+        # تجربة التشغيل داخل screen مع تسجيل أفضل للأخطاء
+        check = os.system(f"cd Maked/{id} && timeout 15 python3 -c 'import AnonXMusic; print(\"تم التحقق من الملفات بنجاح\")'")
         if check != 0:
             os.system(f"rm -rf Maked/{id}")
-            return await message.reply_text("<b>فشل تشغيل البوت داخل السكرين، تم إلغاء التنصيب وحذف الملفات.</b>")
+            return await message.reply_text("<b>فشل في التحقق من ملفات البوت، تم إلغاء التنصيب وحذف الملفات.</b>")
 
         # إعادة تشغيل البوت رسميًا
-        os.system(f"cd Maked/{id} && screen -dmS {id} bash -c 'pip3 install --no-cache-dir -r requirements.txt && python3 -m AnonXMusic'")
+        os.system(f"cd Maked/{id} && screen -dmS {id} python3 -m AnonXMusic")
         Bots.append([id, Dev])
         db.insert_one({"username": id, "dev": Dev})
 
