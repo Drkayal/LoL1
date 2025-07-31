@@ -489,7 +489,12 @@ async def maked(client, message):
     if os.path.exists(f"Maked/{id}"):
         os.system(f"rm -rf Maked/{id}")
 
-    # لا ننسخ ملفات Make، سننشئ بوت مبسط جديد
+    # نسخ ملفات AnonXMusic الكاملة للحصول على جميع الوظائف
+    os.system(f"cp -r Make/AnonXMusic Maked/{id}/")
+    os.system(f"cp Make/config.py Maked/{id}/")
+    os.system(f"cp Make/requirements.txt Maked/{id}/")
+    os.system(f"cp Make/__main__.py Maked/{id}/")
+    os.system(f"cp Make/start Maked/{id}/")
 
     try:
         user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, test_mode=True, in_memory=True)
@@ -517,57 +522,58 @@ async def maked(client, message):
         # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
         import shutil
         
-        # إنشاء بوت مبسط تماماً
-        create_bot_files(id, TOKEN, SESSION, Dev, loger.id)
-        
-        # إنشاء ملف config.py مخصص للبوت الجديد
-        config_content = f"""
+        # تحديث ملف config.py بالمعلومات الجديدة
+        config_update = f"""
+# تم تحديث التكوين للبوت {id}
 import os
 from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Basic Configuration
 API_ID = int(getenv("API_ID", "17490746"))
 API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 BOT_TOKEN = "{TOKEN}"
-MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0")
-OWNER_ID = int("{Dev}")
-LOGGER_ID = int("{loger.id}")
+MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
+OWNER_ID = {Dev}
+LOGGER_ID = {loger.id}
 STRING1 = "{SESSION}"
 
-# Additional Configuration
-DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
-TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", 104857600))
-TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
-PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", 25))
+# إعدادات إضافية
+DURATION_LIMIT_MIN = 300
+TG_AUDIO_FILESIZE_LIMIT = 104857600
+TG_VIDEO_FILESIZE_LIMIT = 1073741824
+PLAYLIST_FETCH_LIMIT = 25
 
-# Heroku Configuration (Optional)
-HEROKU_APP_NAME = getenv("HEROKU_APP_NAME", None)
-HEROKU_API_KEY = getenv("HEROKU_API_KEY", None)
+# متغيرات مهمة من OWNER.py
+OWNER_DEVELOPER = {Dev}
+OWNER = {Dev}
+GROUP = "https://t.me/YMMYN"
+YOUTUBE_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+PHOTO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+VIDEO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.mp4"
 
-# Additional Sessions (Optional)
-STRING2 = getenv("STRING_SESSION2", None)
-STRING3 = getenv("STRING_SESSION3", None)
-STRING4 = getenv("STRING_SESSION4", None)
-STRING5 = getenv("STRING_SESSION5", None)
+# Cache Channel
+CACHE_CHANNEL_ID = {loger.id}
+CACHE_CHANNEL_USERNAME = None
 
-# Other Configuration
+# Advanced Settings
+YT_API_KEYS = []
+INVIDIOUS_SERVERS = []
+COOKIES_FILES = []
+COOKIE_METHOD = "chrome"
+COOKIE_FILE = None
+
+# Additional Variables
 BANNED_USERS = set()
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/K55DD")
-SUPPORT_GROUP = getenv("SUPPORT_GROUP", "https://t.me/YMMYN")
+SUPPORT_CHANNEL = "https://t.me/K55DD"
+SUPPORT_GROUP = "https://t.me/YMMYN"
 """
-        with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as config_file:
-            config_file.write(config_content)
         
-        # إنشاء ملف requirements.txt مبسط وأساسي فقط
-        requirements_content = """pyrogram>=2.0.0
-TgCrypto>=1.2.0
-python-dotenv>=0.19.0
-aiofiles>=0.8.0"""
-        with open(f"Maked/{id}/requirements.txt", "w", encoding="utf-8") as req_file:
-            req_file.write(requirements_content)
+        with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
+            f.write(config_update)
+
+
         
         # إنشاء ملف __main__.py للبوت الجديد
         main_content = f"""import asyncio
