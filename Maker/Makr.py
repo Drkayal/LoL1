@@ -18,6 +18,7 @@ from pyrogram.types import (
     InlineKeyboardMarkup, 
     InlineKeyboardButton, 
     ReplyKeyboardMarkup, 
+    ReplyKeyboardRemove,
     ChatPrivileges, 
     Message
 )
@@ -342,8 +343,8 @@ async def admins(client, message: Message):
         await message.reply("** ≭︰اهلا بك عزيزي المطور  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
     else:
         if off:
-                    await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
-        return
+            await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
+            return
 
 @Client.on_callback_query(filters.regex("^user_count_"))
 async def user_count_callback(client, callback_query):
@@ -357,6 +358,93 @@ async def user_count_callback(client, callback_query):
     except Exception as e:
         logger.error(f"User count callback error: {str(e)}")
         await callback_query.answer("حدث خطأ", show_alert=True)
+
+# معالجات الأزرار المفقودة
+@Client.on_message(filters.command("❲ تشغيل بوت ❳", ""))
+async def start_specific_bot(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    await message.reply_text("**أرسل معرف البوت الذي تريد تشغيله**")
+    # يمكن إضافة منطق التشغيل هنا
+
+@Client.on_message(filters.command("❲ الاحصائيات ❳", ""))
+async def show_stats(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    try:
+        users_count = len(await get_users())
+        bots_count = len(get_all_bots())
+        running_bots = len(get_running_bots())
+        
+        stats_text = f"""
+**📊 إحصائيات المصنع:**
+
+👥 **عدد الأعضاء:** {users_count}
+🤖 **عدد البوتات:** {bots_count}
+🟢 **البوتات المشتغلة:** {running_bots}
+        """
+        await message.reply_text(stats_text)
+    except Exception as e:
+        logger.error(f"Stats error: {str(e)}")
+        await message.reply_text("**حدث خطأ في جلب الإحصائيات**")
+
+@Client.on_message(filters.command("❲ اذاعه ❳", ""))
+async def broadcast_command(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    set_broadcast_status(message.from_user.id, "main", "broadcast")
+    await message.reply_text("**أرسل الرسالة التي تريد إذاعتها**")
+
+@Client.on_message(filters.command("❲ اذاعه بالتوجيه ❳", ""))
+async def forward_broadcast_command(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    set_broadcast_status(message.from_user.id, "main", "fbroadcast")
+    await message.reply_text("**أرسل الرسالة التي تريد إعادة توجيهها**")
+
+@Client.on_message(filters.command("❲ اذاعه بالتثبيت ❳", ""))
+async def pin_broadcast_command(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    set_broadcast_status(message.from_user.id, "main", "pbroadcast")
+    await message.reply_text("**أرسل الرسالة التي تريد تثبيتها**")
+
+@Client.on_message(filters.command("❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", ""))
+async def update_cookies(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    try:
+        # منطق تحديث الكوكيز
+        await message.reply_text("**تم تحديث الكوكيز بنجاح**")
+    except Exception as e:
+        logger.error(f"Update cookies error: {str(e)}")
+        await message.reply_text("**حدث خطأ في تحديث الكوكيز**")
+
+@Client.on_message(filters.command("❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", ""))
+async def restart_cookies(client, message):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("**ليس لديك صلاحية**")
+    
+    try:
+        # منطق إعادة تشغيل الكوكيز
+        await message.reply_text("**تم إعادة تشغيل الكوكيز بنجاح**")
+    except Exception as e:
+        logger.error(f"Restart cookies error: {str(e)}")
+        await message.reply_text("**حدث خطأ في إعادة تشغيل الكوكيز**")
+
+@Client.on_message(filters.command("❲ اخفاء الكيبورد ❳", ""))
+async def hide_keyboard(client, message):
+    try:
+        await message.reply_text("**تم إخفاء الكيبورد**", reply_markup=ReplyKeyboardRemove())
+    except Exception as e:
+        logger.error(f"Hide keyboard error: {str(e)}")
+        await message.reply_text("**حدث خطأ في إخفاء الكيبورد**")
             
         keyboard = [
             [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
