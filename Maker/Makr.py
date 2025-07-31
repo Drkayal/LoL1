@@ -204,7 +204,7 @@ async def initialize_factory():
 # ============== HANDLERS START HERE =============
 # ================================================
 
-@Client.on_message(filters.text & filters.private, group=5662)
+@Client.on_message(filters.text & filters.private & ~filters.command, group=5662)
 async def cmd(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
@@ -267,7 +267,7 @@ async def cmd(client, msg):
             logger.error(f"Restart cookies error: {str(e)}")
             await msg.reply("**حدث خطأ في إعادة تشغيل الكوكيز**", quote=True)
 
-@Client.on_message(filters.private, group=368388)
+@Client.on_message(filters.private & ~filters.command, group=368388)
 async def forbroacasts(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
@@ -400,7 +400,7 @@ async def user_count_callback(client, callback_query):
         ]
         await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
 
-@Client.on_message(filters.private)
+@Client.on_message(filters.private, group=1)
 async def me(client, message):
     if not message.chat.id in mk:
         mk.append(message.chat.id)
@@ -430,8 +430,6 @@ async def me(client, message):
     except Exception as e:
         logger.error(f"Subscription check error: {str(e)}")
         return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-    
-    message.continue_propagation()
 
 @app.on_message(filters.command(["❲ السورس ❳"], ""))
 async def alivehi(client: Client, message):

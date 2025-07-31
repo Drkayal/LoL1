@@ -1083,3 +1083,21 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:39:46,130 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:39:46,338 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:39:46,545 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:47,387 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:47,598 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:47,744 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 12:39:47,808 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:47,994 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:48,275 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:48,896 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:49,070 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:39:49,070 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:39:49,071 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:39:49,071 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:39:49,071 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:39:55,250 - root - INFO - Stop signal received (SIGTERM). Exiting...
+2025-07-31 12:39:56,138 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:39:56,139 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:39:56,139 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:39:56,139 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:39:56,139 - pyrogram.session.session - INFO - Session stopped
