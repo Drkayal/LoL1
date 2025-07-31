@@ -1,22 +1,26 @@
 from pyrogram import Client, idle
 from pyromod import listen
-import os
 from config import API_ID, API_HASH, BOT_TOKEN
 
+# استخدام in_memory=True لتجنب مشاكل قاعدة البيانات المُقفلة
 bot = Client(
-    "B7R",
+    "bot_maker",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN,
-    plugins=dict(root="Maker")
+    plugins=dict(root="Maker"),
+    in_memory=True
 )
 
+bot_id = None
+
 async def start_bot():
-    print("[INFO]: جاري تشغيل البوت")
+    global bot_id
     await bot.start()
-    print("[INFO]: بدأ تشغيل")
+    me = await bot.get_me()
+    bot_id = me.id
+    print(f"✅ بوت الصانع يعمل: {me.first_name} (@{me.username})")
+    print(f"🆔 معرف البوت: {me.id}")
     await idle()
-
-
-bot_id = BOT_TOKEN.split(":")[0]    
+    await bot.stop()
     

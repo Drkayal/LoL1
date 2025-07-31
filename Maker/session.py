@@ -13,16 +13,7 @@ from pyrogram.errors import (
     PasswordHashInvalid
 )
 
-from telethon import TelegramClient
-from telethon.sessions import StringSession
-from telethon.errors import (
-    ApiIdInvalidError,
-    PhoneNumberInvalidError,
-    PhoneCodeInvalidError,
-    PhoneCodeExpiredError,
-    SessionPasswordNeededError,
-    PasswordHashInvalidError
-)
+# تم إزالة استيرادات Telethon - يستخدم Pyrogram فقط
 
 from config import API_ID, API_HASH, CHANNEL, PHOTO
 

@@ -5,58 +5,21 @@ from dotenv import load_dotenv
 from pyrogram import filters
 
 load_dotenv()
-from OWNER import OWNER, infophoto, OWNER__ID, OWNER_DEVELOPER, OWNER_NAME, DATABASE, CHANNEL, GROUP, LOGS, PHOTO, VIDEO
-
-MONGO_DB_URI = DATABASE
-OWNER = OWNER
-infophoto = infophoto
-OWNER_DEVELOPER = OWNER_DEVELOPER
-OWNER__ID = OWNER__ID
-OWNER_NAME = OWNER_NAME
-CHANNEL = CHANNEL
-GROUP = GROUP
-PHOTO = PHOTO
-LOGS = LOGS
-VIDEO = VIDEO
 
 # Get this value from my.telegram.org/apps
 API_ID = int(getenv("API_ID", "17490746"))
 API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 
 # Get your token from @BotFather on Telegram.
-BOT_TOKEN = getenv("BOT_TOKEN", None)
+BOT_TOKEN = getenv("BOT_TOKEN", "7557280783:AAF44S35fdkcURM4j4Rp5-OOkASZ3_uCSR4")
 
 # Get your mongo url from cloud.mongodb.com
+MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = int(getenv("LOGGER_ID", -1002051286023))
-
-# Get this value from @FallenxBot on Telegram by /id
-OWNER_ID = int(getenv("OWNER_ID", 7004732448))
-
-## Fill these variables if you're deploying on heroku.
-# Your heroku app name
-HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
-# Get it from http://dashboard.heroku.com/account
-HEROKU_API_KEY = getenv("HEROKU_API_KEY")
-
-UPSTREAM_REPO = getenv(
-    "UPSTREAM_REPO",
-    "https://github.com/BLAKAQ/a",
-)
-UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "master")
-GIT_TOKEN = getenv("GIT_TOKEN", None)  
-# Fill this variable if your upstream repository is private
-
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/K55DD")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/YMMYN")
-
-# Set this to True if you want the assistant to automatically leave chats after an interval
-AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", "True"))
-
-
+LOGGER_ID = int(getenv("LOGGER_ID", -1002034990746))
 
 # ============================================
 # إعدادات النظام الذكي الجديد
@@ -162,6 +125,40 @@ if not COOKIES_FILES:
 COOKIE_METHOD = "browser"
 COOKIE_FILE = COOKIES_FILES[0] if COOKIES_FILES else "cookies.txt"
 
+# Get this value from @FallenxBot on Telegram by /id
+OWNER_ID = int(getenv("OWNER_ID", 985612253))
+OWNER_DEVELOPER = 985612253  # Single developer ID
+
+# Additional owner settings from OWNER.py
+OWNER = ["AAAKP"]
+OWNER__ID = 985612253
+OWNER_NAME = "𝐷𝑣. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"
+GROUP = "https://t.me/YMMYN"
+YOUTUBE_IMG_URL = "https://t.me/MusicxXxYousef/90"
+PHOTO = "https://t.me/MusicxXxYousef/90"
+VIDEO = "https://t.me/MusicxXxYousef/91"
+
+## Fill these variables if you're deploying on heroku.
+# Your heroku app name
+HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
+# Get it from http://dashboard.heroku.com/account
+HEROKU_API_KEY = getenv("HEROKU_API_KEY")
+
+UPSTREAM_REPO = getenv(
+    "UPSTREAM_REPO",
+    "https://github.com/BLAKAQ/a",
+)
+UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "master")
+GIT_TOKEN = getenv("GIT_TOKEN", None)  
+# Fill this variable if your upstream repository is private
+
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/A1DIIU")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/A1DIIU")
+
+# Set this to True if you want the assistant to automatically leave chats after an interval
+AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", "True"))
+
+
 # Get this credentials from https://developer.spotify.com/dashboard
 SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", None)
 SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", None)
@@ -178,7 +175,7 @@ TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
 
 
 # Get your pyrogram v2 session from @StringFatherBot on Telegram
-STRING1 = getenv("STRING_SESSION", None)
+STRING1 = getenv("STRING_SESSION", "BQGhGkAAU-dreEVif7ijsuGD5E_xJA88HGUu0nv__Fj_-AKxfbnYNOp2DjFvYlNuzm0H9nRC1dTV1VeSYbmYCOZgmXGpcrHjJ8h6bDBDnC8xkJr_DzzWQYqNX4hsKxJ1BCiCuB32impJYYkTIAmflZ-9PD7UfxFng6etAUli7_H3k2gSTmDGpnpL9W1nNbSE92VwLhadWBVjcMCdeNsJgOV4Wm6oxAcfefLCAn7EoB3ehyV-5xl9k7yV4JrblpETpXmEeE11KzGq1caJ7ECCKNjjXCnBBnxEYL7fnGkknQycsbD2Nd64rv9bvnScwJMHOsSd5boX2L8SmtrQdXmCvAhPW1dnTQAAAAGyOTEEAA")
 STRING2 = getenv("STRING_SESSION2", None)
 STRING3 = getenv("STRING_SESSION3", None)
 STRING4 = getenv("STRING_SESSION4", None)
@@ -194,21 +191,21 @@ confirmer = {}
 
 
 START_IMG_URL = getenv(
-    "START_IMG_URL", "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
+    "START_IMG_URL", "https://te.legra.ph/file/25efe6aa029c6baea73ea.jpg"
 )
 PING_IMG_URL = getenv(
-    "PING_IMG_URL", "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
+    "PING_IMG_URL", "https://te.legra.ph/file/b8a0c1a00db3e57522b53.jpg"
 )
-PLAYLIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-STATS_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-TELEGRAM_AUDIO_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-TELEGRAM_VIDEO_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-STREAM_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SOUNCLOUD_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-YOUTUBE_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_ARTIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_ALBUM_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
-SPOTIFY_PLAYLIST_IMG_URL = "https://telegra.ph/file/645af9b1cc12cc0a6dfc8.jpg"
+PLAYLIST_IMG_URL = "https://te.legra.ph/file/4ec5ae4381dffb039b4ef.jpg"
+STATS_IMG_URL = "https://te.legra.ph/file/e906c2def5afe8a9b9120.jpg"
+TELEGRAM_AUDIO_URL = "https://te.legra.ph/file/6298d377ad3eb46711644.jpg"
+TELEGRAM_VIDEO_URL = "https://te.legra.ph/file/6298d377ad3eb46711644.jpg"
+STREAM_IMG_URL = "https://te.legra.ph/file/bd995b032b6bd263e2cc9.jpg"
+SOUNCLOUD_IMG_URL = "https://te.legra.ph/file/bb0ff85f2dd44070ea519.jpg"
+YOUTUBE_IMG_URL = "https://te.legra.ph/file/6298d377ad3eb46711644.jpg"
+SPOTIFY_ARTIST_IMG_URL = "https://te.legra.ph/file/37d163a2f75e0d3b403d6.jpg"
+SPOTIFY_ALBUM_IMG_URL = "https://te.legra.ph/file/b35fd1dfca73b950b1b05.jpg"
+SPOTIFY_PLAYLIST_IMG_URL = "https://te.legra.ph/file/95b3ca7993bbfaf993dcb.jpg"
 
 
 def time_to_seconds(time):
