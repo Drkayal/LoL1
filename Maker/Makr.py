@@ -538,7 +538,7 @@ API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 BOT_TOKEN = "{TOKEN}"
 MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = {Dev}
-LOGGER_ID = {loger}
+LOGGER_ID = {loger.id}
 STRING1 = "{SESSION}"
 
 # إعدادات إضافية مطلوبة
@@ -560,7 +560,7 @@ PHOTO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
 VIDEO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.mp4"
 
 # Cache Channel
-CACHE_CHANNEL_ID = {loger}
+CACHE_CHANNEL_ID = {loger.id}
 CACHE_CHANNEL_USERNAME = None
 
 # Advanced Settings

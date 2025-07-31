@@ -1,1 +1,2 @@
-❌ خطأ في تحميل البوت: name 'false' is not defined
+nohup: ignoring input
+❌ خطأ في تحميل البوت: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
