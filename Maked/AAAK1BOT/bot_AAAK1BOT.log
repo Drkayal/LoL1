@@ -1,0 +1,3 @@
+[31-Jul-25 08:08:15 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:08:15 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+❌ خطأ في تحميل البوت: module 'config' has no attribute 'HEROKU_API_KEY'
