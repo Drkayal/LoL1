@@ -463,7 +463,9 @@ async def maked(client, message):
         TOKEN = ask.text
         bot = Client(":memory:", api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN, in_memory=True)
         await bot.start()
-        username = (await bot.get_me()).username
+        bot_me = await bot.get_me()
+        username = bot_me.username
+        bot_id = bot_me.id
         await bot.stop()
     except:
         return await message.reply_text("<b> ≭︰توكن البوت غير صحيح</b>")
@@ -507,8 +509,8 @@ async def maked(client, message):
         await user.start()
         loger = await user.create_supergroup("تخزين ميوزك", "مجموعة تخزين سورس ميوزك")
         loggerlink = await user.export_chat_invite_link(loger.id)
-        await user.add_chat_members(loger.id, username)
-        await user.promote_chat_member(loger.id, username, ChatPrivileges(
+        await user.add_chat_members(loger.id, bot_id)
+        await user.promote_chat_member(loger.id, bot_id, ChatPrivileges(
             can_change_info=True,
             can_invite_users=True,
             can_delete_messages=True,

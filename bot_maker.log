@@ -36,4 +36,4 @@ Traceback (most recent call last):
     raise getattr(
     ...<5 lines>...
       is_signed=is_signed)
-pyrogram.errors.exceptions.flood_420.FloodWait: Telegram says: [420 FLOOD_WAIT_X] - A wait of 1653 seconds is required (caused by "auth.ImportBotAuthorization")
+pyrogram.errors.exceptions.flood_420.FloodWait: Telegram says: [420 FLOOD_WAIT_X] - A wait of 1056 seconds is required (caused by "auth.ImportBotAuthorization")
