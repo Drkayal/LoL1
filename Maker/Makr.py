@@ -400,36 +400,7 @@ async def user_count_callback(client, callback_query):
         ]
         await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
 
-@Client.on_message(filters.private, group=1)
-async def me(client, message):
-    if not message.chat.id in mk:
-        mk.append(message.chat.id)
-        mkchats.insert_one({"chat_id": message.chat.id})
-
-    if message.chat.id in blocked:
-        return await message.reply_text("انت محظور من صانع عزيزي")
-
-    try:
-        # التحقق من الاشتراك مع التخزين المؤقت
-        cache_key = f"subscription_{message.from_user.id}"
-        cached = factory_settings.find_one({"key": cache_key})
-        
-        if cached and (datetime.now() - cached["timestamp"]).hours < 24:
-            if not cached["status"]:
-                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-        else:
-            member = await client.get_chat_member(ch, message.from_user.id)
-            status = member.status not in ["left", "kicked"]
-            factory_settings.update_one(
-                {"key": cache_key},
-                {"$set": {"status": status, "timestamp": datetime.now()}},
-                upsert=True
-            )
-            if not status:
-                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-    except Exception as e:
-        logger.error(f"Subscription check error: {str(e)}")
-        return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+# تم إزالة معالج me الذي يسبب مشاكل الرسائل المتكررة
 
 @app.on_message(filters.command(["❲ السورس ❳"], ""))
 async def alivehi(client: Client, message):
