@@ -11,8 +11,6 @@ from youtubesearchpython.__future__ import VideosSearch
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
 
-cookies_file = "/root/cookies/cookies.txt"
-
 
 async def shell_cmd(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -123,7 +121,6 @@ class YouTubeAPI:
             link = link.split("&")[0]
         proc = await asyncio.create_subprocess_exec(
             "yt-dlp",
-            "--cookies", cookies_file,
             "-g",
             "-f",
             "best[height<=?720][width<=?1280]",
@@ -246,17 +243,12 @@ class YouTubeAPI:
 
         def audio_dl():
             ydl_optssx = {
-                "format": "140/251/bestaudio/best",
-                "cookiefile": cookies_file,
+                "format": "bestaudio/best",
                 "outtmpl": "downloads/%(id)s.%(ext)s",
                 "geo_bypass": True,
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
-                "extractor_args": {"youtube": {"player_client": ["web"]}},
-                "http_headers": {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                }
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -269,7 +261,6 @@ class YouTubeAPI:
         def video_dl():
             ydl_optssx = {
                 "format": "(bestvideo[height<=?720][width<=?1280][ext=mp4])+(bestaudio[ext=m4a])",
-                "cookiefile": cookies_file,
                 "outtmpl": "downloads/%(id)s.%(ext)s",
                 "geo_bypass": True,
                 "nocheckcertificate": True,
@@ -289,7 +280,6 @@ class YouTubeAPI:
             fpath = f"downloads/{title}"
             ydl_optssx = {
                 "format": formats,
-                "cookiefile": cookies_file,
                 "outtmpl": fpath,
                 "geo_bypass": True,
                 "nocheckcertificate": True,
@@ -305,7 +295,6 @@ class YouTubeAPI:
             fpath = f"downloads/{title}.%(ext)s"
             ydl_optssx = {
                 "format": format_id,
-                "cookiefile": cookies_file,
                 "outtmpl": fpath,
                 "geo_bypass": True,
                 "nocheckcertificate": True,
@@ -338,7 +327,6 @@ class YouTubeAPI:
             else:
                 proc = await asyncio.create_subprocess_exec(
                     "yt-dlp",
-                    "--cookies", cookies_file,
                     "-g",
                     "-f",
                     "best[height<=?720][width<=?1280]",

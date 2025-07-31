@@ -1,3 +1,6 @@
-[31-Jul-25 08:08:15 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
-[31-Jul-25 08:08:15 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
-❌ خطأ في تحميل البوت: module 'config' has no attribute 'HEROKU_API_KEY'
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 08:14:52 - INFO] - AnonXMusic.core.bot - Starting Bot...

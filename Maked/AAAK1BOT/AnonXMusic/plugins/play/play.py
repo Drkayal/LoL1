@@ -1,13 +1,11 @@
 import random
 import string
-from ast import ExceptHandler
-from pyrogram import filters, Client
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Message
+
+from pyrogram import filters
+from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from pytgcalls.exceptions import NoActiveGroupCall
 
 import config
-from config import BOT_TOKEN
-from strings.filters import command
 from AnonXMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from AnonXMusic.core.call import Anony
 from AnonXMusic.utils import seconds_to_min, time_to_seconds
@@ -26,34 +24,20 @@ from AnonXMusic.utils.logger import play_logs
 from AnonXMusic.utils.stream.stream import stream
 from config import BANNED_USERS, lyrical
 
-force_btn = InlineKeyboardMarkup(
-    [
+
+@app.on_message(
+    filters.command(
         [
-            InlineKeyboardButton(   
-              text=f"اضغط للأشتراك .", url=f"t.me/A1DIIU",)                        
-        ],        
-    ]
-)
-async def check_is_joined(message):    
-    try:
-        userid = message.from_user.id
-        user_name = message.from_user.first_name
-        status = await app.get_chat_member("A1DIIU", userid)
-        return True
-    except Exception:
-        await message.reply_text(f'❤️‍🩹┇عزيزي: {message.from_user.mention}\n🫀┇أشتࢪك في قناة البوت أولاً.\n🚧┇قناة البوت: @A1DIIU 🫂',reply_markup=force_btn,disable_web_page_preview=False)
-        return False
-
-
-@app.on_message(command(["فيديو","شغل","تشغيل"])
-    & filters.group
-    & ~BANNED_USERS
-)
-@app.on_message(filters.command(["play","vplay","cplay","cvplay",
+            "play",
+            "vplay",
+            "cplay",
+            "cvplay",
             "playforce",
             "vplayforce",
             "cplayforce",
-            "cvplayforce",])
+            "cvplayforce",
+        ]
+    )
     & filters.group
     & ~BANNED_USERS
 )
@@ -69,8 +53,6 @@ async def play_commnd(
     url,
     fplay,
 ):
-    if not await check_is_joined(message):
-        return
     mystic = await message.reply_text(
         _["play_2"].format(channel) if channel else _["play_1"]
     )
