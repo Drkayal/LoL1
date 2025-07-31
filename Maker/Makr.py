@@ -489,6 +489,9 @@ async def maked(client, message):
     if os.path.exists(f"Maked/{id}"):
         os.system(f"rm -rf Maked/{id}")
 
+    # إنشاء المجلد أولاً قبل النسخ
+    os.makedirs(f"Maked/{id}", exist_ok=True)
+
     # نسخ ملفات AnonXMusic الكاملة للحصول على جميع الوظائف
     os.system(f"cp -r Make/AnonXMusic Maked/{id}/")
     os.system(f"cp Make/config.py Maked/{id}/")
@@ -516,8 +519,6 @@ async def maked(client, message):
         await user.send_message(loger.id, "تم فتح الاتصال لتفعيل الحساب.")
         await user.stop()
 
-        # إنشاء المجلد إذا لم يكن موجوداً
-        os.makedirs(f"Maked/{id}", exist_ok=True)
         
         # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
         import shutil
