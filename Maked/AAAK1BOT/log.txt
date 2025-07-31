@@ -89,3 +89,9 @@ task: <Task pending name='Task-23' coro=<Dispatcher.handler_worker() running at 
 [31-Jul-25 08:18:46 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
 [31-Jul-25 08:18:46 - INFO] - AnonXMusic.misc - Local Database Initialized.
 [31-Jul-25 08:18:46 - INFO] - AnonXMusic.core.bot - Starting Bot...
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.bot - Starting Bot...
