@@ -1633,3 +1633,9 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:49:33,868 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
 2025-07-31 12:49:33,868 - pyrogram.client - INFO - [bot_maker] Successfully loaded 21 plugins from "Maker"
 2025-07-31 12:49:33,868 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:50:13,278 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 12:50:13,610 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:50:13,611 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:50:13,611 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:50:13,611 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:50:13,611 - pyrogram.session.session - INFO - Session stopped
