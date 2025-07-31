@@ -633,7 +633,9 @@ if SUPPORT_CHAT:
 """
         
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
-            f.write(config_update)
+            # استبدال المتغيرات في config_update
+            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION)
+            f.write(final_config)
 
 
         
