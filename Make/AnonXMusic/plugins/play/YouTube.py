@@ -103,7 +103,8 @@ from pyrogram.enums import ParseMode
 import config
 from AnonXMusic import app  # استيراد الـ Pyrogram client
 from AnonXMusic.logging import LOGGER
-from AnonXMusic.utils.database import is_search_enabled, is_search_enabled1
+# استيراد دوال قاعدة البيانات حسب الحاجة
+# from AnonXMusic.utils.database import ...
 
 # --- إعدادات النظام الذكي ---
 REQUEST_TIMEOUT = 8
@@ -112,7 +113,7 @@ MAX_SESSIONS = min(100, (psutil.cpu_count() * 4))  # ديناميكي حسب ا�
 MAX_WORKERS = min(200, (psutil.cpu_count() * 10))  # ديناميكي حسب المعالج
 
 # قناة التخزين الذكي (يوزر أو ID)
-SMART_CACHE_CHANNEL = config.CACHE_CHANNEL_ID
+SMART_CACHE_CHANNEL = getattr(config, 'CACHE_CHANNEL_ID', None)
 DATABASE_PATH = "AnonXMusic.db"
 DB_FILE = DATABASE_PATH  # توحيد أسماء قواعد البيانات
 
@@ -133,14 +134,14 @@ channel = getattr(config, 'STORE_LINK', '')
 lnk = f"https://t.me/{channel}" if channel else None
 
 # --- تدوير المفاتيح والخوادم ---
-YT_API_KEYS = config.YT_API_KEYS
+YT_API_KEYS = getattr(config, 'YT_API_KEYS', [])
 API_KEYS_CYCLE = cycle(YT_API_KEYS) if YT_API_KEYS else None
 
-INVIDIOUS_SERVERS = config.INVIDIOUS_SERVERS
+INVIDIOUS_SERVERS = getattr(config, 'INVIDIOUS_SERVERS', [])
 INVIDIOUS_CYCLE = cycle(INVIDIOUS_SERVERS) if INVIDIOUS_SERVERS else None
 
 # تدوير ملفات الكوكيز
-COOKIES_FILES = config.COOKIES_FILES
+COOKIES_FILES = getattr(config, 'COOKIES_FILES', [])
 COOKIES_CYCLE = cycle(COOKIES_FILES) if COOKIES_FILES else None
 
 # --- إعدادات yt-dlp عالية الأداء ---
@@ -4706,43 +4707,46 @@ async def verify_cache_channel(bot_client) -> Dict:
             'message': f"خطأ عام في فحص القناة: {str(e)}"
         }
 
-# إضافة الأوامر للمطور
-@Client.on_message(filters.command("فحص_القناة") & filters.user(config.OWNER_ID))
-async def verify_cache_channel_command(client, message):
-    """فحص قناة التخزين"""
-    try:
-        result = await verify_cache_channel(client)
-        response = f"📋 **نتيجة فحص قناة التخزين:**\n"
-        
-        if result.get('status') == 'success':
-            response += f"✅ **الحالة:** نجاح\n"
-            response += f"📝 **العنوان:** {result.get('title', 'غير معروف')}\n"
-            response += f"👥 **عدد الأعضاء:** {result.get('members_count', 'غير معروف')}\n"
-            response += f"✉️ **عدد الرسائل:** {result.get('message_count', 'غير معروف')}\n"
-            response += f"🛡️ **صلاحيات الإرسال:** {result.get('permissions', 'غير معروف')}\n"
-        else:
-            response += f"❌ **الحالة:** خطأ\n"
-            response += f"📝 **الرسالة:** {result.get('message', 'غير معروف')}\n"
-            response += f"💡 **الحل:** {result.get('solution', 'لا يوجد حل معروف')}\n"
-        
-        await message.reply(response)
-        
-    except Exception as e:
-        await message.reply(f"❌ **خطأ في فحص القناة:** {str(e)}")
+# معالجات الأوامر - يجب تسجيلها في الملف الرئيسي للبوت
+def register_youtube_handlers(app: Client):
+    """تسجيل معالجات أوامر YouTube"""
+    
+    @app.on_message(filters.command("فحص_القناة") & filters.user(config.OWNER_ID))
+    async def verify_cache_channel_command(client, message):
+        """فحص قناة التخزين"""
+        try:
+            result = await verify_cache_channel(client)
+            response = f"📋 **نتيجة فحص قناة التخزين:**\n"
+            
+            if result.get('status') == 'success':
+                response += f"✅ **الحالة:** نجاح\n"
+                response += f"📝 **العنوان:** {result.get('title', 'غير معروف')}\n"
+                response += f"👥 **عدد الأعضاء:** {result.get('members_count', 'غير معروف')}\n"
+                response += f"✉️ **عدد الرسائل:** {result.get('message_count', 'غير معروف')}\n"
+                response += f"🛡️ **صلاحيات الإرسال:** {result.get('permissions', 'غير معروف')}\n"
+            else:
+                response += f"❌ **الحالة:** خطأ\n"
+                response += f"📝 **الرسالة:** {result.get('message', 'غير معروف')}\n"
+                response += f"💡 **الحل:** {result.get('solution', 'لا يوجد حل معروف')}\n"
+            
+            await message.reply(response)
+            
+        except Exception as e:
+            await message.reply(f"❌ **خطأ في فحص القناة:** {str(e)}")
 
-# إضافة الأوامر للتحميل
-@Client.on_message(filters.command("بحث"))
-async def download_command(client, message):
-    try:
-        query = message.text.split(" ", 1)[1] if len(message.text.split()) > 1 else ""
-        if not query:
-            await message.reply("📝 **الاستخدام:** `بحث اسم الأغنية`")
-            return
-        
-        await download_song_smart(message, query)
-        
-    except Exception as e:
-        LOGGER(__name__).error(f"❌ خطأ في أمر التحميل: {e}")
-        await message.reply("❌ **حدث خطأ أثناء معالجة طلبك**")
+    @app.on_message(filters.command("بحث"))
+    async def download_command(client, message):
+        """أمر تحميل الأغاني"""
+        try:
+            query = message.text.split(" ", 1)[1] if len(message.text.split()) > 1 else ""
+            if not query:
+                await message.reply("📝 **الاستخدام:** `بحث اسم الأغنية`")
+                return
+            
+            await download_song_smart(message, query)
+            
+        except Exception as e:
+            LOGGER(__name__).error(f"❌ خطأ في أمر التحميل: {e}")
+            await message.reply("❌ **حدث خطأ أثناء معالجة طلبك**")
 
 LOGGER(__name__).info("✅ تم تهيئة نظام التحميل مع Pyrogram بنجاح")
