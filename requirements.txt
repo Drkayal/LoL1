@@ -10,7 +10,7 @@ motor
 pillow
 psutil
 asBASE
-py-tgcalls==0.9.7
+py-tgcalls==2.2.5
 pykeyboard
 telegraph==1.4.1
 python-dotenv

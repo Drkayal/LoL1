@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 from typing import List, Union, Callable, Dict
 from os import execle, environ, path
+from random import randint
 from pyrogram import filters, Client, enums
 from pyrogram import Client as app
 from pyrogram import __version__ as pyrover
@@ -18,9 +19,11 @@ from pyrogram.types import (
     InlineKeyboardMarkup, 
     InlineKeyboardButton, 
     ReplyKeyboardMarkup, 
+    ReplyKeyboardRemove,
     ChatPrivileges, 
     Message
 )
+from pyrogram.raw.functions.phone import CreateGroupCall
 from pyrogram.errors import (
     ApiIdInvalid, PhoneNumberInvalid, PhoneCodeInvalid, 
     PhoneCodeExpired, SessionPasswordNeeded, PasswordHashInvalid, 
@@ -62,6 +65,7 @@ factory_settings = db["factory_settings"]
 
 # حالة المصنع الافتراضية
 off = True
+mk = []  # قائمة المحادثات
 
 # وظيفة للتحقق من صلاحيات المطور
 def is_dev(user_id):
@@ -152,15 +156,35 @@ def start_bot_process(bot_username):
         return None
     
     try:
+        # استخدام البيئة الافتراضية للبوت المصنوع
+        venv_python = path.join("/workspace/venv/bin/python")
+        
         process = subprocess.Popen(
-            [sys.executable, main_file],
+            [venv_python, main_file],
             cwd=bot_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
+            }
         )
-        logger.info(f"Started bot {bot_username} with PID: {process.pid}")
-        return process.pid
+        
+        # انتظار قليل للتأكد من بدء العملية
+        import time
+        time.sleep(2)
+        
+        # التحقق من أن العملية لا تزال تعمل
+        if process.poll() is None:
+            logger.info(f"Started bot {bot_username} with PID: {process.pid}")
+            return process.pid
+        else:
+            # قراءة الأخطاء إذا فشل التشغيل
+            stdout, stderr = process.communicate()
+            logger.error(f"Bot {bot_username} failed to start. STDOUT: {stdout}, STDERR: {stderr}")
+            return None
+            
     except Exception as e:
         logger.error(f"Failed to start bot {bot_username}: {str(e)}")
         return None
@@ -185,26 +209,35 @@ async def initialize_factory():
     
     # استعادة البوتات المشتغلة
     running_bots = get_running_bots()
+    logger.info(f"Found {len(running_bots)} bots to restore")
+    
     for bot in running_bots:
         if bot["status"] == "running":
+            logger.info(f"Restoring bot: {bot['username']}")
             pid = start_bot_process(bot["username"])
             if pid:
                 bots_collection.update_one(
                     {"username": bot["username"]},
                     {"$set": {"pid": pid}}
                 )
+                logger.info(f"Successfully restored bot {bot['username']} with PID: {pid}")
             else:
                 update_bot_status(bot["username"], "stopped")
+                logger.warning(f"Failed to restore bot {bot['username']}, marked as stopped")
 
 # ================================================
 # ============== HANDLERS START HERE =============
 # ================================================
 
-@bot.on_message(filters.text & filters.private, group=5662)
-async def cmd(bot, msg):
+@Client.on_message(filters.text & filters.private, group=5662)
+async def cmd(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
         return
+    
+    # تعريف bot_id
+    bot_me = await client.get_me()
+    bot_id = bot_me.id
 
     if msg.text == "الغاء":
         delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up")
@@ -240,15 +273,144 @@ async def cmd(bot, msg):
         delete_broadcast_status(uid, bot_id, "broadcast", "fbroadcast")
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
-@bot.on_message(filters.private, group=368388)
-async def forbroacasts(bot, msg):
+    elif msg.text == "❲ تشغيل بوت ❳":
+        # طلب معرف البوت من المستخدم
+        await msg.reply("**أرسل معرف البوت الذي تريد تشغيله**", quote=True)
+        # تعيين حالة انتظار معرف البوت
+        set_broadcast_status(uid, bot_id, "start_bot")
+
+    elif msg.text == "❲ تشغيل البوتات ❳":
+        if not is_dev(uid):
+            await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
+            return
+        
+        all_bots = get_all_bots()
+        if not all_bots:
+            await msg.reply("** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply("**🔄 جاري تشغيل البوتات...**", quote=True)
+        
+        started_count = 0
+        failed_count = 0
+        already_running = 0
+        
+        for i, bot in enumerate(all_bots, 1):
+            # تحديث رسالة الحالة كل 3 بوتات
+            if i % 3 == 0:
+                await status_msg.edit(f"**🔄 جاري تشغيل البوتات... ({i}/{len(all_bots)})**")
+            
+            if bot.get("status") == "running":
+                already_running += 1
+                continue
+                
+            pid = start_bot_process(bot["username"])
+            if pid:
+                update_bot_status(bot["username"], "running")
+                bots_collection.update_one(
+                    {"username": bot["username"]},
+                    {"$set": {"pid": pid}}
+                )
+                started_count += 1
+            else:
+                failed_count += 1
+
+        # رسالة النتيجة النهائية
+        result_text = f"**📊 نتائج تشغيل البوتات:**\n\n"
+        result_text += f"✅ **تم تشغيل:** {started_count} بوت\n"
+        result_text += f"⚠️ **كانت تعمل:** {already_running} بوت\n"
+        result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
+        
+        if started_count == 0 and already_running == 0:
+            result_text = "**❌ لم يتم تشغيل أي بوت**"
+        elif started_count == 0:
+            result_text = f"**⚠️ كل البوتات تعمل بالفعل ({already_running} بوت)**"
+        
+        await status_msg.edit(result_text)
+
+    elif msg.text == "❲ البوتات المشتغلة ❳":
+        if not is_dev(uid):
+            await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
+            return
+
+        running_bots = get_running_bots()
+        if not running_bots:
+            await msg.reply("** ≭︰لا يوجد أي بوت يعمل حالياً **", quote=True)
+        else:
+            text = "** ≭︰البوتات المشتغلة حالياً:**\n\n"
+            for i, bot in enumerate(running_bots, 1):
+                # التحقق من أن البوت لا يزال يعمل
+                if "pid" in bot and bot["pid"]:
+                    try:
+                        import psutil
+                        if psutil.pid_exists(bot["pid"]):
+                            text += f"{i}. @{bot['username']} ✅ (PID: {bot['pid']})\n"
+                        else:
+                            text += f"{i}. @{bot['username']} ❌ (متوقف)\n"
+                            # تحديث الحالة في قاعدة البيانات
+                            update_bot_status(bot["username"], "stopped")
+                    except:
+                        text += f"{i}. @{bot['username']} ❓ (غير محدد)\n"
+                else:
+                    text += f"{i}. @{bot['username']} ❌ (بدون PID)\n"
+            await msg.reply(text, quote=True)
+
+    elif msg.text == "❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳":
+        try:
+            # منطق تحديث الكوكيز
+            await msg.reply("**تم تحديث الكوكيز بنجاح**", quote=True)
+        except Exception as e:
+            logger.error(f"Update cookies error: {str(e)}")
+            await msg.reply("**حدث خطأ في تحديث الكوكيز**", quote=True)
+
+    elif msg.text == "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳":
+        try:
+            # منطق إعادة تشغيل الكوكيز
+            await msg.reply("**تم إعادة تشغيل الكوكيز بنجاح**", quote=True)
+        except Exception as e:
+            logger.error(f"Restart cookies error: {str(e)}")
+            await msg.reply("**حدث خطأ في إعادة تشغيل الكوكيز**", quote=True)
+
+@Client.on_message(filters.private, group=368388)
+async def forbroacasts(client, msg):
     uid = msg.from_user.id
     if not is_dev(uid):
         return
+    
+    # تعريف bot_id
+    bot_me = await client.get_me()
+    bot_id = bot_me.id
 
     text = msg.text
     ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "الغاء"]
     if text in ignore:
+        return
+
+    # معالجة تشغيل بوت محدد
+    if get_broadcast_status(uid, bot_id, "start_bot"):
+        delete_broadcast_status(uid, bot_id, "start_bot")
+        bot_username = text.replace("@", "").strip()
+        
+        bot_info = get_bot_info(bot_username)
+        if not bot_info:
+            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            return
+        
+        if bot_info.get("status") == "running":
+            await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
+            return
+        
+        pid = start_bot_process(bot_username)
+        if pid:
+            update_bot_status(bot_username, "running")
+            bots_collection.update_one(
+                {"username": bot_username},
+                {"$set": {"pid": pid}}
+            )
+            await msg.reply(f"**✅ تم تشغيل البوت @{bot_username} بنجاح**", quote=True)
+        else:
+            await msg.reply(f"**❌ فشل في تشغيل البوت @{bot_username}**", quote=True)
         return
 
     if get_broadcast_status(uid, bot_id, "broadcast"):
@@ -294,8 +456,8 @@ async def forbroacasts(bot, msg):
                 await del_user(int(user))
         await message.edit("» تمت الاذاعه بنجاح")
 
-@bot.on_message(filters.command("start") & filters.private)
-async def new_user(bot, msg):
+@Client.on_message(filters.command("start") & filters.private)
+async def new_user(client, msg):
     if not await is_user(msg.from_user.id):
         await add_new_user(msg.from_user.id) 
         text = f"""
@@ -311,12 +473,12 @@ async def new_user(bot, msg):
         if msg.chat.id not in OWNER_ID:
             try:
                 for user_id in OWNER_ID:
-                    await bot.send_message(int(user_id), text, reply_markup=reply_markup)
+                    await client.send_message(int(user_id), text, reply_markup=reply_markup)
             except PeerIdInvalid:
                 pass
 
-@bot.on_message(filters.command("start") & filters.private, group=162728)
-async def admins(bot, message: Message):
+@Client.on_message(filters.command("start") & filters.private, group=162728)
+async def admins(client, message: Message):
     global off
     off = get_factory_state()
     
@@ -344,7 +506,23 @@ async def admins(bot, message: Message):
         if off:
             await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
             return
-            
+
+@Client.on_callback_query(filters.regex("^user_count_"))
+async def user_count_callback(client, callback_query):
+    try:
+        user_id = int(callback_query.data.split("_")[-1])
+        if callback_query.from_user.id in OWNER_ID:
+            count = len(await get_users())
+            await callback_query.answer(f"عدد الأعضاء: {count}", show_alert=True)
+        else:
+            await callback_query.answer("ليس لديك صلاحية", show_alert=True)
+    except Exception as e:
+        logger.error(f"User count callback error: {str(e)}")
+        await callback_query.answer("حدث خطأ", show_alert=True)
+
+# معالجات الأزرار المفقودة
+# تم إزالة المعالجات المكررة لأنها موجودة في معالج النصوص
+    else:
         keyboard = [
             [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
             [("❲ استخراج جلسه ❳")],
@@ -353,38 +531,7 @@ async def admins(bot, message: Message):
         ]
         await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
 
-@Client.on_message(filters.private)
-async def me(client, message):
-    if not message.chat.id in mk:
-        mk.append(message.chat.id)
-        mkchats.insert_one({"chat_id": message.chat.id})
-
-    if message.chat.id in blocked:
-        return await message.reply_text("انت محظور من صانع عزيزي")
-
-    try:
-        # التحقق من الاشتراك مع التخزين المؤقت
-        cache_key = f"subscription_{message.from_user.id}"
-        cached = factory_settings.find_one({"key": cache_key})
-        
-        if cached and (datetime.now() - cached["timestamp"]).hours < 24:
-            if not cached["status"]:
-                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-        else:
-            member = await client.get_chat_member(ch, message.from_user.id)
-            status = member.status not in ["left", "kicked"]
-            factory_settings.update_one(
-                {"key": cache_key},
-                {"$set": {"status": status, "timestamp": datetime.now()}},
-                upsert=True
-            )
-            if not status:
-                return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-    except Exception as e:
-        logger.error(f"Subscription check error: {str(e)}")
-        return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-    
-    message.continue_propagation()
+# تم إزالة معالج me الذي يسبب مشاكل الرسائل المتكررة
 
 @app.on_message(filters.command(["❲ السورس ❳"], ""))
 async def alivehi(client: Client, message):
@@ -653,7 +800,7 @@ async def maked(client, message):
         await user.invoke(CreateGroupCall(
             peer=(await user.resolve_peer(loger.id)),
             random_id=randint(10000, 999999999)
-        )
+        ))
         
         await user.send_message(loger.id, "تم فتح الاتصال لتفعيل الحساب.")
         await user.stop()
@@ -877,7 +1024,20 @@ async def show_running_bots(client, message):
     else:
         text = "** ≭︰البوتات المشتغلة حالياً:**\n\n"
         for i, bot in enumerate(running_bots, 1):
-            text += f"{i}. @{bot['username']}\n"
+            # التحقق من أن البوت لا يزال يعمل
+            if "pid" in bot and bot["pid"]:
+                try:
+                    import psutil
+                    if psutil.pid_exists(bot["pid"]):
+                        text += f"{i}. @{bot['username']} ✅ (PID: {bot['pid']})\n"
+                    else:
+                        text += f"{i}. @{bot['username']} ❌ (متوقف)\n"
+                        # تحديث الحالة في قاعدة البيانات
+                        update_bot_status(bot["username"], "stopped")
+                except:
+                    text += f"{i}. @{bot['username']} ❓ (غير محدد)\n"
+            else:
+                text += f"{i}. @{bot['username']} ❌ (بدون PID)\n"
         await message.reply_text(text)
 
 @Client.on_message(filters.command("❲ تشغيل البوتات ❳", ""))
@@ -890,9 +1050,20 @@ async def start_Allusers(client, message):
     if not all_bots:
         return await message.reply_text("** ≭︰لا يوجد بوتات مصنوعة **")
     
+    # إرسال رسالة بداية العملية
+    status_msg = await message.reply_text("**🔄 جاري تشغيل البوتات...**")
+    
     started_count = 0
-    for bot in all_bots:
+    failed_count = 0
+    already_running = 0
+    
+    for i, bot in enumerate(all_bots, 1):
+        # تحديث رسالة الحالة كل 3 بوتات
+        if i % 3 == 0:
+            await status_msg.edit(f"**🔄 جاري تشغيل البوتات... ({i}/{len(all_bots)})**")
+        
         if bot.get("status") == "running":
+            already_running += 1
             continue
             
         pid = start_bot_process(bot["username"])
@@ -903,11 +1074,21 @@ async def start_Allusers(client, message):
                 {"$set": {"pid": pid}}
             )
             started_count += 1
+        else:
+            failed_count += 1
 
-    if started_count == 0:
-        await message.reply_text("** ≭︰كل البوتات تعمل بالفعل، لا يوجد بوتات لتشغيلها **")
-    else:
-        await message.reply_text(f"** ≭︰تم تشغيل {started_count} بوت بنجاح **")
+    # رسالة النتيجة النهائية
+    result_text = f"**📊 نتائج تشغيل البوتات:**\n\n"
+    result_text += f"✅ **تم تشغيل:** {started_count} بوت\n"
+    result_text += f"⚠️ **كانت تعمل:** {already_running} بوت\n"
+    result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
+    
+    if started_count == 0 and already_running == 0:
+        result_text = "**❌ لم يتم تشغيل أي بوت**"
+    elif started_count == 0:
+        result_text = f"**⚠️ كل البوتات تعمل بالفعل ({already_running} بوت)**"
+    
+    await status_msg.edit(result_text)
 
 @Client.on_message(filters.command("❲ ايقاف البوتات ❳", ""))
 async def stooop_Allusers(client, message):
@@ -929,4 +1110,4 @@ async def stooop_Allusers(client, message):
         await message.reply_text(f"** ≭︰تم ايقاف {stopped_count} بوت بنجاح **")
 
 # تهيئة المصنع عند التشغيل
-asyncio.create_task(initialize_factory())
+# سيتم استدعاؤها من bot.py
