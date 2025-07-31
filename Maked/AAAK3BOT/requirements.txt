@@ -1,0 +1,17 @@
+pyrogram
+pyromod
+python-dotenv
+motor
+pymongo
+aiofiles
+aiohttp
+gitpython
+heroku3
+pillow
+psutil
+py-tgcalls
+requests
+speedtest-cli
+uvloop
+youtube-search-python
+yt-dlp
