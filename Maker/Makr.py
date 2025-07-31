@@ -537,14 +537,18 @@ API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 BOT_TOKEN = "{TOKEN}"
 MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = {Dev}
-LOGGER_ID = {loger.id}
+LOGGER_ID = {loger}
 STRING1 = "{SESSION}"
 
-# إعدادات إضافية
+# إعدادات إضافية مطلوبة
 DURATION_LIMIT_MIN = 300
 TG_AUDIO_FILESIZE_LIMIT = 104857600
 TG_VIDEO_FILESIZE_LIMIT = 1073741824
 PLAYLIST_FETCH_LIMIT = 25
+
+# متغيرات Heroku
+HEROKU_API_KEY = None
+HEROKU_APP_NAME = None
 
 # متغيرات مهمة من OWNER.py
 OWNER_DEVELOPER = {Dev}
@@ -555,7 +559,7 @@ PHOTO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
 VIDEO = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.mp4"
 
 # Cache Channel
-CACHE_CHANNEL_ID = {loger.id}
+CACHE_CHANNEL_ID = {loger}
 CACHE_CHANNEL_USERNAME = None
 
 # Advanced Settings
@@ -569,6 +573,53 @@ COOKIE_FILE = None
 BANNED_USERS = set()
 SUPPORT_CHANNEL = "https://t.me/K55DD"
 SUPPORT_GROUP = "https://t.me/YMMYN"
+UPSTREAM_REPO = "https://github.com/AnonymousX1025/AnonXMusic"
+UPSTREAM_BRANCH = "master"
+GIT_TOKEN = None
+SUPPORT_CHAT = "https://t.me/YMMYN"
+
+# String Sessions
+STRING2 = None
+STRING3 = None
+STRING4 = None  
+STRING5 = None
+
+# Additional Settings
+AUTO_LEAVING_ASSISTANT = True
+CLEANMODE_DELETE_MINS = 5
+PRIVATE_BOT_MODE = False
+SPOTIFY_CLIENT_ID = None
+SPOTIFY_CLIENT_SECRET = None
+SET_CMDS = True
+
+# Dictionary Variables
+adminlist = {{}}
+lyrical = {{}}
+confirmer = {{}}
+
+# Image URLs
+START_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+PING_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+PLAY_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+STATS_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+TELEGRAM_AUDIO_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+TELEGRAM_VIDEO_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+STREAM_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+SOUNCLOUD_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+SPOTIFY_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+SPOTIFY_ARTIST_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+SPOTIFY_ALBUM_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+SPOTIFY_PLAYLIST_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+CHANNEL_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+
+# Additional Settings
+AUTO_DOWNLOADS_CLEAR = True
+YOUTUBE_DOWNLOAD_EDIT_RM_TIME = 3
+ASSISTANT_NAME = "مساعد الموسيقى"
+ASSISTANT_USERNAME = None
+ASSISTANT_ID = None
+AUTO_SUGGESTION_MODE = True
+AUTO_SUGGESTION_TIME = 5
 """
         
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
