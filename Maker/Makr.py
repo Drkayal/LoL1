@@ -514,24 +514,23 @@ async def maked(client, message):
         # إنشاء المجلد إذا لم يكن موجوداً
         os.makedirs(f"Maked/{id}", exist_ok=True)
         
-        # نسخ ملفات AnonXMusic إلى مجلد البوت الجديد (باستثناء الملفات غير الضرورية)
+        # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
         import shutil
-        if os.path.exists("Make"):
-            try:
-                def ignore_unnecessary(dir, files):
-                    return [f for f in files if f in ['.git', '.gitignore', '__pycache__', '*.pyc', '*.session']]
-                shutil.copytree("Make", f"Maked/{id}", dirs_exist_ok=True, ignore=ignore_unnecessary)
-            except Exception as e:
-                # في حالة فشل النسخ، نسخ الملفات الأساسية فقط
-                essential_files = ['AnonXMusic', 'config.py', 'requirements.txt', '__main__.py']
-                for item in essential_files:
-                    src = f"Make/{item}"
-                    dst = f"Maked/{id}/{item}"
-                    if os.path.exists(src):
-                        if os.path.isdir(src):
-                            shutil.copytree(src, dst, dirs_exist_ok=True)
-                        else:
-                            shutil.copy2(src, dst)
+        
+        # إنشاء هيكل مجلد البوت
+        bot_structure = {
+            'AnonXMusic': ['__init__.py', 'core', 'utils', 'plugins'],
+            'core': ['__init__.py', 'bot.py', 'userbot.py'],
+            'utils': ['__init__.py', 'database.py'],
+            'plugins': ['__init__.py', 'start.py', 'music.py']
+        }
+        
+        # إنشاء المجلدات
+        for folder in bot_structure:
+            os.makedirs(f"Maked/{id}/AnonXMusic/{folder}", exist_ok=True)
+        
+        # إنشاء ملفات البوت الأساسية
+        create_bot_files(id, TOKEN, SESSION, Dev, loger.id)
         
         env = open(f"Maked/{id}/.env", "w+", encoding="utf-8")
         env.write(f"ID = {id}\nBOT_TOKEN = {TOKEN}\nSTRING_SESSION = {SESSION}\nOWNER_ID = {Dev}\nLOGGER_ID = {loger.id}")
@@ -600,16 +599,34 @@ yt-dlp"""
             req_file.write(requirements_content)
         
         # إنشاء ملف __main__.py للبوت الجديد
-        main_content = """import asyncio
+        main_content = f"""import asyncio
+import sys
+import os
 from pyrogram import idle
-from AnonXMusic import app
+
+# إضافة المسار الحالي
+sys.path.insert(0, os.path.dirname(__file__))
+
+try:
+    from AnonXMusic import app
+    print("✅ تم تحميل البوت بنجاح")
+except Exception as e:
+    print(f"❌ خطأ في تحميل البوت: {{e}}")
+    sys.exit(1)
 
 async def main():
-    print("🚀 بدء تشغيل البوت...")
-    await app.start()
-    print("✅ تم تشغيل البوت بنجاح!")
-    await idle()
-    await app.stop()
+    try:
+        print("🚀 بدء تشغيل البوت {id}...")
+        await app.start()
+        me = await app.get_me()
+        print(f"✅ تم تشغيل البوت بنجاح: {{me.first_name}} (@{{me.username}})")
+        print("🔄 البوت في وضع الانتظار...")
+        await idle()
+        await app.stop()
+        print("🔴 تم إيقاف البوت")
+    except Exception as e:
+        print(f"❌ خطأ في تشغيل البوت: {{e}}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -791,6 +808,115 @@ def is_bot_running(name):
         return len(output.strip()) > 0
     except subprocess.CalledProcessError:
         return False
+
+def create_bot_files(bot_id, token, session, owner_id, logger_id):
+    """إنشاء ملفات البوت الموسيقي المستقل"""
+    base_path = f"Maked/{bot_id}"
+    
+    # 1. إنشاء AnonXMusic/__init__.py
+    init_content = f'''
+import os
+import sys
+from pyrogram import Client
+
+# إعداد المسارات
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, current_dir)
+sys.path.insert(0, parent_dir)
+
+# التكوين
+API_ID = 17490746
+API_HASH = "ed923c3d59d699018e79254c6f8b6671"
+BOT_TOKEN = "{token}"
+OWNER_ID = {owner_id}
+LOGGER_ID = {logger_id}
+
+# إنشاء العميل
+app = Client("{bot_id}_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# المتغيرات المهمة
+BANNED_USERS = set()
+
+# تحميل البرمجيات المساعدة
+try:
+    from .loader import load_plugins
+    print("🔄 تحميل البرمجيات المساعدة...")
+except ImportError:
+    print("⚠️ تعذر تحميل محمل البرمجيات")
+'''
+    with open(f"{base_path}/AnonXMusic/__init__.py", "w", encoding="utf-8") as f:
+        f.write(init_content)
+    
+    # 2. إنشاء AnonXMusic/core/__init__.py
+    with open(f"{base_path}/AnonXMusic/core/__init__.py", "w", encoding="utf-8") as f:
+        f.write("# Core modules")
+    
+    # 3. إنشاء AnonXMusic/utils/__init__.py
+    with open(f"{base_path}/AnonXMusic/utils/__init__.py", "w", encoding="utf-8") as f:
+        f.write("# Utility modules")
+    
+    # 4. إنشاء AnonXMusic/plugins/__init__.py
+    with open(f"{base_path}/AnonXMusic/plugins/__init__.py", "w", encoding="utf-8") as f:
+        f.write("# Plugin modules")
+    
+    # 5. إنشاء plugins/start.py
+    start_plugin = f'''
+from pyrogram import filters
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from AnonXMusic import app
+
+@app.on_message(filters.command("start"))
+async def start_command(client, message: Message):
+    await message.reply(
+        "🎵 **مرحباً بك في البوت الموسيقي!**\\n\\n"
+        "✅ البوت يعمل بنجاح\\n"
+        "🤖 تم إنشاؤه بواسطة صانع البوتات\\n"
+        f"👤 المطور: {owner_id}",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("📞 تواصل مع المطور", url="tg://user?id={owner_id}")],
+            [InlineKeyboardButton("📢 قناة السورس", url="https://t.me/K55DD")]
+        ])
+    )
+
+@app.on_message(filters.command("ping"))
+async def ping_command(client, message: Message):
+    await message.reply("🏓 **Pong!** البوت يعمل بشكل طبيعي")
+
+@app.on_message(filters.command("id"))
+async def id_command(client, message: Message):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    await message.reply(f"🆔 **معرفك:** `{user_id}`\\n🏷️ **معرف المحادثة:** `{chat_id}`")
+'''
+    with open(f"{base_path}/AnonXMusic/plugins/start.py", "w", encoding="utf-8") as f:
+        f.write(start_plugin)
+    
+    # 6. إنشاء ملف تحميل البرمجيات المساعدة
+    loader_content = '''
+import os
+import importlib.util
+
+def load_plugins():
+    """تحميل جميع البرمجيات المساعدة"""
+    plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
+    
+    for filename in os.listdir(plugins_dir):
+        if filename.endswith(".py") and filename != "__init__.py":
+            module_name = filename[:-3]
+            file_path = os.path.join(plugins_dir, filename)
+            
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                print(f"✅ تم تحميل البرمجية: {module_name}")
+
+# تحميل البرمجيات تلقائياً
+load_plugins()
+'''
+    with open(f"{base_path}/AnonXMusic/loader.py", "w", encoding="utf-8") as f:
+        f.write(loader_content)
 
 @Client.on_message(filters.command("❲ تشغيل بوت ❳", ""))
 async def choose_and_start_bot(client, message):
