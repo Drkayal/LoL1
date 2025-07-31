@@ -134,14 +134,14 @@ channel = getattr(config, 'STORE_LINK', '')
 lnk = f"https://t.me/{channel}" if channel else None
 
 # --- تدوير المفاتيح والخوادم ---
-YT_API_KEYS = getattr(config, 'YT_API_KEYS', [])
+YT_API_KEYS = config.YT_API_KEYS
 API_KEYS_CYCLE = cycle(YT_API_KEYS) if YT_API_KEYS else None
 
-INVIDIOUS_SERVERS = getattr(config, 'INVIDIOUS_SERVERS', [])
+INVIDIOUS_SERVERS = config.INVIDIOUS_SERVERS
 INVIDIOUS_CYCLE = cycle(INVIDIOUS_SERVERS) if INVIDIOUS_SERVERS else None
 
 # تدوير ملفات الكوكيز
-COOKIES_FILES = getattr(config, 'COOKIES_FILES', [])
+COOKIES_FILES = config.COOKIES_FILES
 COOKIES_CYCLE = cycle(COOKIES_FILES) if COOKIES_FILES else None
 
 # --- إعدادات yt-dlp عالية الأداء ---
