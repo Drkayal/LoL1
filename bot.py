@@ -21,6 +21,11 @@ async def start_bot():
     bot_id = me.id
     print(f"✅ بوت الصانع يعمل: {me.first_name} (@{me.username})")
     print(f"🆔 معرف البوت: {me.id}")
+    
+    # تهيئة المصنع واستعادة البوتات
+    from Maker.Makr import initialize_factory
+    await initialize_factory()
+    
     await idle()
     await bot.stop()
     

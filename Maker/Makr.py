@@ -156,15 +156,35 @@ def start_bot_process(bot_username):
         return None
     
     try:
+        # استخدام البيئة الافتراضية للبوت المصنوع
+        venv_python = path.join("/workspace/venv/bin/python")
+        
         process = subprocess.Popen(
-            [sys.executable, main_file],
+            [venv_python, main_file],
             cwd=bot_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
+            }
         )
-        logger.info(f"Started bot {bot_username} with PID: {process.pid}")
-        return process.pid
+        
+        # انتظار قليل للتأكد من بدء العملية
+        import time
+        time.sleep(2)
+        
+        # التحقق من أن العملية لا تزال تعمل
+        if process.poll() is None:
+            logger.info(f"Started bot {bot_username} with PID: {process.pid}")
+            return process.pid
+        else:
+            # قراءة الأخطاء إذا فشل التشغيل
+            stdout, stderr = process.communicate()
+            logger.error(f"Bot {bot_username} failed to start. STDOUT: {stdout}, STDERR: {stderr}")
+            return None
+            
     except Exception as e:
         logger.error(f"Failed to start bot {bot_username}: {str(e)}")
         return None
@@ -189,16 +209,21 @@ async def initialize_factory():
     
     # استعادة البوتات المشتغلة
     running_bots = get_running_bots()
+    logger.info(f"Found {len(running_bots)} bots to restore")
+    
     for bot in running_bots:
         if bot["status"] == "running":
+            logger.info(f"Restoring bot: {bot['username']}")
             pid = start_bot_process(bot["username"])
             if pid:
                 bots_collection.update_one(
                     {"username": bot["username"]},
                     {"$set": {"pid": pid}}
                 )
+                logger.info(f"Successfully restored bot {bot['username']} with PID: {pid}")
             else:
                 update_bot_status(bot["username"], "stopped")
+                logger.warning(f"Failed to restore bot {bot['username']}, marked as stopped")
 
 # ================================================
 # ============== HANDLERS START HERE =============
