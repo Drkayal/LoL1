@@ -342,8 +342,21 @@ async def admins(client, message: Message):
         await message.reply("** ≭︰اهلا بك عزيزي المطور  **", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True), quote=True)
     else:
         if off:
-            await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
-            return
+                    await message.reply_text(f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**")
+        return
+
+@Client.on_callback_query(filters.regex("^user_count_"))
+async def user_count_callback(client, callback_query):
+    try:
+        user_id = int(callback_query.data.split("_")[-1])
+        if callback_query.from_user.id in OWNER_ID:
+            count = len(await get_users())
+            await callback_query.answer(f"عدد الأعضاء: {count}", show_alert=True)
+        else:
+            await callback_query.answer("ليس لديك صلاحية", show_alert=True)
+    except Exception as e:
+        logger.error(f"User count callback error: {str(e)}")
+        await callback_query.answer("حدث خطأ", show_alert=True)
             
         keyboard = [
             [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
