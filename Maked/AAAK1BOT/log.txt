@@ -77,3 +77,9 @@ task: <Task pending name='Task-21' coro=<Dispatcher.handler_worker() running at 
 task: <Task pending name='Task-22' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
 [31-Jul-25 08:14:57 - ERROR] - asyncio - Task was destroyed but it is pending!
 task: <Task pending name='Task-23' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 08:16:44 - INFO] - AnonXMusic.core.bot - Starting Bot...
