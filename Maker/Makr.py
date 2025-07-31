@@ -36,6 +36,17 @@ from pyrogram.types import ChatPrivileges
 from pyrogram.types import ReplyKeyboardRemove
 from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, CHANNEL, GROUP, PHOTO, VIDEO
 
+# استيراد الوحدات المتقدمة الجديدة
+try:
+    from core.monitoring import monitoring_dashboard
+    from core.ui_manager import ui_manager
+    from core.notification_system import notification_system, NotificationLevel, NotificationType
+    ADVANCED_FEATURES_AVAILABLE = True
+    print("✅ تم تحميل الميزات المتقدمة بنجاح")
+except ImportError as e:
+    ADVANCED_FEATURES_AVAILABLE = False
+    print(f"⚠️ لم يتم تحميل الميزات المتقدمة: {e}")
+
 Bots = []
 off = True
 # استخراج اسم القناة من الرابط
@@ -216,39 +227,80 @@ ss()
 
 @bot.on_message(filters.command("start") & filters.private, group=162728)
 async def admins(bot, message: Message):
+    user_id = message.chat.id
+    user_name = message.from_user.first_name
+    is_developer = is_dev(user_id)
+    
     if off:
-       if not is_dev(message.chat.id):
+       if not is_developer:
             return await message.reply_text(
                 f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**"
             )
        else:
+            # استخدام الواجهة المحسنة إذا كانت متاحة
+            if ADVANCED_FEATURES_AVAILABLE:
+                # تعيين عميل الإشعارات
+                notification_system.set_client(bot)
+                
+                # اشتراك المطورين في الإشعارات
+                notification_system.subscribe(user_id, [
+                    NotificationLevel.INFO,
+                    NotificationLevel.WARNING,
+                    NotificationLevel.ERROR,
+                    NotificationLevel.CRITICAL,
+                    NotificationLevel.SUCCESS
+                ])
+                
+                # تنسيق رسالة الترحيب المحسنة
+                welcome_text = ui_manager.format_welcome_message(user_name, True)
+                reply_markup = ui_manager.create_main_keyboard(True)
+                
+                # بدء نظام المراقبة إذا لم يكن مفعلاً
+                if not monitoring_dashboard.monitoring_active:
+                    try:
+                        from core.process_manager import process_manager
+                        asyncio.create_task(monitoring_dashboard.start_monitoring(process_manager))
+                    except ImportError:
+                        pass
+                
+            else:
+                # الواجهة التقليدية
+                keyboard = [
+                    [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
+                    [("❲ فتح المصنع ❳"), ("❲ قفل المصنع ❳")],
+                    [("❲ ايقاف بوت ❳"), ("❲ تشغيل بوت ❳")],
+                    [("❲ ايقاف البوتات ❳"), ("❲ تشغيل البوتات ❳")],
+                    [("❲ البوتات المشتغلة ❳")],
+                    [("❲ البوتات المصنوعه ❳"), ("❲ تحديث الصانع ❳")],
+                    [("❲ الاحصائيات ❳")],
+                    [("❲ رفع مطور ❳"), ("❲ تنزيل مطور ❳")],
+                    [("❲ المطورين ❳")],
+                    [("❲ اذاعه ❳"), ("❲ اذاعه بالتوجيه ❳"), ("❲ اذاعه بالتثبيت ❳")],
+                    [("❲ استخراج جلسه ❳"), ("❲ الاسكرينات المفتوحه ❳")],
+                    ["❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳"],
+                    [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
+                    [("❲ اخفاء الكيبورد ❳")]
+                ]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                welcome_text = "** ≭︰اهلا بك عزيزي المطور  **"
+            
+            await message.reply(welcome_text, reply_markup=reply_markup, quote=True)
+    else:
+        # للمستخدمين العاديين
+        if ADVANCED_FEATURES_AVAILABLE:
+            welcome_text = ui_manager.format_welcome_message(user_name, False)
+            reply_markup = ui_manager.create_main_keyboard(False)
+        else:
             keyboard = [
                 [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
-                [("❲ فتح المصنع ❳"), ("❲ قفل المصنع ❳")],
-                [("❲ ايقاف بوت ❳"), ("❲ تشغيل بوت ❳")],
-                [("❲ ايقاف البوتات ❳"), ("❲ تشغيل البوتات ❳")],
-                [("❲ البوتات المشتغلة ❳")],
-                [("❲ البوتات المصنوعه ❳"), ("❲ تحديث الصانع ❳")],
-                [("❲ الاحصائيات ❳")],
-                [("❲ رفع مطور ❳"), ("❲ تنزيل مطور ❳")],
-                [("❲ المطورين ❳")],
-                [("❲ اذاعه ❳"), ("❲ اذاعه بالتوجيه ❳"), ("❲ اذاعه بالتثبيت ❳")],
-                [("❲ استخراج جلسه ❳"), ("❲ الاسكرينات المفتوحه ❳")],
-                ["❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳"],
+                [("❲ استخراج جلسه ❳")],
                 [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
                 [("❲ اخفاء الكيبورد ❳")]
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            await message.reply("** ≭︰اهلا بك عزيزي المطور  **", reply_markup=reply_markup, quote=True)
-    else:
-        keyboard = [
-            [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
-            [("❲ استخراج جلسه ❳")],
-            [("❲ السورس ❳"), ("❲ مطور السورس ❳")],
-            [("❲ اخفاء الكيبورد ❳")]
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await message.reply("** ≭︰اهلا بك عزيزي العضو  **", reply_markup=reply_markup, quote=True)
+            welcome_text = "** ≭︰اهلا بك عزيزي العضو  **"
+        
+        await message.reply(welcome_text, reply_markup=reply_markup, quote=True)
     
 
 
