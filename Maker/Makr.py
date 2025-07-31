@@ -448,6 +448,10 @@ async def onoff(client, message):
 
 @app.on_message(filters.command("❲ صنع بوت ❳", "") & filters.private)
 async def maked(client, message):
+    # التأكد من وجود مجلد Maked
+    if not os.path.exists("Maked"):
+        os.makedirs("Maked", exist_ok=True)
+    
     if not is_dev(message.from_user.id):
         for bot in Bots:
             if int(bot[1]) == message.from_user.id:
@@ -507,9 +511,36 @@ async def maked(client, message):
         await user.send_message(loger.id, "تم فتح الاتصال لتفعيل الحساب.")
         await user.stop()
 
+        # إنشاء المجلد إذا لم يكن موجوداً
+        os.makedirs(f"Maked/{id}", exist_ok=True)
+        
+        # نسخ ملفات AnonXMusic إلى مجلد البوت الجديد
+        import shutil
+        if os.path.exists("Make"):
+            shutil.copytree("Make", f"Maked/{id}", dirs_exist_ok=True)
+        
         env = open(f"Maked/{id}/.env", "w+", encoding="utf-8")
         env.write(f"ID = {id}\nBOT_TOKEN = {TOKEN}\nSTRING_SESSION = {SESSION}\nOWNER_ID = {Dev}\nLOGGER_ID = {loger.id}")
         env.close()
+        
+        # إنشاء ملف config.py مخصص للبوت الجديد
+        config_content = f"""
+import os
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_ID = int(getenv("API_ID", "17490746"))
+API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
+BOT_TOKEN = "{TOKEN}"
+MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+OWNER_ID = int("{Dev}")
+LOGGER_ID = int("{loger.id}")
+STRING1 = "{SESSION}"
+"""
+        with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as config_file:
+            config_file.write(config_content)
 
         # تجربة التشغيل داخل screen أولًا
         check = os.system(f"cd Maked/{id} && screen -dmS {id}_check python3 -m AnonXMusic && sleep 5 && screen -S {id}_check -X quit")
