@@ -739,9 +739,18 @@ async def update_factory(client: Client, message):
 
 def is_bot_running(name):
     try:
-        # التحقق من وجود عملية البوت باستخدام ps
-        output = subprocess.check_output(f"ps aux | grep 'python3.*{name}' | grep -v grep", shell=True)
-        return len(output.strip()) > 0
+        # البحث عن العملية باستخدام طرق متعددة
+        # 1. البحث في مجلد البوت
+        output1 = subprocess.check_output(f"ps aux | grep 'Maked/{name}' | grep -v grep", shell=True)
+        if len(output1.strip()) > 0:
+            return True
+        
+        # 2. البحث عن اسم البوت في العملية
+        output2 = subprocess.check_output(f"ps aux | grep '{name}' | grep python3 | grep -v grep", shell=True)
+        if len(output2.strip()) > 0:
+            return True
+            
+        return False
     except subprocess.CalledProcessError:
         return False
 
@@ -1035,8 +1044,10 @@ async def stooop_Allusers(client, message):
     n = 0
     for folder in os.listdir("Maked"):
         if re.search('[Bb][Oo][Tt]', folder):
-            os.system(f'screen -X -S {folder} quit')
-            n += 1
+            # إيقاف البوت باستخدام pkill بدلاً من screen
+            result = os.system(f'pkill -f "Maked/{folder}"')
+            if result == 0:
+                n += 1
     if n == 0:
         await message.reply_text("** ≭︰لم يتم ايقاف أي بوتات **")
     else:
