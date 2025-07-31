@@ -517,24 +517,8 @@ async def maked(client, message):
         # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
         import shutil
         
-        # إنشاء هيكل مجلد البوت
-        bot_structure = {
-            'AnonXMusic': ['__init__.py', 'core', 'utils', 'plugins'],
-            'core': ['__init__.py', 'bot.py', 'userbot.py'],
-            'utils': ['__init__.py', 'database.py'],
-            'plugins': ['__init__.py', 'start.py', 'music.py']
-        }
-        
-        # إنشاء المجلدات
-        for folder in bot_structure:
-            os.makedirs(f"Maked/{id}/AnonXMusic/{folder}", exist_ok=True)
-        
-        # إنشاء ملفات البوت الأساسية
+        # إنشاء بوت مبسط تماماً
         create_bot_files(id, TOKEN, SESSION, Dev, loger.id)
-        
-        env = open(f"Maked/{id}/.env", "w+", encoding="utf-8")
-        env.write(f"ID = {id}\nBOT_TOKEN = {TOKEN}\nSTRING_SESSION = {SESSION}\nOWNER_ID = {Dev}\nLOGGER_ID = {loger.id}")
-        env.close()
         
         # إنشاء ملف config.py مخصص للبوت الجديد
         config_content = f"""
@@ -871,6 +855,52 @@ load_plugins()
 '''
     with open(f"{base_path}/AnonXMusic/loader.py", "w", encoding="utf-8") as f:
         f.write(loader_content)
+    
+    # 7. إنشاء config.py مبسط
+    simple_config = f'''
+# Simple Bot Configuration
+API_ID = 17490746
+API_HASH = "ed923c3d59d699018e79254c6f8b6671"
+BOT_TOKEN = "{token}"
+OWNER_ID = {owner_id}
+LOGGER_ID = {logger_id}
+BANNED_USERS = set()
+'''
+    with open(f"{base_path}/config.py", "w", encoding="utf-8") as f:
+        f.write(simple_config)
+    
+    # 8. إنشاء requirements.txt مبسط
+    simple_requirements = '''pyrogram>=2.0.0
+TgCrypto>=1.2.0
+python-dotenv>=0.19.0
+aiofiles>=0.8.0'''
+    with open(f"{base_path}/requirements.txt", "w", encoding="utf-8") as f:
+        f.write(simple_requirements)
+    
+    # 9. إنشاء __main__.py مبسط
+    simple_main = f'''
+import asyncio
+from pyrogram import idle
+from AnonXMusic import app
+
+async def main():
+    try:
+        print("🚀 بدء تشغيل البوت {bot_id}...")
+        await app.start()
+        me = await app.get_me()
+        print(f"✅ تم تشغيل البوت بنجاح: {{me.first_name}} (@{{me.username}})")
+        print("🔄 البوت في وضع الانتظار...")
+        await idle()
+        await app.stop()
+        print("🔴 تم إيقاف البوت")
+    except Exception as e:
+        print(f"❌ خطأ في تشغيل البوت: {{e}}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+'''
+    with open(f"{base_path}/__main__.py", "w", encoding="utf-8") as f:
+        f.write(simple_main)
 
 @Client.on_message(filters.command("❲ تشغيل بوت ❳", ""))
 async def choose_and_start_bot(client, message):
