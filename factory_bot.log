@@ -1750,3 +1750,4 @@ ValueError: Peer id invalid: -1002727115068
 2025-07-31 12:54:10,542 - pyrogram.session.session - INFO - Session stopped
 2025-07-31 12:54:10,542 - Maker.Makr - INFO - Started bot AAAK2BOT with PID: 17797
 2025-07-31 12:54:10,918 - pyrogram.parser.html - INFO - Unclosed tags: <b> (x1)
+2025-07-31 12:54:54,005 - Maker.Makr - ERROR - Screen list error: Command 'screen -list | grep 'Detached'' returned non-zero exit status 1.
