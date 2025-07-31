@@ -127,6 +127,7 @@ COOKIE_FILE = COOKIES_FILES[0] if COOKIES_FILES else "cookies.txt"
 
 # Get this value from @FallenxBot on Telegram by /id
 OWNER_ID = int(getenv("OWNER_ID", 985612253))
+OWNER_DEVELOPER = [OWNER_ID]  # List of developer IDs
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name

@@ -29,3 +29,32 @@ async def must_join_channel(bot: Client, msg: Message):
                 pass
     except ChatAdminRequired:
         print(f"I'm not admin in the MUST_JOIN chat @A1DIIU !")
+
+
+async def must_join_ch(bot: Client, message: Message, channel_username: str = None):
+    """Check if user must join channel"""
+    if not channel_username:
+        channel_username = "A1DIIU"  # Default channel
+    
+    try:
+        await bot.get_chat_member(channel_username, message.from_user.id)
+        return True  # User is member
+    except UserNotParticipant:
+        try:
+            chat_info = await bot.get_chat(channel_username)
+            link = chat_info.invite_link or f"https://t.me/{channel_username}"
+            
+            await message.reply(
+                f"⌯︙عذࢪاَ عزيزي ↫ {message.from_user.mention} \n⌯︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ\n⌯︙قناة البوت: @{channel_username} .\nꔹ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ꔹ",
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("اضغط للأشتراك .", url=link)]
+                ])
+            )
+            return False  # User is not member
+        except Exception as e:
+            print(f"Error in must_join_ch: {e}")
+            return True  # Allow if error occurs
+    except Exception as e:
+        print(f"Error checking membership: {e}")
+        return True  # Allow if error occurs

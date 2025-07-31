@@ -21,6 +21,9 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
+mustdb = mongodb.mustjoin
+botnamedb = mongodb.botnames
+contactdb = mongodb.contact
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -647,46 +650,77 @@ async def remove_banned_user(user_id: int):
 
 
 # Must join channel functions
-mustdb = mongodb.mustjoin
-
-async def get_must(bot_username: str) -> str:
-    """Get the must join channel for a bot"""
+async def get_must(bot_username: str):
     result = await mustdb.find_one({"bot_username": bot_username})
-    return result["channel"] if result else None
+    if result:
+        return result["channel"]
+    return None
+
 
 async def set_must(bot_username: str, channel: str):
-    """Set the must join channel for a bot"""
     await mustdb.update_one(
         {"bot_username": bot_username},
         {"$set": {"channel": channel}},
         upsert=True
     )
 
+
 async def del_must(bot_username: str):
-    """Delete the must join channel for a bot"""
     result = await mustdb.delete_one({"bot_username": bot_username})
     return result.deleted_count > 0
 
-async def get_must_ch(bot_username: str) -> str:
-    """Get the must join channel for a bot (alias for get_must)"""
+
+async def get_must_ch(bot_username: str):
     return await get_must(bot_username)
 
+
 async def set_must_ch(bot_username: str, channel: str):
-    """Set the must join channel for a bot (alias for set_must)"""
     await set_must(bot_username, channel)
 
-# Bot name functions
-botnamedb = mongodb.botnames
 
-async def get_bot_name(bot_username: str) -> str:
-    """Get the bot name"""
+# Bot name functions
+async def get_bot_name(bot_username: str):
     result = await botnamedb.find_one({"bot_username": bot_username})
-    return result["name"] if result else None
+    if result:
+        return result["name"]
+    return bot_username  # Return bot_username as fallback
+
 
 async def set_bot_name(bot_username: str, name: str):
-    """Set the bot name"""
     await botnamedb.update_one(
         {"bot_username": bot_username},
         {"$set": {"name": name}},
         upsert=True
     )
+
+
+# Contact functions
+contactdb = mongodb.contact
+
+async def is_contact_enabled():
+    result = await contactdb.find_one({"_id": "contact"})
+    return result["enabled"] if result else True
+
+
+async def toggle_contact():
+    result = await contactdb.find_one({"_id": "contact"})
+    if result:
+        new_status = not result["enabled"]
+    else:
+        new_status = False
+    
+    await contactdb.update_one(
+        {"_id": "contact"},
+        {"$set": {"enabled": new_status}},
+        upsert=True
+    )
+    return new_status
+
+
+# Channel functions
+async def is_served_channel(channel_id: int) -> bool:
+    """Check if channel is served"""
+    channel = await chatsdb.find_one({"chat_id": channel_id})
+    return bool(channel)
+
+
