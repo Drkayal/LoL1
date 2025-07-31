@@ -24,6 +24,7 @@ usersdb = mongodb.tgusersdb
 mustdb = mongodb.mustjoin
 botnamedb = mongodb.botnames
 contactdb = mongodb.contact
+autoleavedb = mongodb.autoleave
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -722,5 +723,23 @@ async def is_served_channel(channel_id: int) -> bool:
     """Check if channel is served"""
     channel = await chatsdb.find_one({"chat_id": channel_id})
     return bool(channel)
+
+
+# Auto leave functions
+autoleavedb = mongodb.autoleave
+
+async def set_auto_leave_status(status: bool):
+    """Set auto leave status"""
+    await autoleavedb.update_one(
+        {"_id": "autoleave"},
+        {"$set": {"enabled": status}},
+        upsert=True
+    )
+
+
+async def get_auto_leave_status() -> bool:
+    """Get auto leave status"""
+    result = await autoleavedb.find_one({"_id": "autoleave"})
+    return result["enabled"] if result else False
 
 

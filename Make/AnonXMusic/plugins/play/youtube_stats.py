@@ -2,18 +2,18 @@
 أمر عرض إحصائيات مفاتيح YouTube API
 """
 
-from telethon import events
-from AnonXMusic.core.telethon_client import telethon_manager
-from AnonXMusic import LOGGER
+from pyrogram import filters
+from pyrogram.types import Message
+from AnonXMusic import app, LOGGER
 import config
 
-@telethon_manager.on(events.NewMessage(pattern=r'^[/!]youtube_stats$'))
-async def youtube_api_stats_handler(event):
+@app.on_message(filters.command(["youtube_stats"], prefixes=["/", "!"]))
+async def youtube_api_stats_handler(client, message: Message):
     """عرض إحصائيات مفاتيح YouTube API"""
     try:
         # التحقق من الصلاحيات
-        if event.sender_id != config.OWNER_ID:
-            await event.reply("❌ هذا الأمر مخصص للمطور فقط")
+        if message.from_user.id != config.OWNER_ID:
+            await message.reply("❌ هذا الأمر مخصص للمطور فقط")
             return
         
         # الحصول على الإحصائيات
@@ -21,7 +21,7 @@ async def youtube_api_stats_handler(event):
             from AnonXMusic.plugins.play.youtube_api_downloader import get_downloader_stats
             stats = await get_downloader_stats()
         except ImportError:
-            await event.reply("❌ نظام YouTube API غير متاح")
+            await message.reply("❌ نظام YouTube API غير متاح")
             return
         
         if stats.get('status') == 'no_keys':
@@ -60,27 +60,28 @@ async def youtube_api_stats_handler(event):
         stats_text += f"   • مفاتيح في التكوين: {len(config.YT_API_KEYS)}\n"
         stats_text += f"   • ملفات كوكيز: {len(config.COOKIES_FILES)}\n"
         
-        await event.reply(stats_text)
+        await message.reply(stats_text)
         
     except Exception as e:
         LOGGER(__name__).error(f"❌ خطأ في عرض إحصائيات YouTube: {e}")
-        await event.reply(f"❌ خطأ في عرض الإحصائيات: {str(e)}")
+        await message.reply(f"❌ خطأ في عرض الإحصائيات: {str(e)}")
 
-@telethon_manager.on(events.NewMessage(pattern=r'^[/!]test_youtube_api (.+)'))
-async def test_youtube_api_handler(event):
+@app.on_message(filters.command(["test_youtube_api"], prefixes=["/", "!"]) & filters.regex(r"test_youtube_api (.+)"))
+async def test_youtube_api_handler(client, message: Message):
     """اختبار البحث بـ YouTube API"""
     try:
         # التحقق من الصلاحيات
-        if event.sender_id != config.OWNER_ID:
-            await event.reply("❌ هذا الأمر مخصص للمطور فقط")
+        if message.from_user.id != config.OWNER_ID:
+            await message.reply("❌ هذا الأمر مخصص للمطور فقط")
             return
         
-        query = event.pattern_match.group(1).strip()
+        # استخراج النص من الأمر
+        query = message.text.split(None, 1)[1] if len(message.text.split()) > 1 else ""
         if not query:
-            await event.reply("❌ يرجى إدخال كلمة البحث")
+            await message.reply("❌ يرجى إدخال كلمة البحث")
             return
         
-        status_msg = await event.reply(f"🔍 **اختبار البحث بـ YouTube API:**\n`{query}`")
+        status_msg = await message.reply(f"🔍 **اختبار البحث بـ YouTube API:**\n`{query}`")
         
         try:
             from AnonXMusic.plugins.play.youtube_api_downloader import get_hybrid_downloader
@@ -114,7 +115,7 @@ async def test_youtube_api_handler(event):
             
     except Exception as e:
         LOGGER(__name__).error(f"❌ خطأ في اختبار YouTube API: {e}")
-        await event.reply(f"❌ خطأ في الاختبار: {str(e)}")
+        await message.reply(f"❌ خطأ في الاختبار: {str(e)}")
 
 # تسجيل المعالجات
 LOGGER(__name__).info("✅ تم تحميل معالجات إحصائيات YouTube API")

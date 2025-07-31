@@ -11,7 +11,7 @@ API_ID = int(getenv("API_ID", "17490746"))
 API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 
 # Get your token from @BotFather on Telegram.
-BOT_TOKEN = getenv("BOT_TOKEN", "8024375688:AAHYvfceRF22ZVMxlvqkdtfmR4rkWTyQDLo")
+BOT_TOKEN = getenv("BOT_TOKEN", "7744986521:AAGNwbXza2iKAFjd528XfSkoZPrakw1dr9w")
 
 # Get your mongo url from cloud.mongodb.com
 MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -127,7 +127,16 @@ COOKIE_FILE = COOKIES_FILES[0] if COOKIES_FILES else "cookies.txt"
 
 # Get this value from @FallenxBot on Telegram by /id
 OWNER_ID = int(getenv("OWNER_ID", 985612253))
-OWNER_DEVELOPER = [OWNER_ID]  # List of developer IDs
+OWNER_DEVELOPER = 985612253  # Single developer ID
+
+# Additional owner settings from OWNER.py
+OWNER = ["AAAKP"]
+OWNER__ID = 985612253
+OWNER_NAME = "𝐷𝑣. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"
+GROUP = "https://t.me/YMMYN"
+YOUTUBE_IMG_URL = "https://t.me/MusicxXxYousef/90"
+PHOTO = "https://t.me/MusicxXxYousef/90"
+VIDEO = "https://t.me/MusicxXxYousef/91"
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name
