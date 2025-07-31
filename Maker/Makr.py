@@ -632,51 +632,9 @@ if __name__ == "__main__":
             os.system(f"rm -rf Maked/{id}")
             return await message.reply_text(f"<b>فشل التنصيب: ملفات مفقودة {missing_files}</b>")
         
-        # تثبيت المتطلبات أولاً (بصمت لتجنب التأخير)
-        install_check = os.system(f"cd Maked/{id} && pip3 install --user --break-system-packages --quiet pyrogram pyromod python-dotenv motor pymongo > /dev/null 2>&1")
-        # لا نعرض رسالة تحذير لأن المكتبات مثبتة على النظام
+        # لا حاجة لتثبيت متطلبات معقدة، سنستخدم المكتبات الموجودة
         
-        # إنشاء ملف __init__.py في مجلد AnonXMusic إذا لم يكن موجوداً
-        init_file_path = f"Maked/{id}/AnonXMusic/__init__.py"
-        if not os.path.exists(init_file_path):
-            # نسخ __init__.py من المجلد الأصلي
-            if os.path.exists("Make/AnonXMusic/__init__.py"):
-                import shutil
-                shutil.copy2("Make/AnonXMusic/__init__.py", init_file_path)
-            else:
-                # إنشاء __init__.py بسيط
-                with open(init_file_path, "w", encoding="utf-8") as init_file:
-                    init_file.write("""# AnonXMusic Bot - Simplified Version
-import os
-import sys
-from pyrogram import Client
-
-# إضافة المسار الحالي والمسار الرئيسي إلى sys.path
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, current_dir)
-sys.path.insert(0, parent_dir)
-
-# استيراد التكوين
-try:
-    from config import API_ID, API_HASH, BOT_TOKEN, STRING1, OWNER_ID, LOGGER_ID
-except ImportError:
-    # في حالة عدم وجود config.py، استخدم القيم الافتراضية
-    API_ID = 17490746
-    API_HASH = "ed923c3d59d699018e79254c6f8b6671"
-    BOT_TOKEN = "YOUR_BOT_TOKEN"
-    STRING1 = ""
-    OWNER_ID = 0
-    LOGGER_ID = 0
-
-# إنشاء عميل البوت
-app = Client("AnonXMusicBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-# تصدير المتغيرات المهمة
-__all__ = ["app", "API_ID", "API_HASH", "BOT_TOKEN", "OWNER_ID", "LOGGER_ID"]
-""")
-        
-        # اختبار أبسط - التحقق من وجود الملفات الأساسية فقط
+        # التحقق من وجود الملفات الأساسية فقط
         essential_check = os.path.exists(f"Maked/{id}/AnonXMusic") and os.path.exists(f"Maked/{id}/config.py")
         if not essential_check:
             os.system(f"rm -rf Maked/{id}")
