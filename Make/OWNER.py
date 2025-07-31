@@ -1,17 +1,17 @@
 # متطلبات التنصيب #
 
 #يوزر المطور
-OWNER = ["Y_o_V"] 
-OWNER__ID = 6094238403
-OWNER_DEVELOPER = 6094238403
-OWNER_NAME = "𓏺 َ𝗬𝗼𝘂𝘀𝗲𝗳"
+OWNER = ["AAAKP"] 
+OWNER__ID = 985612253
+OWNER_DEVELOPER = 985612253
+OWNER_NAME = "𝐷𝑟. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"
 #اسم التي سيظهر على صورة
-infophoto = "Alsayed Playing"
+infophoto = "LoL Music"
 DATABASE = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
 #قناة سورس
-CHANNEL = "https://t.me/x_v_l"
+CHANNEL = "https://t.me/K55DD"
 #كروب سورس
-GROUP = "https://t.me/PRTRZA"
+GROUP = "https://t.me/YMMYN"
 #فيديو سورس اذا ماعندك خليه
 VIDEO = "https://t.me/MusicxXxYousef/91"
 #صورة سورس اذا ماعندك خليها
