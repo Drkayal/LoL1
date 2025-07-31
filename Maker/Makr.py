@@ -514,10 +514,24 @@ async def maked(client, message):
         # إنشاء المجلد إذا لم يكن موجوداً
         os.makedirs(f"Maked/{id}", exist_ok=True)
         
-        # نسخ ملفات AnonXMusic إلى مجلد البوت الجديد
+        # نسخ ملفات AnonXMusic إلى مجلد البوت الجديد (باستثناء الملفات غير الضرورية)
         import shutil
         if os.path.exists("Make"):
-            shutil.copytree("Make", f"Maked/{id}", dirs_exist_ok=True)
+            try:
+                def ignore_unnecessary(dir, files):
+                    return [f for f in files if f in ['.git', '.gitignore', '__pycache__', '*.pyc', '*.session']]
+                shutil.copytree("Make", f"Maked/{id}", dirs_exist_ok=True, ignore=ignore_unnecessary)
+            except Exception as e:
+                # في حالة فشل النسخ، نسخ الملفات الأساسية فقط
+                essential_files = ['AnonXMusic', 'config.py', 'requirements.txt', '__main__.py']
+                for item in essential_files:
+                    src = f"Make/{item}"
+                    dst = f"Maked/{id}/{item}"
+                    if os.path.exists(src):
+                        if os.path.isdir(src):
+                            shutil.copytree(src, dst, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(src, dst)
         
         env = open(f"Maked/{id}/.env", "w+", encoding="utf-8")
         env.write(f"ID = {id}\nBOT_TOKEN = {TOKEN}\nSTRING_SESSION = {SESSION}\nOWNER_ID = {Dev}\nLOGGER_ID = {loger.id}")
