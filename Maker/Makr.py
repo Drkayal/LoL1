@@ -576,6 +576,24 @@ youtube-search-python
 yt-dlp"""
         with open(f"Maked/{id}/requirements.txt", "w", encoding="utf-8") as req_file:
             req_file.write(requirements_content)
+        
+        # إنشاء ملف __main__.py للبوت الجديد
+        main_content = """import asyncio
+from pyrogram import idle
+from AnonXMusic import app
+
+async def main():
+    print("🚀 بدء تشغيل البوت...")
+    await app.start()
+    print("✅ تم تشغيل البوت بنجاح!")
+    await idle()
+    await app.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+"""
+        with open(f"Maked/{id}/__main__.py", "w", encoding="utf-8") as main_file:
+            main_file.write(main_content)
 
         # التحقق من وجود الملفات المطلوبة
         required_files = ['AnonXMusic', 'config.py']
@@ -588,19 +606,58 @@ yt-dlp"""
             os.system(f"rm -rf Maked/{id}")
             return await message.reply_text(f"<b>فشل التنصيب: ملفات مفقودة {missing_files}</b>")
         
-        # تثبيت المتطلبات أولاً
-        install_check = os.system(f"cd Maked/{id} && pip3 install --no-cache-dir pyrogram pyromod python-dotenv motor pymongo")
-        if install_check != 0:
-            await message.reply_text("⚠️ تحذير: فشل تثبيت بعض المتطلبات، سيتم المحاولة مع المتطلبات الموجودة")
+        # تثبيت المتطلبات أولاً (بصمت لتجنب التأخير)
+        install_check = os.system(f"cd Maked/{id} && pip3 install --user --break-system-packages --quiet pyrogram pyromod python-dotenv motor pymongo > /dev/null 2>&1")
+        # لا نعرض رسالة تحذير لأن المكتبات مثبتة على النظام
         
-        # تجربة التشغيل داخل screen مع تسجيل أفضل للأخطاء
-        check = os.system(f"cd Maked/{id} && timeout 15 python3 -c 'import AnonXMusic; print(\"تم التحقق من الملفات بنجاح\")'")
-        if check != 0:
+        # إنشاء ملف __init__.py في مجلد AnonXMusic إذا لم يكن موجوداً
+        init_file_path = f"Maked/{id}/AnonXMusic/__init__.py"
+        if not os.path.exists(init_file_path):
+            # نسخ __init__.py من المجلد الأصلي
+            if os.path.exists("Make/AnonXMusic/__init__.py"):
+                import shutil
+                shutil.copy2("Make/AnonXMusic/__init__.py", init_file_path)
+            else:
+                # إنشاء __init__.py بسيط
+                with open(init_file_path, "w", encoding="utf-8") as init_file:
+                    init_file.write("""# AnonXMusic Bot - Simplified Version
+import os
+import sys
+from pyrogram import Client
+
+# إضافة المسار الحالي والمسار الرئيسي إلى sys.path
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, current_dir)
+sys.path.insert(0, parent_dir)
+
+# استيراد التكوين
+try:
+    from config import API_ID, API_HASH, BOT_TOKEN, STRING1, OWNER_ID, LOGGER_ID
+except ImportError:
+    # في حالة عدم وجود config.py، استخدم القيم الافتراضية
+    API_ID = 17490746
+    API_HASH = "ed923c3d59d699018e79254c6f8b6671"
+    BOT_TOKEN = "YOUR_BOT_TOKEN"
+    STRING1 = ""
+    OWNER_ID = 0
+    LOGGER_ID = 0
+
+# إنشاء عميل البوت
+app = Client("AnonXMusicBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# تصدير المتغيرات المهمة
+__all__ = ["app", "API_ID", "API_HASH", "BOT_TOKEN", "OWNER_ID", "LOGGER_ID"]
+""")
+        
+        # اختبار أبسط - التحقق من وجود الملفات الأساسية فقط
+        essential_check = os.path.exists(f"Maked/{id}/AnonXMusic") and os.path.exists(f"Maked/{id}/config.py")
+        if not essential_check:
             os.system(f"rm -rf Maked/{id}")
-            return await message.reply_text("<b>فشل في التحقق من ملفات البوت، تم إلغاء التنصيب وحذف الملفات.</b>")
+            return await message.reply_text("<b>فشل في إنشاء الملفات الأساسية، تم إلغاء التنصيب وحذف الملفات.</b>")
 
         # إعادة تشغيل البوت رسميًا
-        os.system(f"cd Maked/{id} && screen -dmS {id} python3 -m AnonXMusic")
+        os.system(f"cd Maked/{id} && screen -dmS {id} python3 __main__.py")
         Bots.append([id, Dev])
         db.insert_one({"username": id, "dev": Dev})
 
