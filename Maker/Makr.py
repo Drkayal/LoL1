@@ -549,7 +549,7 @@ BOT_TOKEN = "{TOKEN}"
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = {loger.id}
+LOGGER_ID = {LOGGER_ID}
 
 # Get this value from @FallenxBot on Telegram by /id
 OWNER_ID = {Dev}
