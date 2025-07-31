@@ -1,0 +1,14 @@
+nohup: ignoring input
+[31-Jul-25 07:34:51 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 07:34:51 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 07:34:51 - INFO] - AnonXMusic.core.dir - Directories Updated.
+Traceback (most recent call last):
+  File "/workspace/Maked/AAAK3BOT/__main__.py", line 3, in <module>
+    from AnonXMusic import app
+  File "/workspace/Maked/AAAK3BOT/AnonXMusic/__init__.py", line 10, in <module>
+    git()
+    ~~~^^
+  File "/workspace/Maked/AAAK3BOT/AnonXMusic/core/git.py", line 33, in git
+    REPO_LINK = config.UPSTREAM_REPO
+                ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'config' has no attribute 'UPSTREAM_REPO'

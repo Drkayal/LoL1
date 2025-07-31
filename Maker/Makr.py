@@ -545,13 +545,35 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Basic Configuration
 API_ID = int(getenv("API_ID", "17490746"))
 API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 BOT_TOKEN = "{TOKEN}"
-MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0")
 OWNER_ID = int("{Dev}")
 LOGGER_ID = int("{loger.id}")
 STRING1 = "{SESSION}"
+
+# Additional Configuration
+DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
+TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", 104857600))
+TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
+PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", 25))
+
+# Heroku Configuration (Optional)
+HEROKU_APP_NAME = getenv("HEROKU_APP_NAME", None)
+HEROKU_API_KEY = getenv("HEROKU_API_KEY", None)
+
+# Additional Sessions (Optional)
+STRING2 = getenv("STRING_SESSION2", None)
+STRING3 = getenv("STRING_SESSION3", None)
+STRING4 = getenv("STRING_SESSION4", None)
+STRING5 = getenv("STRING_SESSION5", None)
+
+# Other Configuration
+BANNED_USERS = set()
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/K55DD")
+SUPPORT_GROUP = getenv("SUPPORT_GROUP", "https://t.me/YMMYN")
 """
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as config_file:
             config_file.write(config_content)
@@ -656,8 +678,8 @@ __all__ = ["app", "API_ID", "API_HASH", "BOT_TOKEN", "OWNER_ID", "LOGGER_ID"]
             os.system(f"rm -rf Maked/{id}")
             return await message.reply_text("<b>فشل في إنشاء الملفات الأساسية، تم إلغاء التنصيب وحذف الملفات.</b>")
 
-        # إعادة تشغيل البوت رسميًا
-        os.system(f"cd Maked/{id} && screen -dmS {id} python3 __main__.py")
+        # إعادة تشغيل البوت رسميًا باستخدام nohup
+        os.system(f"cd Maked/{id} && nohup python3 __main__.py > bot_{id}.log 2>&1 &")
         Bots.append([id, Dev])
         db.insert_one({"username": id, "dev": Dev})
 
@@ -762,10 +784,11 @@ async def update_factory(client: Client, message):
         await message.reply_text(f"** ≭︰فشل تحديث المصنع: {e} **")
 
 
-def is_screen_running(name):
+def is_bot_running(name):
     try:
-        output = subprocess.check_output(f"screen -ls | grep -w {name}", shell=True)
-        return True
+        # التحقق من وجود عملية البوت باستخدام ps
+        output = subprocess.check_output(f"ps aux | grep 'python3.*{name}' | grep -v grep", shell=True)
+        return len(output.strip()) > 0
     except subprocess.CalledProcessError:
         return False
 
@@ -779,7 +802,7 @@ async def choose_and_start_bot(client, message):
 
     bots_to_start = []
     for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and not is_screen_running(folder):
+        if re.search('[Bb][Oo][Tt]', folder) and not is_bot_running(folder):
             bots_to_start.append(folder)
 
     if not bots_to_start:
@@ -800,11 +823,11 @@ async def start_selected_bot(client, callback_query):
     bot_folder = f"Maked/{bot_username}"
 
     if os.path.exists(bot_folder):
-        if is_screen_running(bot_username):
+        if is_bot_running(bot_username):
             await callback_query.answer(f"** ≭︰البوت @{bot_username} يعمل بالفعل **")
         else:
             subprocess.Popen(
-                f'cd Maked/{bot_username} && screen -d -m -S {bot_username} python3 -m AnonXMusic',
+                f'cd Maked/{bot_username} && nohup python3 __main__.py > bot_{bot_username}.log 2>&1 &',
                 shell=True
             )
             await callback_query.answer(f"** ≭︰تم تشغيل البوت @{bot_username} بنجاح **")
@@ -850,7 +873,7 @@ async def show_running_bots(client, message):
 
     running_bots = []
     for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and is_screen_running(folder):
+        if re.search('[Bb][Oo][Tt]', folder) and is_bot_running(folder):
             running_bots.append(folder)
 
     if not running_bots:
@@ -871,10 +894,10 @@ async def start_Allusers(client, message):
     n = 0
     for folder in os.listdir("Maked"):
         if re.search('[Bb][Oo][Tt]', folder):
-            if is_screen_running(folder):
+            if is_bot_running(folder):
                 continue 
             subprocess.Popen(
-                f'cd Maked/{folder} && screen -d -m -S {folder} python3 -m AnonXMusic',
+                f'cd Maked/{folder} && nohup python3 __main__.py > bot_{folder}.log 2>&1 &',
                 shell=True
             )
             n += 1
