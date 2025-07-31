@@ -496,6 +496,7 @@ async def maked(client, message):
     # نسخ ملفات AnonXMusic الكاملة للحصول على جميع الوظائف
     os.system(f"cp -r Make/AnonXMusic Maked/{id}/")
     os.system(f"cp -r Make/strings Maked/{id}/")
+    os.system(f"cp -r Make/cookies Maked/{id}/")
     os.system(f"cp Make/config.py Maked/{id}/")
     os.system(f"cp Make/requirements.txt Maked/{id}/")
     os.system(f"cp Make/__main__.py Maked/{id}/")
