@@ -113,7 +113,7 @@ MAX_SESSIONS = min(100, (psutil.cpu_count() * 4))  # ديناميكي حسب ا�
 MAX_WORKERS = min(200, (psutil.cpu_count() * 10))  # ديناميكي حسب المعالج
 
 # قناة التخزين الذكي (يوزر أو ID)
-SMART_CACHE_CHANNEL = getattr(config, 'CACHE_CHANNEL_ID', None)
+SMART_CACHE_CHANNEL = config.CACHE_CHANNEL_ID
 DATABASE_PATH = "AnonXMusic.db"
 DB_FILE = DATABASE_PATH  # توحيد أسماء قواعد البيانات
 
