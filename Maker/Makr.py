@@ -562,31 +562,52 @@ async def maked(client, message):
         # إنشاء بوت موسيقي مستقل بدلاً من نسخ الملفات المعقدة
         import shutil
         
-        # تحديث ملف config.py بالمعلومات الجديدة
-        config_update = f"""import re
+        # إنشاء قالب config.py محسن وآمن
+        config_template = f"""import re
+import os
 from os import getenv
-
 from dotenv import load_dotenv
 from pyrogram import filters
 
+# تحميل متغيرات البيئة
 load_dotenv()
 
+# =======================================
+# إعدادات قاعدة البيانات
+# =======================================
 MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
 
-# Get this value from my.telegram.org/apps
-API_ID = 17490746
-API_HASH = "ed923c3d59d699018e79254c6f8b6671"
+# =======================================
+# إعدادات Telegram API
+# =======================================
+API_ID = int(getenv("API_ID", "17490746"))
+API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
 
-# Get your token from @BotFather on Telegram.
-BOT_TOKEN = "{TOKEN}"
+# =======================================
+# إعدادات البوت
+# =======================================
+BOT_TOKEN = "{{BOT_TOKEN}}"
 
+# مدة الحد الأقصى للمقاطع (بالدقائق)
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
 
-# Chat id of a group for logging bot's activities
-LOGGER_ID = PLACEHOLDER_LOGGER_ID
+# معرف مجموعة السجلات
+LOGGER_ID = {{LOGGER_ID}}
 
-# Get this value from @FallenxBot on Telegram by /id
+# معرف المالك
 OWNER_ID = {Dev}
+
+# =======================================
+# التحقق من البيانات الحرجة
+# =======================================
+if not BOT_TOKEN or BOT_TOKEN == "{{BOT_TOKEN}}":
+    raise ValueError("❌ BOT_TOKEN غير محدد بشكل صحيح")
+
+if not LOGGER_ID or LOGGER_ID == "{{LOGGER_ID}}":
+    raise ValueError("❌ LOGGER_ID غير محدد بشكل صحيح")
+
+if not OWNER_ID:
+    raise ValueError("❌ OWNER_ID غير محدد بشكل صحيح")
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name
@@ -669,9 +690,24 @@ if SUPPORT_CHAT:
 """
         
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
-            # استبدال المتغيرات في config_update
-            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION).replace("PLACEHOLDER_LOGGER_ID", str(loger.id))
-            f.write(final_config)
+            # استبدال المتغيرات في القالب بشكل آمن
+            try:
+                final_config = config_template.replace("{{BOT_TOKEN}}", TOKEN)
+                final_config = final_config.replace("{{LOGGER_ID}}", str(loger.id))
+                final_config = final_config.replace("{SESSION}", SESSION)
+                
+                # التحقق من نجاح الاستبدال
+                if "{{BOT_TOKEN}}" in final_config or "{{LOGGER_ID}}" in final_config:
+                    raise ValueError("فشل في استبدال المتغيرات في قالب التكوين")
+                
+                f.write(final_config)
+                print(f"✅ تم إنشاء ملف config.py للبوت {id} بنجاح")
+                print(f"   🔑 BOT_TOKEN: {TOKEN[:20]}...")
+                print(f"   📝 LOGGER_ID: {loger.id}")
+                print(f"   👑 OWNER_ID: {Dev}")
+                
+            except Exception as e:
+                raise Exception(f"خطأ في إنشاء ملف config.py: {e}")
 
 
         
