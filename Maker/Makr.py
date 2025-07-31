@@ -449,35 +449,161 @@ async def onoff(client, message):
 
 @app.on_message(filters.command("❲ صنع بوت ❳", "") & filters.private)
 async def maked(client, message):
+    """دالة صناعة البوتات المحسنة"""
+    
+    # استيراد الوحدات المحسنة
+    try:
+        from core.bot_factory import BotFactory, BotCreationError
+        from core.process_manager import process_manager
+    except ImportError as e:
+        logger.error(f"خطأ في استيراد الوحدات المحسنة: {e}")
+        return await message.reply_text("❌ خطأ في تحميل وحدات النظام")
+    
     # التأكد من وجود مجلد Maked
     if not os.path.exists("Maked"):
         os.makedirs("Maked", exist_ok=True)
     
-    if not is_dev(message.from_user.id):
+    # التحقق من صلاحيات المستخدم
+    user_id = message.from_user.id
+    if not is_dev(user_id):
         for bot in Bots:
-            if int(bot[1]) == message.from_user.id:
-                return await message.reply_text("<b> ≭︰لـقـد قـمت بـصـنع بـوت مـن قـبل </b>")
+            if int(bot[1]) == user_id:
+                return await message.reply_text("**≭︰لـقـد قـمت بـصـنع بـوت مـن قـبل**")
 
+    # إنشاء مصنع البوتات
+    bot_factory = BotFactory(
+        api_id=API_ID,
+        api_hash=API_HASH,
+        mongo_url=MONGO_DB_URL
+    )
+    
+    progress_msg = None
+    
+    async def update_progress(status: str):
+        """تحديث رسالة التقدم"""
+        nonlocal progress_msg
+        try:
+            if progress_msg:
+                await progress_msg.edit_text(f"**🔄 جاري إنشاء البوت...**\n\n{status}")
+            else:
+                progress_msg = await message.reply_text(f"**🔄 جاري إنشاء البوت...**\n\n{status}")
+        except:
+            pass
+    
     try:
-        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل تـوكـن الـبوت </b>", timeout=75)
-        TOKEN = ask.text
-        bot = Client(":memory:", api_id=API_ID, api_hash=API_HASH, bot_token=TOKEN, in_memory=True)
-        await bot.start()
-        bot_me = await bot.get_me()
-        username = bot_me.username
-        bot_id = bot_me.id
-        await bot.stop()
-    except:
-        return await message.reply_text("<b> ≭︰توكن البوت غير صحيح</b>")
+        # طلب توكن البوت
+        await update_progress("⏳ في انتظار توكن البوت...")
+        ask = await client.ask(
+            message.chat.id, 
+            "**≭︰ أرسل توكن البوت**\n\n"
+            "💡 يمكنك الحصول على التوكن من @BotFather\n"
+            "⚠️ تأكد من صحة التوكن قبل الإرسال", 
+            timeout=120
+        )
+        bot_token = ask.text.strip()
+        
+        # طلب كود الجلسة
+        await update_progress("⏳ في انتظار كود الجلسة...")
+        ask = await client.ask(
+            message.chat.id, 
+            "**≭︰ أرسل كود الجلسة**\n\n"
+            "💡 يمكنك الحصول على الجلسة من @StringFatherBot\n"
+            "⚠️ تأكد من صحة الجلسة قبل الإرسال", 
+            timeout=120
+        )
+        session_string = ask.text.strip()
+        
+        # تحديد المطور
+        owner_id = user_id
+        if user_id in OWNER_ID:
+            try:
+                ask = await client.ask(
+                    message.chat.id, 
+                    "**≭︰ أرسل معرف المطور**\n\n"
+                    "💡 أرسل معرف المطور الذي سيملك البوت\n"
+                    "⚠️ أو اتركه فارغاً لتكون أنت المالك", 
+                    timeout=60
+                )
+                if ask.text.strip().isdigit():
+                    owner_id = int(ask.text.strip())
+                    # التحقق من صحة المعرف
+                    await client.get_users(owner_id)
+            except:
+                pass  # استخدام المعرف الافتراضي
+        
+        # بدء عملية إنشاء البوت
+        success, bot_info, error_msg = await bot_factory.create_bot(
+            bot_token=bot_token,
+            session_string=session_string,
+            owner_id=owner_id,
+            progress_callback=update_progress
+        )
+        
+        if success and bot_info:
+            # إضافة البوت لقائمة البوتات
+            Bots.append([bot_info['username'], owner_id])
+            db.insert_one({"username": bot_info['username'], "dev": owner_id})
+            
+            # إرسال رسالة النجاح
+            success_text = f"""**✅ تم إنشاء البوت بنجاح!**
 
-    try:
-        ask = await client.ask(message.chat.id, "<b> ≭︰ارسـل كـود الـجلسـه </b>", timeout=75)
-        SESSION = ask.text
-        user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, in_memory=True)
-        await user.start()
-        await user.stop()
-    except:
-        return await message.reply_text("<b> ≭︰كود الجلسة غير صحيح</b>")
+🤖 **معرف البوت:** @{bot_info['username']}
+👑 **المطور:** {owner_id}
+📝 **مجموعة السجلات:** {bot_info['logger_group']['invite_link']}
+🎵 **نوع البوت:** موسيقى متقدم
+⚡ **الحالة:** يعمل الآن
+
+**🎉 البوت جاهز للاستخدام!**
+**يمكنك الآن إضافته لمجموعاتك والاستمتاع بالموسيقى**"""
+            
+            if progress_msg:
+                await progress_msg.edit_text(success_text)
+            else:
+                await message.reply_text(success_text)
+                
+            # إرسال إشعار للمطورين
+            for owner in OWNER:
+                try:
+                    await client.send_message(
+                        owner,
+                        f"**🔔 تنصيب جديد**\n\n"
+                        f"**البوت:** @{bot_info['username']}\n"
+                        f"**المطور:** {owner_id}\n"
+                        f"**المنشئ:** {message.from_user.mention}\n"
+                        f"**الوقت:** {asyncio.get_event_loop().time()}"
+                    )
+                except:
+                    pass
+                    
+        else:
+            # فشل في الإنشاء
+            error_text = f"**❌ فشل في إنشاء البوت**\n\n**السبب:** {error_msg or 'خطأ غير معروف'}"
+            if progress_msg:
+                await progress_msg.edit_text(error_text)
+            else:
+                await message.reply_text(error_text)
+                
+    except BotCreationError as e:
+        error_text = f"**❌ خطأ في صناعة البوت**\n\n**التفاصيل:** {str(e)}"
+        if progress_msg:
+            await progress_msg.edit_text(error_text)
+        else:
+            await message.reply_text(error_text)
+            
+    except asyncio.TimeoutError:
+        error_text = "**⏰ انتهت مهلة الانتظار**\n\nيرجى المحاولة مرة أخرى والإجابة في الوقت المحدد"
+        if progress_msg:
+            await progress_msg.edit_text(error_text)
+        else:
+            await message.reply_text(error_text)
+            
+    except Exception as e:
+        logger.error(f"خطأ غير متوقع في صناعة البوت: {e}")
+        error_text = f"**❌ خطأ غير متوقع**\n\n**التفاصيل:** {str(e)}"
+        if progress_msg:
+            await progress_msg.edit_text(error_text)
+        else:
+            await message.reply_text(error_text)
 
     Dev = message.from_user.id
     if message.from_user.id in OWNER_ID:
@@ -923,24 +1049,69 @@ async def stop_specific_bot(c, message):
 
 @Client.on_message(filters.command("❲ البوتات المشتغلة ❳", ""))
 async def show_running_bots(client, message):
+    """عرض البوتات المشغلة باستخدام مدير العمليات المحسن"""
     if not is_dev(message.from_user.id):
-        await message.reply_text("** ≭︰هذا الامر يخص المطور **")
+        await message.reply_text("**≭︰هذا الامر يخص المطور**")
         return
 
-    if not os.path.exists('Maked'):
-        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-        return
+    try:
+        from core.process_manager import process_manager
+        
+        # الحصول على إحصائيات البوتات
+        stats = process_manager.get_bot_stats()
+        running_bots = process_manager.get_running_bots()
+        
+        if not running_bots:
+            await message.reply_text("**≭︰لا يوجد أي بوت يعمل حالياً**")
+            return
+        
+        # إنشاء قائمة مفصلة بالبوتات المشغلة
+        bots_text = "**📊 البوتات المشغلة حالياً:**\n\n"
+        
+        for i, bot in enumerate(running_bots, 1):
+            uptime = ""
+            if bot.start_time:
+                uptime_seconds = time.time() - bot.start_time
+                uptime_hours = int(uptime_seconds // 3600)
+                uptime_minutes = int((uptime_seconds % 3600) // 60)
+                uptime = f"{uptime_hours}h {uptime_minutes}m"
+            
+            bots_text += f"**{i}.** @{bot.username}\n"
+            bots_text += f"   💾 الذاكرة: {bot.memory_usage:.1f} MB\n"
+            bots_text += f"   ⚡ المعالج: {bot.cpu_usage:.1f}%\n"
+            bots_text += f"   ⏱️ وقت التشغيل: {uptime}\n"
+            bots_text += f"   👑 المالك: {bot.owner_id}\n\n"
+        
+        # إضافة الإحصائيات العامة
+        bots_text += f"**📈 الإحصائيات العامة:**\n"
+        bots_text += f"🟢 مشغل: {stats['running_bots']}\n"
+        bots_text += f"🔴 متوقف: {stats['stopped_bots']}\n"
+        bots_text += f"📊 المجموع: {stats['total_bots']}\n"
+        bots_text += f"💾 إجمالي الذاكرة: {stats['total_memory_usage']:.1f} MB\n"
+        bots_text += f"⚡ إجمالي المعالج: {stats['total_cpu_usage']:.1f}%"
+        
+        await message.reply_text(bots_text)
+        
+    except ImportError:
+        # العودة للطريقة القديمة في حالة عدم وجود الوحدة
+        if not os.path.exists('Maked'):
+            await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
+            return
 
-    running_bots = []
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and is_bot_running(folder):
-            running_bots.append(folder)
+        running_bots = []
+        for folder in os.listdir("Maked"):
+            if re.search('[Bb][Oo][Tt]', folder) and is_bot_running(folder):
+                running_bots.append(folder)
 
-    if not running_bots:
-        await message.reply_text("** ≭︰لا يوجد أي بوت يعمل حالياً **")
-    else:
-        bots_list = "\n".join(f"- @{b}" for b in running_bots)
-        await message.reply_text(f"** ≭︰البوتات المشتغلة حالياً:**\n\n{bots_list}")
+        if not running_bots:
+            await message.reply_text("**≭︰لا يوجد أي بوت يعمل حالياً**")
+        else:
+            bots_list = "\n".join(f"- @{b}" for b in running_bots)
+            await message.reply_text(f"**≭︰البوتات المشتغلة حالياً:**\n\n{bots_list}")
+            
+    except Exception as e:
+        logger.error(f"خطأ في عرض البوتات المشغلة: {e}")
+        await message.reply_text(f"**❌ خطأ في عرض البوتات:** {e}")
 
 @Client.on_message(filters.command("❲ تشغيل البوتات ❳", ""))
 async def start_Allusers(client, message):
