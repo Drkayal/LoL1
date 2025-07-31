@@ -489,7 +489,7 @@ async def maked(client, message):
     if os.path.exists(f"Maked/{id}"):
         os.system(f"rm -rf Maked/{id}")
 
-    os.system(f"cp -a Make Maked/{id}")
+    # لا ننسخ ملفات Make، سننشئ بوت مبسط جديد
 
     try:
         user = Client("user", api_id=API_ID, api_hash=API_HASH, session_string=SESSION, test_mode=True, in_memory=True)
@@ -805,19 +805,13 @@ def create_bot_files(bot_id, token, session, owner_id, logger_id):
     os.makedirs(f"{base_path}/AnonXMusic/utils", exist_ok=True)
     os.makedirs(f"{base_path}/AnonXMusic/plugins", exist_ok=True)
     
-    # 1. إنشاء AnonXMusic/__init__.py
+    # 1. إنشاء AnonXMusic/__init__.py - مبسط جداً
     init_content = f'''
 import os
 import sys
 from pyrogram import Client
 
-# إعداد المسارات
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, current_dir)
-sys.path.insert(0, parent_dir)
-
-# التكوين
+# التكوين الأساسي
 API_ID = 17490746
 API_HASH = "ed923c3d59d699018e79254c6f8b6671"
 BOT_TOKEN = "{token}"
@@ -830,26 +824,22 @@ app = Client("{bot_id}_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOK
 # المتغيرات المهمة
 BANNED_USERS = set()
 
-# تحميل البرمجيات المساعدة
-try:
-    import sys
-    import os
-    import importlib.util
-    
-    plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
-    if os.path.exists(plugins_dir):
-        for filename in os.listdir(plugins_dir):
-            if filename.endswith(".py") and filename != "__init__.py":
-                module_name = filename[:-3]
-                file_path = os.path.join(plugins_dir, filename)
-                
+# تحميل البرمجيات تلقائياً
+import importlib.util
+plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
+if os.path.exists(plugins_dir):
+    for filename in os.listdir(plugins_dir):
+        if filename.endswith(".py") and filename != "__init__.py":
+            module_name = filename[:-3]
+            file_path = os.path.join(plugins_dir, filename)
+            try:
                 spec = importlib.util.spec_from_file_location(module_name, file_path)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     print(f"✅ تم تحميل البرمجية: {{module_name}}")
-except Exception as e:
-    print(f"⚠️ خطأ في تحميل البرمجيات: {{e}}")
+            except Exception as e:
+                print(f"⚠️ خطأ في تحميل {{module_name}}: {{e}}")
 '''
     with open(f"{base_path}/AnonXMusic/__init__.py", "w", encoding="utf-8") as f:
         f.write(init_content)
