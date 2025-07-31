@@ -644,3 +644,49 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
+
+
+# Must join channel functions
+mustdb = mongodb.mustjoin
+
+async def get_must(bot_username: str) -> str:
+    """Get the must join channel for a bot"""
+    result = await mustdb.find_one({"bot_username": bot_username})
+    return result["channel"] if result else None
+
+async def set_must(bot_username: str, channel: str):
+    """Set the must join channel for a bot"""
+    await mustdb.update_one(
+        {"bot_username": bot_username},
+        {"$set": {"channel": channel}},
+        upsert=True
+    )
+
+async def del_must(bot_username: str):
+    """Delete the must join channel for a bot"""
+    result = await mustdb.delete_one({"bot_username": bot_username})
+    return result.deleted_count > 0
+
+async def get_must_ch(bot_username: str) -> str:
+    """Get the must join channel for a bot (alias for get_must)"""
+    return await get_must(bot_username)
+
+async def set_must_ch(bot_username: str, channel: str):
+    """Set the must join channel for a bot (alias for set_must)"""
+    await set_must(bot_username, channel)
+
+# Bot name functions
+botnamedb = mongodb.botnames
+
+async def get_bot_name(bot_username: str) -> str:
+    """Get the bot name"""
+    result = await botnamedb.find_one({"bot_username": bot_username})
+    return result["name"] if result else None
+
+async def set_bot_name(bot_username: str, name: str):
+    """Set the bot name"""
+    await botnamedb.update_one(
+        {"bot_username": bot_username},
+        {"$set": {"name": name}},
+        upsert=True
+    )
