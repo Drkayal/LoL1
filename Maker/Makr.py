@@ -274,7 +274,87 @@ async def cmd(client, msg):
         await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ تشغيل بوت ❳":
+        # طلب معرف البوت من المستخدم
         await msg.reply("**أرسل معرف البوت الذي تريد تشغيله**", quote=True)
+        # تعيين حالة انتظار معرف البوت
+        set_broadcast_status(uid, bot_id, "start_bot")
+
+    elif msg.text == "❲ تشغيل البوتات ❳":
+        if not is_dev(uid):
+            await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
+            return
+        
+        all_bots = get_all_bots()
+        if not all_bots:
+            await msg.reply("** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply("**🔄 جاري تشغيل البوتات...**", quote=True)
+        
+        started_count = 0
+        failed_count = 0
+        already_running = 0
+        
+        for i, bot in enumerate(all_bots, 1):
+            # تحديث رسالة الحالة كل 3 بوتات
+            if i % 3 == 0:
+                await status_msg.edit(f"**🔄 جاري تشغيل البوتات... ({i}/{len(all_bots)})**")
+            
+            if bot.get("status") == "running":
+                already_running += 1
+                continue
+                
+            pid = start_bot_process(bot["username"])
+            if pid:
+                update_bot_status(bot["username"], "running")
+                bots_collection.update_one(
+                    {"username": bot["username"]},
+                    {"$set": {"pid": pid}}
+                )
+                started_count += 1
+            else:
+                failed_count += 1
+
+        # رسالة النتيجة النهائية
+        result_text = f"**📊 نتائج تشغيل البوتات:**\n\n"
+        result_text += f"✅ **تم تشغيل:** {started_count} بوت\n"
+        result_text += f"⚠️ **كانت تعمل:** {already_running} بوت\n"
+        result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
+        
+        if started_count == 0 and already_running == 0:
+            result_text = "**❌ لم يتم تشغيل أي بوت**"
+        elif started_count == 0:
+            result_text = f"**⚠️ كل البوتات تعمل بالفعل ({already_running} بوت)**"
+        
+        await status_msg.edit(result_text)
+
+    elif msg.text == "❲ البوتات المشتغلة ❳":
+        if not is_dev(uid):
+            await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
+            return
+
+        running_bots = get_running_bots()
+        if not running_bots:
+            await msg.reply("** ≭︰لا يوجد أي بوت يعمل حالياً **", quote=True)
+        else:
+            text = "** ≭︰البوتات المشتغلة حالياً:**\n\n"
+            for i, bot in enumerate(running_bots, 1):
+                # التحقق من أن البوت لا يزال يعمل
+                if "pid" in bot and bot["pid"]:
+                    try:
+                        import psutil
+                        if psutil.pid_exists(bot["pid"]):
+                            text += f"{i}. @{bot['username']} ✅ (PID: {bot['pid']})\n"
+                        else:
+                            text += f"{i}. @{bot['username']} ❌ (متوقف)\n"
+                            # تحديث الحالة في قاعدة البيانات
+                            update_bot_status(bot["username"], "stopped")
+                    except:
+                        text += f"{i}. @{bot['username']} ❓ (غير محدد)\n"
+                else:
+                    text += f"{i}. @{bot['username']} ❌ (بدون PID)\n"
+            await msg.reply(text, quote=True)
 
     elif msg.text == "❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳":
         try:
@@ -305,6 +385,32 @@ async def forbroacasts(client, msg):
     text = msg.text
     ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "الغاء"]
     if text in ignore:
+        return
+
+    # معالجة تشغيل بوت محدد
+    if get_broadcast_status(uid, bot_id, "start_bot"):
+        delete_broadcast_status(uid, bot_id, "start_bot")
+        bot_username = text.replace("@", "").strip()
+        
+        bot_info = get_bot_info(bot_username)
+        if not bot_info:
+            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            return
+        
+        if bot_info.get("status") == "running":
+            await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
+            return
+        
+        pid = start_bot_process(bot_username)
+        if pid:
+            update_bot_status(bot_username, "running")
+            bots_collection.update_one(
+                {"username": bot_username},
+                {"$set": {"pid": pid}}
+            )
+            await msg.reply(f"**✅ تم تشغيل البوت @{bot_username} بنجاح**", quote=True)
+        else:
+            await msg.reply(f"**❌ فشل في تشغيل البوت @{bot_username}**", quote=True)
         return
 
     if get_broadcast_status(uid, bot_id, "broadcast"):
@@ -918,7 +1024,20 @@ async def show_running_bots(client, message):
     else:
         text = "** ≭︰البوتات المشتغلة حالياً:**\n\n"
         for i, bot in enumerate(running_bots, 1):
-            text += f"{i}. @{bot['username']}\n"
+            # التحقق من أن البوت لا يزال يعمل
+            if "pid" in bot and bot["pid"]:
+                try:
+                    import psutil
+                    if psutil.pid_exists(bot["pid"]):
+                        text += f"{i}. @{bot['username']} ✅ (PID: {bot['pid']})\n"
+                    else:
+                        text += f"{i}. @{bot['username']} ❌ (متوقف)\n"
+                        # تحديث الحالة في قاعدة البيانات
+                        update_bot_status(bot["username"], "stopped")
+                except:
+                    text += f"{i}. @{bot['username']} ❓ (غير محدد)\n"
+            else:
+                text += f"{i}. @{bot['username']} ❌ (بدون PID)\n"
         await message.reply_text(text)
 
 @Client.on_message(filters.command("❲ تشغيل البوتات ❳", ""))
@@ -931,9 +1050,20 @@ async def start_Allusers(client, message):
     if not all_bots:
         return await message.reply_text("** ≭︰لا يوجد بوتات مصنوعة **")
     
+    # إرسال رسالة بداية العملية
+    status_msg = await message.reply_text("**🔄 جاري تشغيل البوتات...**")
+    
     started_count = 0
-    for bot in all_bots:
+    failed_count = 0
+    already_running = 0
+    
+    for i, bot in enumerate(all_bots, 1):
+        # تحديث رسالة الحالة كل 3 بوتات
+        if i % 3 == 0:
+            await status_msg.edit(f"**🔄 جاري تشغيل البوتات... ({i}/{len(all_bots)})**")
+        
         if bot.get("status") == "running":
+            already_running += 1
             continue
             
         pid = start_bot_process(bot["username"])
@@ -944,11 +1074,21 @@ async def start_Allusers(client, message):
                 {"$set": {"pid": pid}}
             )
             started_count += 1
+        else:
+            failed_count += 1
 
-    if started_count == 0:
-        await message.reply_text("** ≭︰كل البوتات تعمل بالفعل، لا يوجد بوتات لتشغيلها **")
-    else:
-        await message.reply_text(f"** ≭︰تم تشغيل {started_count} بوت بنجاح **")
+    # رسالة النتيجة النهائية
+    result_text = f"**📊 نتائج تشغيل البوتات:**\n\n"
+    result_text += f"✅ **تم تشغيل:** {started_count} بوت\n"
+    result_text += f"⚠️ **كانت تعمل:** {already_running} بوت\n"
+    result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
+    
+    if started_count == 0 and already_running == 0:
+        result_text = "**❌ لم يتم تشغيل أي بوت**"
+    elif started_count == 0:
+        result_text = f"**⚠️ كل البوتات تعمل بالفعل ({already_running} بوت)**"
+    
+    await status_msg.edit(result_text)
 
 @Client.on_message(filters.command("❲ ايقاف البوتات ❳", ""))
 async def stooop_Allusers(client, message):
