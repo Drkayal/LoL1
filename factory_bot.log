@@ -975,3 +975,111 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:38:15,718 - pyrogram.session.session - INFO - NetworkTask stopped
 2025-07-31 12:38:15,718 - pyrogram.connection.connection - INFO - Disconnected
 2025-07-31 12:38:15,718 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("me") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:39:05,940 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:39:05,941 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
+2025-07-31 12:39:05,941 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:39:07,266 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:39:07,266 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:39:07,266 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,266 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:39:07,266 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("me") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:39:07,267 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
+2025-07-31 12:39:07,267 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:39:25,553 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:25,567 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:26,808 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:27,142 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:27,545 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:27,941 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:28,302 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:28,715 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:29,039 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:29,456 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:30,081 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:30,289 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:30,548 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:30,758 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:30,969 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:31,945 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:32,152 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:32,358 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:33,070 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:33,280 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:33,491 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:34,037 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:34,244 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:34,451 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:34,962 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:35,172 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:35,383 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:36,017 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:36,225 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:36,432 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:37,032 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:37,242 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:37,453 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:37,986 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:38,193 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:38,400 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:39,043 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:39,253 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:39,463 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:39,989 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:40,195 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:40,403 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:41,169 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:41,380 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:41,591 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:42,093 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:42,300 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:42,507 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:43,183 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:43,393 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:43,603 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:44,126 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:44,334 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:44,541 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:45,382 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:45,592 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:45,803 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:46,130 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:46,338 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:39:46,545 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
