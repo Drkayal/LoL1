@@ -1173,3 +1173,225 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:43:14,896 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
 2025-07-31 12:43:14,896 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
 2025-07-31 12:43:14,897 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:44:05,474 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 12:44:07,889 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:44:07,889 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:44:07,890 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:44:07,890 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:44:07,890 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:44:10,692 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:10,752 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:10,868 - pyrogram.session.session - INFO - [1] Retrying "messages.SendMessage" due to: Telegram says: [500 RANDOM_ID_DUPLICATE] - You provided a random ID that was already used (caused by "messages.SendMessage")
+2025-07-31 12:44:13,671 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("me") in group 1 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:44:15,894 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
+2025-07-31 12:44:15,894 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:44:19,312 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:19,314 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:19,634 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:19,851 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,058 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,107 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,264 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,325 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,639 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,848 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:20,907 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:21,056 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:21,265 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:21,931 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,016 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,137 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,226 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,304 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,342 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,437 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,648 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,859 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:22,956 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:23,108 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:23,161 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:23,336 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:23,366 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:23,981 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:24,388 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:24,596 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:24,596 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:24,801 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:24,804 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,011 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,219 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,415 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,427 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,636 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,646 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:25,844 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:26,030 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:26,276 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:26,467 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:26,644 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:26,907 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,090 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,117 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,327 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,538 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,712 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,748 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:27,959 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:28,283 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:28,488 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:28,590 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:28,694 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:28,899 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:29,222 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:29,513 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:29,852 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:29,995 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,127 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,202 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,410 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,482 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,624 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,741 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,831 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:30,834 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:31,112 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:31,360 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:31,473 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:31,744 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:31,975 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:32,096 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:32,381 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:32,591 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:32,733 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,206 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,356 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,433 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,643 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,820 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:33,979 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:34,281 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:34,434 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:34,603 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:34,927 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:35,048 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:35,226 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:35,557 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:35,664 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:35,850 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:36,188 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:36,473 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:36,475 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:36,475 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:36,482 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:36,818 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:37,096 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:37,098 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:37,449 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:37,710 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:37,721 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,080 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,326 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,344 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,710 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,940 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:38,967 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:39,342 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:39,554 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:39,591 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:39,975 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:40,172 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:40,173 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,173 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,173 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,173 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,213 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:40,215 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,215 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,215 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,215 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,288 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,322 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,378 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,380 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,381 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,436 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,442 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,442 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:40,606 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:41,236 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:41,866 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:42,497 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:42,499 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:42,499 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:43,155 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:43,906 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:43,954 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:44,522 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:44,577 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,136 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,201 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,479 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,689 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,750 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,824 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:45,900 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,110 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,320 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,365 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,446 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,952 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:46,953 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:46,953 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:46,953 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:46,953 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:46,979 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:47,070 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:47,583 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:47,594 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:47,693 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,207 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,213 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,213 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:48,316 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,821 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,844 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,938 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:48,940 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:48,941 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:48,941 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:48,941 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:49,436 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:49,680 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,056 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,303 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,315 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,526 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,670 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,671 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "messages.SendMessage")
+2025-07-31 12:44:50,737 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:50,925 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:51,286 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:51,368 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:44:51,548 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
