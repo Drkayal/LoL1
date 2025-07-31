@@ -533,13 +533,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_ID = int(getenv("API_ID", "17490746"))
-API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")
+API_ID = 17490746
+API_HASH = "ed923c3d59d699018e79254c6f8b6671"
 BOT_TOKEN = "{TOKEN}"
 MONGO_DB_URI = "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/{id}_db?retryWrites=true&w=majority&appName=Cluster0"
 OWNER_ID = {Dev}
 LOGGER_ID = {loger.id}
 STRING1 = "{SESSION}"
+
+# Git Settings (مطلوبة في البداية)
+UPSTREAM_REPO = "https://github.com/AnonymousX1025/AnonXMusic"
+UPSTREAM_BRANCH = "master"
+GIT_TOKEN = None
 
 # إعدادات إضافية مطلوبة
 DURATION_LIMIT_MIN = 300
@@ -574,9 +579,6 @@ COOKIE_FILE = None
 BANNED_USERS = set()
 SUPPORT_CHANNEL = "https://t.me/K55DD"
 SUPPORT_GROUP = "https://t.me/YMMYN"
-UPSTREAM_REPO = "https://github.com/AnonymousX1025/AnonXMusic"
-UPSTREAM_BRANCH = "master"
-GIT_TOKEN = None
 SUPPORT_CHAT = "https://t.me/YMMYN"
 
 # String Sessions
@@ -592,6 +594,12 @@ PRIVATE_BOT_MODE = False
 SPOTIFY_CLIENT_ID = None
 SPOTIFY_CLIENT_SECRET = None
 SET_CMDS = True
+
+# متغيرات إضافية مطلوبة
+BOT_USERNAME = None
+DURATION_LIMIT = 300
+PLAYLIST_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
+YOUTUBE_API_KEY = None
 
 # Dictionary Variables
 adminlist = {{}}
@@ -613,7 +621,7 @@ SPOTIFY_ALBUM_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
 SPOTIFY_PLAYLIST_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
 CHANNEL_IMG_URL = "https://te.legra.ph/file/29f784cc45a91b4c11a9d.jpg"
 
-# Additional Settings
+# Advanced Settings
 AUTO_DOWNLOADS_CLEAR = True
 YOUTUBE_DOWNLOAD_EDIT_RM_TIME = 3
 ASSISTANT_NAME = "مساعد الموسيقى"
