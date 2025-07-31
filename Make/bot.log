@@ -1,0 +1,10 @@
+nohup: ignoring input
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 06:36:36 - INFO] - AnonXMusic.core.bot - Starting Bot...
+[31-Jul-25 06:36:38 - INFO] - AnonXMusic.misc - Sudoers Loaded.
+[31-Jul-25 06:36:43 - ERROR] - AnonXMusic.core.bot - Bot has failed to access the log group/channel.
+  Reason : ValueError.

@@ -19,7 +19,7 @@ MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@clust
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = int(getenv("LOGGER_ID", -1002051286023))
+LOGGER_ID = int(getenv("LOGGER_ID", -1002478863681))
 
 # ============================================
 # إعدادات النظام الذكي الجديد
