@@ -577,24 +577,11 @@ SUPPORT_GROUP = getenv("SUPPORT_GROUP", "https://t.me/YMMYN")
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as config_file:
             config_file.write(config_content)
         
-        # إنشاء ملف requirements.txt مبسط
-        requirements_content = """pyrogram
-pyromod
-python-dotenv
-motor
-pymongo
-aiofiles
-aiohttp
-gitpython
-heroku3
-pillow
-psutil
-py-tgcalls
-requests
-speedtest-cli
-uvloop
-youtube-search-python
-yt-dlp"""
+        # إنشاء ملف requirements.txt مبسط وأساسي فقط
+        requirements_content = """pyrogram>=2.0.0
+TgCrypto>=1.2.0
+python-dotenv>=0.19.0
+aiofiles>=0.8.0"""
         with open(f"Maked/{id}/requirements.txt", "w", encoding="utf-8") as req_file:
             req_file.write(requirements_content)
         
@@ -813,6 +800,11 @@ def create_bot_files(bot_id, token, session, owner_id, logger_id):
     """إنشاء ملفات البوت الموسيقي المستقل"""
     base_path = f"Maked/{bot_id}"
     
+    # إنشاء جميع المجلدات المطلوبة أولاً
+    os.makedirs(f"{base_path}/AnonXMusic/core", exist_ok=True)
+    os.makedirs(f"{base_path}/AnonXMusic/utils", exist_ok=True)
+    os.makedirs(f"{base_path}/AnonXMusic/plugins", exist_ok=True)
+    
     # 1. إنشاء AnonXMusic/__init__.py
     init_content = f'''
 import os
@@ -840,10 +832,24 @@ BANNED_USERS = set()
 
 # تحميل البرمجيات المساعدة
 try:
-    from .loader import load_plugins
-    print("🔄 تحميل البرمجيات المساعدة...")
-except ImportError:
-    print("⚠️ تعذر تحميل محمل البرمجيات")
+    import sys
+    import os
+    import importlib.util
+    
+    plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
+    if os.path.exists(plugins_dir):
+        for filename in os.listdir(plugins_dir):
+            if filename.endswith(".py") and filename != "__init__.py":
+                module_name = filename[:-3]
+                file_path = os.path.join(plugins_dir, filename)
+                
+                spec = importlib.util.spec_from_file_location(module_name, file_path)
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    print(f"✅ تم تحميل البرمجية: {{module_name}}")
+except Exception as e:
+    print(f"⚠️ خطأ في تحميل البرمجيات: {{e}}")
 '''
     with open(f"{base_path}/AnonXMusic/__init__.py", "w", encoding="utf-8") as f:
         f.write(init_content)
@@ -869,9 +875,9 @@ from AnonXMusic import app
 @app.on_message(filters.command("start"))
 async def start_command(client, message: Message):
     await message.reply(
-        "🎵 **مرحباً بك في البوت الموسيقي!**\\n\\n"
-        "✅ البوت يعمل بنجاح\\n"
-        "🤖 تم إنشاؤه بواسطة صانع البوتات\\n"
+        "🎵 **مرحباً بك في البوت الموسيقي!**\\\\n\\\\n"
+        "✅ البوت يعمل بنجاح\\\\n"
+        "🤖 تم إنشاؤه بواسطة صانع البوتات\\\\n"
         f"👤 المطور: {owner_id}",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("📞 تواصل مع المطور", url="tg://user?id={owner_id}")],
@@ -887,7 +893,7 @@ async def ping_command(client, message: Message):
 async def id_command(client, message: Message):
     user_id = message.from_user.id
     chat_id = message.chat.id
-    await message.reply(f"🆔 **معرفك:** `{user_id}`\\n🏷️ **معرف المحادثة:** `{chat_id}`")
+    await message.reply(f"🆔 **معرفك:** `{{user_id}}`\\\\n🏷️ **معرف المحادثة:** `{{chat_id}}`")
 '''
     with open(f"{base_path}/AnonXMusic/plugins/start.py", "w", encoding="utf-8") as f:
         f.write(start_plugin)
