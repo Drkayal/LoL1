@@ -14,7 +14,6 @@ from AnonXMusic.utils import seconds_to_min, time_to_seconds
 from AnonXMusic.utils.channelplay import get_channeplayCB
 from AnonXMusic.utils.decorators.language import languageCB
 from AnonXMusic.utils.decorators.play import PlayWrapper
-from AnonXMusic.plugins.tools.must_join import must_join_ch
 from AnonXMusic.utils.formatters import formats
 from AnonXMusic.utils.inline import (
     botplaylist_markup,
@@ -26,10 +25,40 @@ from AnonXMusic.utils.inline import (
 from AnonXMusic.utils.logger import play_logs
 from AnonXMusic.utils.stream.stream import stream
 from config import BANNED_USERS, lyrical
-@app.on_message(filters.command(["/play", "play", "/vplay", "شغل", "تشغيل", "فيد", "فيديو"], ""))
-@must_join_ch
+
+force_btn = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton(   
+              text=f"اضغط للأشتراك .", url=f"t.me/A1DIIU",)                        
+        ],        
+    ]
+)
+async def check_is_joined(message):    
+    try:
+        userid = message.from_user.id
+        user_name = message.from_user.first_name
+        status = await app.get_chat_member("A1DIIU", userid)
+        return True
+    except Exception:
+        await message.reply_text(f'❤️‍🩹┇عزيزي: {message.from_user.mention}\n🫀┇أشتࢪك في قناة البوت أولاً.\n🚧┇قناة البوت: @A1DIIU 🫂',reply_markup=force_btn,disable_web_page_preview=False)
+        return False
+
+
+@app.on_message(command(["فيديو","شغل","تشغيل"])
+    & filters.group
+    & ~BANNED_USERS
+)
+@app.on_message(filters.command(["play","vplay","cplay","cvplay",
+            "playforce",
+            "vplayforce",
+            "cplayforce",
+            "cvplayforce",])
+    & filters.group
+    & ~BANNED_USERS
+)
 @PlayWrapper
-async def play_command(
+async def play_commnd(
     client,
     message: Message,
     _,
@@ -40,6 +69,8 @@ async def play_command(
     url,
     fplay,
 ):
+    if not await check_is_joined(message):
+        return
     mystic = await message.reply_text(
         _["play_2"].format(channel) if channel else _["play_1"]
     )

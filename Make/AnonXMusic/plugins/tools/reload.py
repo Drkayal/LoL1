@@ -18,7 +18,7 @@ rel = {}
 
 
 @app.on_message(
-    command(["/admincache","/reload", "ريلود", "رفرش"]) & filters.group & ~BANNED_USERS
+    command(["/admincache","/reload", "ريلود", "فرمت"]) & filters.group & ~BANNED_USERS
 )
 @language
 async def reload_admin_cache(client, message: Message, _):

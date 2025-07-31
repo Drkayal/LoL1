@@ -1,51 +1,31 @@
-from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import UserNotParticipant, ChatAdminRequired
-from pyrogram.types import InlineKeyboardMarkup as ikm, InlineKeyboardButton as ikb
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.errors import ChatAdminRequired, UserNotParticipant, ChatWriteForbidden
 from AnonXMusic import app
-from AnonXMusic.utils.database import get_must, get_must_ch
 
-def must_join_ch(zohary):
-    async def ch_user(c, msg):
+@app.on_message(filters.incoming & filters.private, group=-1)
+async def must_join_channel(bot: Client, msg: Message):
+    if not "https://t.me/A1DIIU":  # Not compulsory
+        return
+    try:
         try:
-            if not msg.from_user:
-                return await zohary(c, msg)
-
-            is_must_enabled = await get_must_ch(app.username)
-            if is_must_enabled != "مفعل":
-                return await zohary(c, msg)
-
-            channel_url = await get_must(app.username)
-            if not channel_url:
-                return await zohary(c, msg)
-
-            channel_username = channel_url.replace("https://t.me/", "")
-
+            await bot.get_chat_member("A1DIIU", msg.from_user.id)
+        except UserNotParticipant:
+            if "https://t.me/A1DIIU".isalpha():
+                link = "https://t.me/A1DIIU"
+            else:
+                chat_info = await bot.get_chat("A1DIIU")
+                link = chat_info.invite_link
             try:
-                member_status = await app.get_chat_member(channel_username, msg.from_user.id)
-                if member_status.status in [
-                    ChatMemberStatus.MEMBER,
-                    ChatMemberStatus.ADMINISTRATOR,
-                    ChatMemberStatus.OWNER,
-                ]:
-                    return await zohary(c, msg)
-                else:
-                    raise UserNotParticipant
-            except UserNotParticipant:
                 await msg.reply(
-                    f"<b> 🚦 يجب ان تشترك في القناة\n\nقنـاة الـبـوت : « {channel_url} »</b>.",
+                    f"⌯︙عذࢪاَ عزيزي ↫ {msg.from_user.mention} \n⌯︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ\n⌯︙قناة البوت: @A1DIIU .\nꔹ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ꔹ",
                     disable_web_page_preview=True,
-                    reply_markup=ikm([
-                        [ikb("❲ اضغط للاشتراك بالقناة ❳", url=channel_url)]
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("اضغط للأشتراك .", url=link)]
                     ])
                 )
-                return
-            except ChatAdminRequired:
-                return await zohary(c, msg)
-
-        except Exception as e:
-            print(f"حدث خطأ أثناء التحقق من الاشتراك: {e}")
-            return await zohary(c, msg)
-
-        return await zohary(c, msg)
-
-    return ch_user
+                await msg.stop_propagation()
+            except ChatWriteForbidden:
+                pass
+    except ChatAdminRequired:
+        print(f"I'm not admin in the MUST_JOIN chat @A1DIIU !")

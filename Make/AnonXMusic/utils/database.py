@@ -1,13 +1,8 @@
 import random
 from typing import Dict, List, Union
-from pyrogram import Client
-from AnonXMusic import userbot, app
+
+from AnonXMusic import userbot
 from AnonXMusic.core.mongo import mongodb
-from motor.motor_asyncio import AsyncIOMotorClient as _mongo_client_
-from config import MONGO_DB_URI, CHANNEL
-from pyrogram import Client, filters
-from pyrogram.types import Message
-import asyncio
 
 authdb = mongodb.adminauth
 authuserdb = mongodb.authuser
@@ -17,7 +12,6 @@ blacklist_chatdb = mongodb.blacklistChat
 blockeddb = mongodb.blockedusers
 chatsdb = mongodb.chats
 channeldb = mongodb.cplaymode
-chmustdb = mongodb.chmustx
 countdb = mongodb.upcount
 gbansdb = mongodb.gban
 langdb = mongodb.language
@@ -27,8 +21,7 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
-channelchatdb = mongodb.channelchat
-bot_name = mongodb[f"namebotgg{app}"]
+
 # Shifting to memory [mongo sucks often]
 active = []
 activevideo = []
@@ -38,106 +31,12 @@ count = {}
 channelconnect = {}
 langm = {}
 loop = {}
-botname = {}
 maintenance = []
 nonadmin = {}
 pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
-
-auto_leave_col = mongodb.auto_leave
-
-async def set_auto_leave_status(status: bool):
-    await auto_leave_col.update_one(
-        {"_id": "auto_leave"},
-        {"$set": {"status": status}},
-        upsert=True
-    )
-
-async def get_auto_leave_status() -> bool:
-    data = await auto_leave_col.find_one({"_id": "auto_leave"})
-    return data.get("status", False) if data else False
-
-
-mongo_client = None
-
-async def get_data(client):
-    global mongo_client
-    if not mongo_client:
-        mongo_client = _mongo_client_(MONGO_DB_URI)
-    bot_username = client.me.username
-    return mongo_client[bot_username]
-
-async def toggle_contact(client, enable: bool):
-    db = await get_data(client)
-    collection = db["contact_status"]
-    if enable:
-        await collection.update_one({"_id": "contact"}, {"$set": {"enabled": True}}, upsert=True)
-    else:
-        await collection.update_one({"_id": "contact"}, {"$set": {"enabled": False}}, upsert=True)
-
-async def is_contact_enabled(client):
-    db = await get_data(client)
-    collection = db["contact_status"]
-    status = await collection.find_one({"_id": "contact"})
-    return status.get("enabled", False) if status else False
-
-
-
-async def play_logs(message, streamtype):
-    user_id = message.from_user.id
-    print(f"User {user_id} started a {streamtype} stream.")
-
-
-
-
-async def get_bot_name(bot_username):
-    name = botname.get(bot_username)
-    if not name:
-        bot = await bot_name.find_one({"bot_username": bot_username})  # تأكد من استخدام await هنا
-        if not bot:
-            return "بلاك"
-        botname[bot_username] = bot["bot_name"]
-        return bot["bot_name"]
-    return name
-
-
-async def set_bot_name(bot_username: dict, BOT_NAME: str):
-    botname[bot_username] = BOT_NAME
-    bot_name.update_one({"bot_username": bot_username}, {"$set": {"bot_name": BOT_NAME}}, upsert=True)
-
-async def set_must(username, ch):
-    if ch and username:  # التحقق من صحة المدخلات
-        await chmustdb.update_one({"username": username}, {"$set": {"ch": ch}}, upsert=True)
-
-# حذف قناة الاشتراك
-async def del_must(username):
-    if await get_must(username):
-        await chmustdb.update_one({"username": username}, {"$unset": {"ch": ""}})
-        return True
-    return False
-
-# استرجاع قناة الاشتراك على شكل رابط كامل
-async def get_must(username):
-    db = await chmustdb.find_one({"username": username})
-    if db and "ch" in db:
-        ch = db["ch"]
-        if not ch.startswith("https://t.me/"):  # التحقق إذا كان الرابط يحتوي على https://t.me/
-            ch = f"https://t.me/{ch}"  # إضافة الرابط فقط إذا لم يكن يحتوي عليه
-        return ch
-    return CHANNEL  # يرجع القناة الافتراضية إن لم توجد قناة
-
-# استرجاع حالة الاشتراك (مفعل / معطل)
-async def get_must_ch(username):
-    db = await chmustdb.find_one({"username": username})
-    if db and db.get("status") == "enable":
-        return "مفعل"
-    return "معطل"
-
-# تعيين حالة الاشتراك
-async def set_must_ch(username, x):
-    await chmustdb.update_one({"username": username}, {"$set": {"status": x}}, upsert=True)
 
 
 async def get_assistant_number(chat_id: int) -> str:
@@ -498,6 +397,19 @@ async def is_on_off(on_off: int) -> bool:
     return True
 
 
+async def add_on(on_off: int):
+    is_on = await is_on_off(on_off)
+    if is_on:
+        return
+    return await onoffdb.insert_one({"on_off": on_off})
+
+
+async def add_off(on_off: int):
+    is_off = await is_on_off(on_off)
+    if not is_off:
+        return
+    return await onoffdb.delete_one({"on_off": on_off})
+
 
 async def is_maintenance():
     if not maintenance:
@@ -535,66 +447,46 @@ async def maintenance_on():
     return await onoffdb.insert_one({"on_off": 1})
 
 
-async def is_served_user(client, user_id: int) -> bool:
-    userdb = await get_data(client)
-    userdb = userdb.users
-    user = await userdb.find_one({"user_id": user_id})
+async def is_served_user(user_id: int) -> bool:
+    user = await usersdb.find_one({"user_id": user_id})
     if not user:
         return False
     return True
 
 
-async def get_served_users(client) -> list:
-    userdb = await get_data(client)
-    userdb = userdb.users 
+async def get_served_users() -> list:
     users_list = []
-    async for user in userdb.find({"user_id": {"$gt": 0}}):
+    async for user in usersdb.find({"user_id": {"$gt": 0}}):
         users_list.append(user)
     return users_list
 
 
-async def add_served_user(client, user_id: int):
-    userdb = await get_data(client)
-    userdb = userdb.users
-    is_served = await is_served_user(client, user_id)
+async def add_served_user(user_id: int):
+    is_served = await is_served_user(user_id)
     if is_served:
         return
-    return await userdb.insert_one({"user_id": user_id})
+    return await usersdb.insert_one({"user_id": user_id})
 
-async def del_served_user(client, user_id: int):
-    chats = await get_data(client)
-    chatsdb = chats.users
-    is_served = await is_served_user(client, user_id)
-    if not is_served:
-        return
-    return await chatsdb.delete_one({"user_id": user_id})
 
-async def get_served_chats(client) -> list:
-    chats = await get_data(client)
-    chatsdb = chats.chats
+async def get_served_chats() -> list:
     chats_list = []
     async for chat in chatsdb.find({"chat_id": {"$lt": 0}}):
         chats_list.append(chat)
     return chats_list
 
 
-async def is_served_chat(client, chat_id: int) -> bool:
-    chats = await get_data(client)
-    chatsdb = chats.chats
+async def is_served_chat(chat_id: int) -> bool:
     chat = await chatsdb.find_one({"chat_id": chat_id})
     if not chat:
         return False
     return True
 
 
-async def add_served_chat(client, chat_id: int):
-    chats = await get_data(client)
-    chatsdb = chats.chats
-    is_served = await is_served_chat(client, chat_id)
+async def add_served_chat(chat_id: int):
+    is_served = await is_served_chat(chat_id)
     if is_served:
         return
     return await chatsdb.insert_one({"chat_id": chat_id})
-
 
 
 async def blacklisted_chats() -> list:
@@ -752,25 +644,3 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
-    
-async def get_served_channel() -> list:
-    chats_list = []
-    async for chat in channelchatdb.find({"chat_id": {"$lt": 0}}):
-        chats_list.append(chat)
-    return chats_list
-
-
-async def is_served_channel(client, chat_id: int) -> bool:
-    chats = await get_data(client)
-    chatsdb = chats.chats
-    chat = await channelchatdb.find_one({"chat_id": chat_id})
-    if not chat:
-        return False
-    return True
-
-
-async def add_served_channel(chat_id: int):
-    is_served = await is_served_chat(chat_id)
-    if is_served:
-        return
-    return await channelchatdb.insert_one({"chat_id": chat_id})
