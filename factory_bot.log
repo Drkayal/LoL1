@@ -908,3 +908,64 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:35:58,594 - pyrogram.session.session - INFO - NetworkTask stopped
 2025-07-31 12:35:58,594 - pyrogram.connection.connection - INFO - Disconnected
 2025-07-31 12:35:58,594 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:36:59,560 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-07-31 12:36:59,560 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:36:59,642 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-07-31 12:37:01,468 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-07-31 12:37:01,468 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:37:01,470 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:37:01,552 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-07-31 12:37:01,552 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:37:01,938 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:37:01,938 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:37:01,938 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:37:01,938 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:37:01,938 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:37:02,041 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:37:02,041 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:37:02,041 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:37:02,041 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:37:02,042 - pyrogram.session.auth - INFO - Start creating a new auth key on DC4
+2025-07-31 12:37:02,042 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:37:02,121 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:37:03,571 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-07-31 12:37:03,571 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:37:03,573 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:37:03,652 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:37:03,652 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:37:04,016 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:37:04,016 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:37:04,016 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:37:04,016 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:37:04,016 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:37:04,304 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:37:04,402 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:37:04,402 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:37:04,402 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:37:04,402 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:37:04,402 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:37:06,759 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:37:06,838 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:37:06,838 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:37:07,795 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:37:07,795 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:37:07,795 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:37:07,795 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:37:07,796 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:37:07,984 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:37:08,087 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:37:08,087 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:37:08,087 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:37:08,087 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:37:08,087 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:37:14,564 - pyrogram.connection.connection - INFO - Connecting...
+2025-07-31 12:37:15,264 - pyrogram.connection.connection - INFO - Connected! Production DC4 - IPv4
+2025-07-31 12:37:15,264 - pyrogram.session.session - INFO - NetworkTask started
+2025-07-31 12:37:15,663 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-07-31 12:37:15,663 - pyrogram.session.session - INFO - Device: CPython 3.13.3 - Pyrogram 2.0.106
+2025-07-31 12:37:15,663 - pyrogram.session.session - INFO - System: Linux 6.12.8+ (en)
+2025-07-31 12:37:15,663 - pyrogram.session.session - INFO - Session started
+2025-07-31 12:37:15,664 - pyrogram.session.session - INFO - PingTask started
+2025-07-31 12:37:15,862 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:37:16,010 - Maker.Makr - INFO - Created storage group: -1002751213372
+2025-07-31 12:37:17,095 - Maker.Makr - ERROR - Bot creation error: name 'CreateGroupCall' is not defined
