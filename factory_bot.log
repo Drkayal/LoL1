@@ -1751,3 +1751,6 @@ ValueError: Peer id invalid: -1002727115068
 2025-07-31 12:54:10,542 - Maker.Makr - INFO - Started bot AAAK2BOT with PID: 17797
 2025-07-31 12:54:10,918 - pyrogram.parser.html - INFO - Unclosed tags: <b> (x1)
 2025-07-31 12:54:54,005 - Maker.Makr - ERROR - Screen list error: Command 'screen -list | grep 'Detached'' returned non-zero exit status 1.
+2025-07-31 12:55:35,207 - Maker.Makr - WARNING - Process with PID 17797 not found
+2025-07-31 12:55:43,031 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "users.GetFullUser")
+2025-07-31 12:55:53,851 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 4 seconds before continuing (required by "users.GetFullUser")
