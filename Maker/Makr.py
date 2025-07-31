@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 from typing import List, Union, Callable, Dict
 from os import execle, environ, path
+from random import randint
 from pyrogram import filters, Client, enums
 from pyrogram import Client as app
 from pyrogram import __version__ as pyrover
@@ -22,6 +23,7 @@ from pyrogram.types import (
     ChatPrivileges, 
     Message
 )
+from pyrogram.raw.functions.phone import CreateGroupCall
 from pyrogram.errors import (
     ApiIdInvalid, PhoneNumberInvalid, PhoneCodeInvalid, 
     PhoneCodeExpired, SessionPasswordNeeded, PasswordHashInvalid, 
@@ -340,7 +342,7 @@ async def new_user(client, msg):
         if msg.chat.id not in OWNER_ID:
             try:
                 for user_id in OWNER_ID:
-                    await bot.send_message(int(user_id), text, reply_markup=reply_markup)
+                    await client.send_message(int(user_id), text, reply_markup=reply_markup)
             except PeerIdInvalid:
                 pass
 
@@ -389,7 +391,7 @@ async def user_count_callback(client, callback_query):
 
 # معالجات الأزرار المفقودة
 # تم إزالة المعالجات المكررة لأنها موجودة في معالج النصوص
-            
+    else:
         keyboard = [
             [("❲ صنع بوت ❳"), ("❲ حذف بوت ❳")],
             [("❲ استخراج جلسه ❳")],
