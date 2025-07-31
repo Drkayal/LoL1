@@ -34,13 +34,12 @@ from random import randint
 from pyrogram.raw.functions.phone import CreateGroupCall
 from pyrogram.types import ChatPrivileges
 from pyrogram.types import ReplyKeyboardRemove
-from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, CHANNEL, OWNER, GROUP, PHOTO, VIDEO
+from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, CHANNEL, GROUP, PHOTO, VIDEO
 
 Bots = []
 off = True
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
-km = MongoClient()
 km = MongoClient(MONGO_DB_URL)
 mongo_async = mongo_client(MONGO_DB_URL)
 mongodb = mongo_async.AnonX
@@ -187,7 +186,7 @@ async def new_user(bot, msg):
         reply_markup = InlineKeyboardMarkup(
             [[InlineKeyboardButton(f" ≭︰عدد الاعضاء  {len(await get_users())}", callback_data=f"user_count_{msg.from_user.id}")]]
         )
-        if msg.chat.id not in [OWNER_ID, ]:
+        if msg.chat.id not in OWNER_ID:
             try:
                 for user_id in OWNER_ID:
                     await bot.send_message(int(user_id), text, reply_markup=reply_markup)
@@ -220,7 +219,7 @@ async def admins(bot, message: Message):
     if off:
        if not is_dev(message.chat.id):
             return await message.reply_text(
-                f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER[0]}**"
+                f"**≭︰التنصيب المجاني معطل، راسل المبرمج ↫ @{OWNER_NAME}**"
             )
        else:
             keyboard = [
@@ -286,7 +285,7 @@ async def alivehi(client: Client, message):
                 InlineKeyboardButton("❲ Source Ch ❳", url=f"{CHANNEL}"),
             ],
             [
-                 InlineKeyboardButton(f"{OWNER_NAME}", url=f"https://t.me/{OWNER[0]}")
+                 InlineKeyboardButton(f"{OWNER_NAME}", url=f"https://t.me/{OWNER_NAME}")
             ]
         ]
     )
@@ -321,7 +320,9 @@ async def you(client: Client, message):
 
             return user.id, name, username_text, bio, photo_path
 
-        user_id, name, username, bio, photo_path = await get_user_info()
+        # الحصول على معرف المطور من OWNER_ID
+        developer_id = OWNER_ID[0] if isinstance(OWNER_ID, list) and OWNER_ID else OWNER_ID
+        user_id, name, username, bio, photo_path = await get_user_info(developer_id)
 
         link = None
         if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP, enums.ChatType.CHANNEL]:
@@ -713,7 +714,7 @@ async def deletbot(client, message):
          bot = x[0]
          if int(x[1]) == message.from_user.id:       
            os.system(f"sudo rm -fr Maked/{bot}")
-           os.system(f"screen -XS {bot} quit")
+           os.system(f"pkill -f 'Maked/{bot}'")
            Bots.remove(x)
            xx = {"username": bot}
            db.delete_one(xx)
@@ -730,7 +731,7 @@ async def deletbot(client, message):
           xx = {"username": bot}
           db.delete_one(xx)
    os.system(f"sudo rm -fr Maked/{bot}")
-   os.system(f"screen -XS {bot} quit")
+   os.system(f"pkill -f 'Maked/{bot}'")
    await message.reply_text("** ≭︰ تم حـذف البـوت بنـجاح   **")
 
 
@@ -764,13 +765,18 @@ async def botat(client, message):
 
 @Client.on_message(filters.command(["❲ الاسكرينات المفتوحه ❳"], ""))
 async def kinhsker(client: Client, message):
- if not is_dev(message.from_user.id):
+    if not is_dev(message.from_user.id):
+        return await message.reply_text("** ≭︰هذا الامر يخص المطور **")
+    
     n = 0
     response_message = "** ≭︰قائمة الاسكرينات المفتوحه **\n\n"
-    for screen in os.listdir("/var/run/screen/S-root"):
-        n += 1
-        response_message += f"{n} - ( `{screen}` )\n"
-    await message.reply_text(response_message) 
+    try:
+        for screen in os.listdir("/var/run/screen/S-root"):
+            n += 1
+            response_message += f"{n} - ( `{screen}` )\n"
+        await message.reply_text(response_message)
+    except:
+        await message.reply_text("** ≭︰لا يوجد اسكرينات مفتوحه **")
 
 
 @Client.on_message(filters.command("❲ تحديث الصانع ❳", ""))
@@ -805,238 +811,32 @@ def is_bot_running(name):
     except subprocess.CalledProcessError:
         return False
 
-def create_bot_files(bot_id, token, session, owner_id, logger_id):
-    """إنشاء ملفات البوت الموسيقي المستقل"""
-    base_path = f"Maked/{bot_id}"
-    
-    # إنشاء جميع المجلدات المطلوبة أولاً
-    os.makedirs(f"{base_path}/AnonXMusic/core", exist_ok=True)
-    os.makedirs(f"{base_path}/AnonXMusic/utils", exist_ok=True)
-    os.makedirs(f"{base_path}/AnonXMusic/plugins", exist_ok=True)
-    
-    # 1. إنشاء AnonXMusic/__init__.py - مبسط جداً
-    init_content = f'''
-import os
-import sys
-from pyrogram import Client
-
-# التكوين الأساسي
-API_ID = 17490746
-API_HASH = "ed923c3d59d699018e79254c6f8b6671"
-BOT_TOKEN = "{token}"
-OWNER_ID = {owner_id}
-LOGGER_ID = {logger_id}
-
-# إنشاء العميل
-app = Client("{bot_id}_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-# المتغيرات المهمة
-BANNED_USERS = set()
-
-# تحميل البرمجيات تلقائياً
-import importlib.util
-plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
-if os.path.exists(plugins_dir):
-    for filename in os.listdir(plugins_dir):
-        if filename.endswith(".py") and filename != "__init__.py":
-            module_name = filename[:-3]
-            file_path = os.path.join(plugins_dir, filename)
-            try:
-                spec = importlib.util.spec_from_file_location(module_name, file_path)
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    print(f"✅ تم تحميل البرمجية: {{module_name}}")
-            except Exception as e:
-                print(f"⚠️ خطأ في تحميل {{module_name}}: {{e}}")
-'''
-    with open(f"{base_path}/AnonXMusic/__init__.py", "w", encoding="utf-8") as f:
-        f.write(init_content)
-    
-    # 2. إنشاء AnonXMusic/core/__init__.py
-    with open(f"{base_path}/AnonXMusic/core/__init__.py", "w", encoding="utf-8") as f:
-        f.write("# Core modules")
-    
-    # 3. إنشاء AnonXMusic/utils/__init__.py
-    with open(f"{base_path}/AnonXMusic/utils/__init__.py", "w", encoding="utf-8") as f:
-        f.write("# Utility modules")
-    
-    # 4. إنشاء AnonXMusic/plugins/__init__.py
-    with open(f"{base_path}/AnonXMusic/plugins/__init__.py", "w", encoding="utf-8") as f:
-        f.write("# Plugin modules")
-    
-    # 5. إنشاء plugins/start.py
-    start_plugin = f'''
-from pyrogram import filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from AnonXMusic import app
-
-@app.on_message(filters.command("start"))
-async def start_command(client, message: Message):
-    await message.reply(
-        "🎵 **مرحباً بك في البوت الموسيقي!**\\\\n\\\\n"
-        "✅ البوت يعمل بنجاح\\\\n"
-        "🤖 تم إنشاؤه بواسطة صانع البوتات\\\\n"
-        f"👤 المطور: {owner_id}",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("📞 تواصل مع المطور", url="tg://user?id={owner_id}")],
-            [InlineKeyboardButton("📢 قناة السورس", url="https://t.me/K55DD")]
-        ])
-    )
-
-@app.on_message(filters.command("ping"))
-async def ping_command(client, message: Message):
-    await message.reply("🏓 **Pong!** البوت يعمل بشكل طبيعي")
-
-@app.on_message(filters.command("id"))
-async def id_command(client, message: Message):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    await message.reply(f"🆔 **معرفك:** `{{user_id}}`\\\\n🏷️ **معرف المحادثة:** `{{chat_id}}`")
-'''
-    with open(f"{base_path}/AnonXMusic/plugins/start.py", "w", encoding="utf-8") as f:
-        f.write(start_plugin)
-    
-    # 6. إنشاء ملف تحميل البرمجيات المساعدة
-    loader_content = '''
-import os
-import importlib.util
-
-def load_plugins():
-    """تحميل جميع البرمجيات المساعدة"""
-    plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
-    
-    for filename in os.listdir(plugins_dir):
-        if filename.endswith(".py") and filename != "__init__.py":
-            module_name = filename[:-3]
-            file_path = os.path.join(plugins_dir, filename)
-            
-            spec = importlib.util.spec_from_file_location(module_name, file_path)
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                print(f"✅ تم تحميل البرمجية: {module_name}")
-
-# تحميل البرمجيات تلقائياً
-load_plugins()
-'''
-    with open(f"{base_path}/AnonXMusic/loader.py", "w", encoding="utf-8") as f:
-        f.write(loader_content)
-    
-    # 7. إنشاء config.py مبسط
-    simple_config = f'''
-# Simple Bot Configuration
-API_ID = 17490746
-API_HASH = "ed923c3d59d699018e79254c6f8b6671"
-BOT_TOKEN = "{token}"
-OWNER_ID = {owner_id}
-LOGGER_ID = {logger_id}
-BANNED_USERS = set()
-'''
-    with open(f"{base_path}/config.py", "w", encoding="utf-8") as f:
-        f.write(simple_config)
-    
-    # 8. إنشاء requirements.txt مبسط
-    simple_requirements = '''pyrogram>=2.0.0
-TgCrypto>=1.2.0
-python-dotenv>=0.19.0
-aiofiles>=0.8.0'''
-    with open(f"{base_path}/requirements.txt", "w", encoding="utf-8") as f:
-        f.write(simple_requirements)
-    
-    # 9. إنشاء __main__.py مبسط
-    simple_main = f'''
-import asyncio
-from pyrogram import idle
-from AnonXMusic import app
-
-async def main():
-    try:
-        print("🚀 بدء تشغيل البوت {bot_id}...")
-        await app.start()
-        me = await app.get_me()
-        print(f"✅ تم تشغيل البوت بنجاح: {{me.first_name}} (@{{me.username}})")
-        print("🔄 البوت في وضع الانتظار...")
-        await idle()
-        await app.stop()
-        print("🔴 تم إيقاف البوت")
-    except Exception as e:
-        print(f"❌ خطأ في تشغيل البوت: {{e}}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-'''
-    with open(f"{base_path}/__main__.py", "w", encoding="utf-8") as f:
-        f.write(simple_main)
-
-@Client.on_message(filters.command("❲ تشغيل بوت ❳", ""))
-async def choose_and_start_bot(client, message):
-    if not is_dev(message.from_user.id):
-        return await message.reply_text("** ≭︰هذا الامر يخص المطور فقط **")
-
-    if not os.path.exists('Maked'):
-        return await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-
-    bots_to_start = []
-    for folder in os.listdir("Maked"):
-        if re.search('[Bb][Oo][Tt]', folder) and not is_bot_running(folder):
-            bots_to_start.append(folder)
-
-    if not bots_to_start:
-        return await message.reply_text("** ≭︰لا يوجد أي بوت متوقف حالياً لتشغيله **")
-
-    buttons = [
-        [InlineKeyboardButton(f"تشغيل @{bot}", callback_data=f"startbot:{bot}")]
-        for bot in bots_to_start
-    ]
-    await message.reply_text(
-        "** ≭︰اختر البوت الذي تريد تشغيله:**",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
-
-@Client.on_callback_query(filters.regex("^startbot:(.*)"))
-async def start_selected_bot(client, callback_query):
-    bot_username = callback_query.data.split(":")[1]
-    bot_folder = f"Maked/{bot_username}"
-
-    if os.path.exists(bot_folder):
-        if is_bot_running(bot_username):
-            await callback_query.answer(f"** ≭︰البوت @{bot_username} يعمل بالفعل **")
-        else:
-            subprocess.Popen(
-                f'cd Maked/{bot_username} && nohup python3 __main__.py > bot_{bot_username}.log 2>&1 &',
-                shell=True
-            )
-            await callback_query.answer(f"** ≭︰تم تشغيل البوت @{bot_username} بنجاح **")
-    else:
-        await callback_query.answer("** ≭︰البوت غير موجود **")
-
 @Client.on_message(filters.command("❲ ايقاف بوت ❳", ""))
 async def stop_specific_bot(c, message):
     if not is_dev(message.from_user.id):
-        bot_username = await c.ask(message.chat.id, "** ≭︰ارسـل مـعرف البوت **", timeout=300)
-        bot_username = bot_username.text.replace("@", "").strip()
+        return await message.reply_text("** ≭︰هذا الامر يخص المطور فقط **")
+        
+    bot_username = await c.ask(message.chat.id, "** ≭︰ارسـل مـعرف البوت **", timeout=300)
+    bot_username = bot_username.text.replace("@", "").strip()
 
-        if not bot_username:
-            await message.reply_text("** ≭︰خطأ: يجب عليك تحديد اسم البوت **")
-            return
+    if not bot_username:
+        await message.reply_text("** ≭︰خطأ: يجب عليك تحديد اسم البوت **")
+        return
 
-        if not os.path.exists('Maked'):
-            await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
-            return
+    if not os.path.exists('Maked'):
+        await message.reply_text("**~ خطأ: لا يوجد مجلد Maked.**")
+        return
 
-        bot_found = False
-        for folder in os.listdir("Maked"):
-            if re.search('[Bb][Oo][Tt]', folder) and bot_username in folder:
-                bot_found = True
-                os.system(f'screen -X -S {folder} quit')
-                await message.reply_text(f"** ≭︰تم ايقاف البوت @{bot_username} بنجاح **")
-                break
+    bot_found = False
+    for folder in os.listdir("Maked"):
+        if re.search('[Bb][Oo][Tt]', folder) and bot_username in folder:
+            bot_found = True
+            os.system(f'pkill -f "Maked/{folder}"')
+            await message.reply_text(f"** ≭︰تم ايقاف البوت @{bot_username} بنجاح **")
+            break
 
-        if not bot_found:
-            await message.reply_text(f"** ≭︰لم يتم العثور على البوت @{bot_username} **")
-    else:
-        await message.reply_text("** ≭︰هذا الامر يخص المطور فقط **")
+    if not bot_found:
+        await message.reply_text(f"** ≭︰لم يتم العثور على البوت @{bot_username} **")
 
 @Client.on_message(filters.command("❲ البوتات المشتغلة ❳", ""))
 async def show_running_bots(client, message):
@@ -1102,5 +902,4 @@ async def stooop_Allusers(client, message):
     if n == 0:
         await message.reply_text("** ≭︰لم يتم ايقاف أي بوتات **")
     else:
-        await message.reply_text(f"** ≭︰تم ايقاف {n} بوت بنجاح **")
-       
+        await message.reply_text(f"** ≭︰تم ايقاف {n} بوت بنجاح **")       
