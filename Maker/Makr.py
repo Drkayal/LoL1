@@ -583,7 +583,7 @@ BOT_TOKEN = "{TOKEN}"
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 300))
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = {{LOGGER_ID}}
+LOGGER_ID = PLACEHOLDER_LOGGER_ID
 
 # Get this value from @FallenxBot on Telegram by /id
 OWNER_ID = {Dev}
@@ -670,7 +670,7 @@ if SUPPORT_CHAT:
         
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
             # استبدال المتغيرات في config_update
-            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION).replace("{{LOGGER_ID}}", str(loger.id))
+            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION).replace("PLACEHOLDER_LOGGER_ID", str(loger.id))
             f.write(final_config)
 
 
