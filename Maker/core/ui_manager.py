@@ -72,19 +72,21 @@ class UIManager:
         """إنشاء لوحة المفاتيح الرئيسية المحسنة"""
         if is_dev:
             keyboard = [
-                [f"{self.icons['bot']} صنع بوت", f"{self.icons['trash']} حذف بوت"],
-                [f"{self.icons['stats']} البوتات المشتغلة", f"{self.icons['settings']} إدارة البوتات"],
-                [f"{self.icons['power']} تشغيل الكل", f"{self.icons['power']} إيقاف الكل"],
-                [f"{self.icons['chart']} الإحصائيات", f"{self.icons['bell']} التنبيهات"],
-                [f"{self.icons['shield']} استخراج جلسة", f"{self.icons['refresh']} تحديث النظام"],
-                [f"{self.icons['user']} إدارة المطورين", f"{self.icons['channel']} السورس"],
-                [f"{self.icons['file']} التقارير", f"{self.icons['settings']} الإعدادات"]
+                ["❲ صنع بوت ❳", "❲ حذف بوت ❳"],
+                ["❲ البوتات المشتغلة ❳", "❲ البوتات المصنوعه ❳"],
+                ["❲ تشغيل البوتات ❳", "❲ ايقاف البوتات ❳"],
+                ["❲ الاحصائيات ❳", "❲ التنبيهات ❳"],
+                ["❲ استخراج جلسه ❳", "❲ تحديث الصانع ❳"],
+                ["❲ رفع مطور ❳", "❲ المطورين ❳"],
+                ["❲ السورس ❳", "❲ مطور السورس ❳"],
+                ["❲ اذاعه ❳", "❲ اخفاء الكيبورد ❳"]
             ]
         else:
             keyboard = [
-                [f"{self.icons['bot']} صنع بوت", f"{self.icons['trash']} حذف بوت"],
-                [f"{self.icons['shield']} استخراج جلسة"],
-                [f"{self.icons['channel']} السورس", f"{self.icons['user']} المطور"]
+                ["❲ صنع بوت ❳", "❲ حذف بوت ❳"],
+                ["❲ استخراج جلسه ❳"],
+                ["❲ السورس ❳", "❲ مطور السورس ❳"],
+                ["❲ اخفاء الكيبورد ❳"]
             ]
         
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
@@ -155,8 +157,7 @@ class UIManager:
         """تنسيق رسالة الترحيب"""
         role = "المطور" if is_dev else "العضو"
         
-        message = f"""
-{self.templates['header']}
+        message = f"""{self.templates['header']}
 {self.icons['crown']} **مرحباً بك في بوت صانع الموسيقى المحسن**
 {self.templates['header']}
 
@@ -171,8 +172,7 @@ class UIManager:
 {self.icons['rocket']} **اختر ما تريد فعله من الأزرار أدناه**
 
 {self.templates['separator']}
-{self.icons['diamond']} *تم تطوير البوت بأحدث التقنيات*
-        """
+{self.icons['diamond']} *تم تطوير البوت بأحدث التقنيات*"""
         
         return message.strip()
     
@@ -180,15 +180,13 @@ class UIManager:
         """تنسيق رسالة تقدم إنشاء البوت"""
         progress_bar = self._create_progress_bar(progress)
         
-        message = f"""
-{self.icons['rocket']} **جاري إنشاء البوت...**
+        message = f"""{self.icons['rocket']} **جاري إنشاء البوت...**
 
 {self.icons['loading']} **الخطوة الحالية:** {step}
 
 {progress_bar}
 
-{self.icons['info']} **يرجى الانتظار، العملية قد تستغرق دقيقة...**
-        """
+{self.icons['info']} **يرجى الانتظار، العملية قد تستغرق دقيقة...**"""
         
         return message.strip()
     

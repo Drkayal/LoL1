@@ -111,8 +111,28 @@ async def cmd(bot, msg):
         await msg.reply("≭︰تم اخفاء الكيبورد ارسل /start لعرضه مره اخرى", reply_markup=ReplyKeyboardRemove(), quote=True)
 
     elif msg.text == "❲ الاحصائيات ❳":
-        user_list = await get_users()
-        await msg.reply(f"**≭︰عدد الاعضاء  **{len(user_list)}\n**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}", quote=True)
+        if ADVANCED_FEATURES_AVAILABLE:
+            try:
+                # الحصول على بيانات لوحة المراقبة
+                dashboard_data = monitoring_dashboard.generate_dashboard_data()
+                
+                # تنسيق الرسالة باستخدام واجهة المستخدم المحسنة
+                stats_text = ui_manager.format_stats_message(dashboard_data)
+                
+                # إنشاء لوحة مفاتيح الإحصائيات
+                keyboard = ui_manager.create_stats_keyboard()
+                
+                await msg.reply(stats_text, reply_markup=keyboard, quote=True)
+                
+            except Exception as e:
+                print(f"خطأ في عرض الإحصائيات المتقدمة: {e}")
+                # العودة للإحصائيات البسيطة
+                user_list = await get_users()
+                await msg.reply(f"**≭︰عدد الاعضاء  **{len(user_list)}\n**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}", quote=True)
+        else:
+            # الإحصائيات التقليدية
+            user_list = await get_users()
+            await msg.reply(f"**≭︰عدد الاعضاء  **{len(user_list)}\n**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}", quote=True)
 
     elif msg.text == "❲ اذاعه ❳":
         set_broadcast_status(uid, bot_id, "broadcast")
@@ -1098,6 +1118,58 @@ async def stop_specific_bot(c, message):
 
     if not bot_found:
         await message.reply_text(f"** ≭︰لم يتم العثور على البوت @{bot_username} **")
+
+# أمر التنبيهات الجديد
+@Client.on_message(filters.command("❲ التنبيهات ❳", ""))
+async def show_notifications(client, message):
+    """عرض التنبيهات الأخيرة"""
+    if not is_dev(message.from_user.id):
+        await message.reply_text("**≭︰هذا الامر يخص المطور**")
+        return
+    
+    if not ADVANCED_FEATURES_AVAILABLE:
+        await message.reply_text("**≭︰نظام التنبيهات غير متاح**")
+        return
+    
+    try:
+        # الحصول على التنبيهات الأخيرة للمستخدم
+        user_notifications = notification_system.get_user_notifications(message.from_user.id, limit=10)
+        
+        if not user_notifications:
+            await message.reply_text("**📢 لا توجد تنبيهات حالياً**")
+            return
+        
+        notifications_text = "**🔔 التنبيهات الأخيرة:**\n\n"
+        
+        for i, notification in enumerate(user_notifications, 1):
+            alert_message = ui_manager.format_alert_message({
+                'level': notification.level.value,
+                'title': notification.title,
+                'message': notification.message,
+                'timestamp': notification.timestamp,
+                'bot_username': notification.bot_username
+            })
+            
+            notifications_text += f"**{i}.** {alert_message}\n\n"
+            
+            # تحديد الإشعار كمقروء
+            notification_system.mark_notification_read(notification.id, message.from_user.id)
+        
+        # إحصائيات الإشعارات
+        stats = notification_system.get_statistics()
+        notifications_text += f"**📊 الإحصائيات:**\n"
+        notifications_text += f"▪️ المجموع: {stats['total_notifications']}\n"
+        notifications_text += f"▪️ غير المقروءة: {stats['unread_notifications']}\n"
+        
+        await message.reply_text(notifications_text)
+        
+    except Exception as e:
+        print(f"خطأ في عرض التنبيهات: {e}")
+        if ADVANCED_FEATURES_AVAILABLE:
+            error_text = ui_manager.format_error_message("خطأ في عرض التنبيهات", str(e))
+            await message.reply_text(error_text)
+        else:
+            await message.reply_text(f"**❌ خطأ في عرض التنبيهات:** {e}")
 
 @Client.on_message(filters.command("❲ البوتات المشتغلة ❳", ""))
 async def show_running_bots(client, message):
