@@ -262,14 +262,15 @@ async def me(client, message):
     if message.chat.id in blocked:
         return await message.reply_text("انت محظور من صانع عزيزي")
 
-    try:
-        member = await client.get_chat_member(ch, message.from_user.id)
-        # التحقق من حالة العضوية
-        if member.status in ["left", "kicked"]:
-            return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
-    except Exception as e:
-        # في حالة عدم العثور على المستخدم في القناة
-        return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+    # تم تعطيل التحقق من الاشتراك الإجباري
+    # try:
+    #     member = await client.get_chat_member(ch, message.from_user.id)
+    #     # التحقق من حالة العضوية
+    #     if member.status in ["left", "kicked"]:
+    #         return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+    # except Exception as e:
+    #     # في حالة عدم العثور على المستخدم في القناة
+    #     return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
     
     message.continue_propagation()
 
