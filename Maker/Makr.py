@@ -1110,4 +1110,4 @@ async def stooop_Allusers(client, message):
         await message.reply_text(f"** ≭︰تم ايقاف {stopped_count} بوت بنجاح **")
 
 # تهيئة المصنع عند التشغيل
-asyncio.create_task(initialize_factory())
+# سيتم استدعاؤها من bot.py
