@@ -38,7 +38,8 @@ from config import API_ID, API_HASH, MONGO_DB_URL, OWNER, OWNER_ID, OWNER_NAME, 
 
 Bots = []
 off = True
-ch = CHANNEL
+# استخراج اسم القناة من الرابط
+ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 km = MongoClient()
 km = MongoClient(MONGO_DB_URL)
 mongo_async = mongo_client(MONGO_DB_URL)
@@ -262,9 +263,13 @@ async def me(client, message):
         return await message.reply_text("انت محظور من صانع عزيزي")
 
     try:
-        await client.get_chat_member(ch, message.from_user.id)
-    except:
-        return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n {ch}**")
+        member = await client.get_chat_member(ch, message.from_user.id)
+        # التحقق من حالة العضوية
+        if member.status in ["left", "kicked"]:
+            return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
+    except Exception as e:
+        # في حالة عدم العثور على المستخدم في القناة
+        return await message.reply_text(f"**يجب ان تشترك ف قناة السورس أولا \n https://t.me/{ch}**")
     
     message.continue_propagation()
 
