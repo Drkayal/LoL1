@@ -46,6 +46,23 @@ from utils import (
     rate_limit_manager
 )
 
+# استيراد دوال المستخدمين من مجلد users
+from users import (
+    validate_user_id,
+    validate_bot_token,
+    validate_session_string,
+    validate_bot_username,
+    is_dev,
+    is_user,
+    add_new_user,
+    del_user,
+    get_users,
+    get_user_count,
+    clear_user_cache,
+    get_dev_count,
+    set_dependencies
+)
+
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 
@@ -116,245 +133,9 @@ off = True
 mk = []  # قائمة المحادثات
 
 # وظائف التحقق من المدخلات مع أنواع الأخطاء المخصصة
-def validate_user_id(user_id):
-    """التحقق من صحة معرف المستخدم"""
-    try:
-        if not user_id:
-            raise ValidationError("معرف المستخدم فارغ")
-        user_id = int(user_id)
-        if user_id <= 0:
-            raise ValidationError("معرف المستخدم يجب أن يكون رقم موجب")
-        return True, user_id
-    except (ValueError, TypeError):
-        raise ValidationError("معرف المستخدم يجب أن يكون رقم صحيح")
-    except ValidationError:
-        raise
-    except Exception as e:
-        raise ValidationError(f"خطأ غير متوقع في التحقق من معرف المستخدم: {str(e)}")
+# دوال التحقق من المدخلات تم نقلها إلى users/validation.py
 
-def validate_bot_token(token):
-    """التحقق من صحة توكن البوت"""
-    try:
-        if not token or not isinstance(token, str):
-            raise ValidationError("توكن البوت فارغ أو غير صحيح")
-        if len(token) < 40:
-            raise ValidationError("توكن البوت قصير جداً")
-        if not token.count(':') == 1:
-            raise ValidationError("صيغة توكن البوت غير صحيحة")
-        return True, token
-    except ValidationError:
-        raise
-    except Exception as e:
-        raise ValidationError(f"خطأ غير متوقع في التحقق من توكن البوت: {str(e)}")
-
-def validate_session_string(session):
-    """التحقق من صحة كود الجلسة"""
-    try:
-        if not session or not isinstance(session, str):
-            raise ValidationError("كود الجلسة فارغ أو غير صحيح")
-        if len(session) < 50:
-            raise ValidationError("كود الجلسة قصير جداً")
-        return True, session
-    except ValidationError:
-        raise
-    except Exception as e:
-        raise ValidationError(f"خطأ غير متوقع في التحقق من كود الجلسة: {str(e)}")
-
-def validate_bot_username(username):
-    """التحقق من صحة معرف البوت"""
-    try:
-        if not username or not isinstance(username, str):
-            raise ValidationError("معرف البوت فارغ أو غير صحيح")
-        username = username.replace("@", "").strip()
-        if len(username) < 3:
-            raise ValidationError("معرف البوت قصير جداً")
-        if not username.replace("_", "").isalnum():
-            raise ValidationError("معرف البوت يحتوي على رموز غير مسموحة")
-        return True, username
-    except ValidationError:
-        raise
-    except Exception as e:
-        raise ValidationError(f"خطأ غير متوقع في التحقق من معرف البوت: {str(e)}")
-
-# وظيفة للتحقق من صلاحيات المطور مع التخزين المؤقت وإعادة المحاولة
-def is_dev(user_id, max_retries=3):
-    """التحقق من صلاحيات المطور مع التخزين المؤقت وآلية إعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = f"dev_status_{user_id}"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-        
-        # التحقق من المالكين مباشرة
-        if user_id in OWNER_ID:
-            cache_manager.set(cache_key, True)
-            return True
-        
-        # البحث في قاعدة البيانات
-        for attempt in range(max_retries):
-            try:
-                result = devs_collection.find_one({"user_id": user_id})
-                is_developer = result is not None
-                cache_manager.set(cache_key, is_developer)
-                return is_developer
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to check dev status: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to check dev status after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except Exception as e:
-        logger.error(f"Error in is_dev function: {str(e)}")
-        return False
-
-# وظائف إدارة المستخدمين مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
-async def is_user(user_id, max_retries=3):
-    """التحقق من وجود المستخدم مع التخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = f"user_exists_{user_id}"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-        
-        is_valid, validated_id = validate_user_id(user_id)
-        if not is_valid:
-            logger.error(f"Invalid user_id: {user_id}")
-            return False
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                result = await users.find_one({"user_id": validated_id})
-                exists = result is not None
-                cache_manager.set(cache_key, exists)
-                return exists
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to check user: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to check user after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in is_user: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in is_user function: {str(e)}")
-        return False
-
-async def add_new_user(user_id, max_retries=3):
-    """إضافة مستخدم جديد مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        is_valid, validated_id = validate_user_id(user_id)
-        if not is_valid:
-            logger.error(f"Invalid user_id: {user_id}")
-            return False
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                # التحقق من عدم وجود المستخدم مسبقاً
-                existing_user = await users.find_one({"user_id": validated_id})
-                if existing_user:
-                    logger.info(f"User {validated_id} already exists")
-                    # تحديث التخزين المؤقت
-                    cache_manager.set(f"user_exists_{validated_id}", True)
-                    return True
-                
-                await users.insert_one({"user_id": validated_id})
-                logger.info(f"Successfully added user {validated_id}")
-                
-                # تحديث التخزين المؤقت
-                cache_manager.set(f"user_exists_{validated_id}", True)
-                return True
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to add user: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to add user after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in add_new_user: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in add_new_user function: {str(e)}")
-        return False
-
-async def del_user(user_id, max_retries=3):
-    """حذف مستخدم مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        is_valid, validated_id = validate_user_id(user_id)
-        if not is_valid:
-            logger.error(f"Invalid user_id: {user_id}")
-            return False
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                result = await users.delete_one({"user_id": validated_id})
-                if result.deleted_count > 0:
-                    logger.info(f"Successfully deleted user {validated_id}")
-                    # حذف من التخزين المؤقت
-                    cache_manager.delete(f"user_exists_{validated_id}")
-                    return True
-                else:
-                    logger.warning(f"User {validated_id} not found for deletion")
-                    return False
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to delete user: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to delete user after {max_retries} attempts")
-                    return False
-                await asyncio.sleep(1)
-        return False
-    except ValidationError as e:
-        logger.error(f"Validation error in del_user: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"Error in del_user function: {str(e)}")
-        return False
-
-async def get_users(max_retries=3):
-    """الحصول على قائمة المستخدمين مع التخزين المؤقت وإعادة المحاولة"""
-    try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "all_users_list"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            logger.debug("Retrieved users from cache")
-            return cached_result
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                user_list = [user["user_id"] async for user in users.find()]
-                logger.info(f"Successfully retrieved {len(user_list)} users")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, user_list)
-                return user_list
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get users: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get users after {max_retries} attempts")
-                    return []
-                await asyncio.sleep(1)
-        return []
-    except Exception as e:
-        logger.error(f"Error in get_users function: {str(e)}")
-        return []
+# دوال إدارة المستخدمين تم نقلها إلى users/logic.py
 
 # وظائف البث مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
 async def set_broadcast_status(user_id, bot_id, key, max_retries=3):
@@ -2026,3 +1807,6 @@ def cleanup_database_connections():
 # تسجيل دالة إغلاق اتصالات قاعدة البيانات عند إنهاء البرنامج
 import atexit
 atexit.register(cleanup_database_connections)
+
+# تعيين التبعيات لمجلد users
+set_dependencies(OWNER_ID, devs_collection, users)
