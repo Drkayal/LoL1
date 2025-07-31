@@ -969,3 +969,9 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:37:15,862 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
 2025-07-31 12:37:16,010 - Maker.Makr - INFO - Created storage group: -1002751213372
 2025-07-31 12:37:17,095 - Maker.Makr - ERROR - Bot creation error: name 'CreateGroupCall' is not defined
+2025-07-31 12:38:14,923 - root - INFO - Stop signal received (SIGTERM). Exiting...
+2025-07-31 12:38:15,717 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:38:15,717 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:38:15,718 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:38:15,718 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:38:15,718 - pyrogram.session.session - INFO - Session stopped
