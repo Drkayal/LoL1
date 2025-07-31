@@ -21,10 +21,6 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
-mustdb = mongodb.mustjoin
-botnamedb = mongodb.botnames
-contactdb = mongodb.contact
-autoleavedb = mongodb.autoleave
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -648,98 +644,3 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
-
-
-# Must join channel functions
-async def get_must(bot_username: str):
-    result = await mustdb.find_one({"bot_username": bot_username})
-    if result:
-        return result["channel"]
-    return None
-
-
-async def set_must(bot_username: str, channel: str):
-    await mustdb.update_one(
-        {"bot_username": bot_username},
-        {"$set": {"channel": channel}},
-        upsert=True
-    )
-
-
-async def del_must(bot_username: str):
-    result = await mustdb.delete_one({"bot_username": bot_username})
-    return result.deleted_count > 0
-
-
-async def get_must_ch(bot_username: str):
-    return await get_must(bot_username)
-
-
-async def set_must_ch(bot_username: str, channel: str):
-    await set_must(bot_username, channel)
-
-
-# Bot name functions
-async def get_bot_name(bot_username: str):
-    result = await botnamedb.find_one({"bot_username": bot_username})
-    if result:
-        return result["name"]
-    return bot_username  # Return bot_username as fallback
-
-
-async def set_bot_name(bot_username: str, name: str):
-    await botnamedb.update_one(
-        {"bot_username": bot_username},
-        {"$set": {"name": name}},
-        upsert=True
-    )
-
-
-# Contact functions
-contactdb = mongodb.contact
-
-async def is_contact_enabled():
-    result = await contactdb.find_one({"_id": "contact"})
-    return result["enabled"] if result else True
-
-
-async def toggle_contact():
-    result = await contactdb.find_one({"_id": "contact"})
-    if result:
-        new_status = not result["enabled"]
-    else:
-        new_status = False
-    
-    await contactdb.update_one(
-        {"_id": "contact"},
-        {"$set": {"enabled": new_status}},
-        upsert=True
-    )
-    return new_status
-
-
-# Channel functions
-async def is_served_channel(channel_id: int) -> bool:
-    """Check if channel is served"""
-    channel = await chatsdb.find_one({"chat_id": channel_id})
-    return bool(channel)
-
-
-# Auto leave functions
-autoleavedb = mongodb.autoleave
-
-async def set_auto_leave_status(status: bool):
-    """Set auto leave status"""
-    await autoleavedb.update_one(
-        {"_id": "autoleave"},
-        {"$set": {"enabled": status}},
-        upsert=True
-    )
-
-
-async def get_auto_leave_status() -> bool:
-    """Get auto leave status"""
-    result = await autoleavedb.find_one({"_id": "autoleave"})
-    return result["enabled"] if result else False
-
-

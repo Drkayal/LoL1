@@ -2,3 +2,51 @@
 [31-Jul-25 08:22:06 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
 [31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
 [31-Jul-25 08:31:08 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:32:55 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:32:55 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:32:55 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 08:32:56 - INFO] - AnonXMusic.core.git - Fetching updates from upstream repository...
+[31-Jul-25 08:32:56 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 08:32:56 - INFO] - AnonXMusic.core.bot - Starting Bot...
+[31-Jul-25 08:33:01 - ERROR] - AnonXMusic.core.bot - Bot has failed to access the log group/channel.
+  Reason : ValueError.
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-21' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-22' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-23' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-24' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-25' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-26' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-27' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:33:01 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-28' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.core.mongo - Connecting to your Mongo Database...
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.core.mongo - Connected to your Mongo Database.
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.core.dir - Directories Updated.
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.core.git - Git Client Found [VPS DEPLOYER]
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.misc - Local Database Initialized.
+[31-Jul-25 08:34:41 - INFO] - AnonXMusic.core.bot - Starting Bot...
+[31-Jul-25 08:34:46 - ERROR] - AnonXMusic.core.bot - Bot has failed to access the log group/channel.
+  Reason : ValueError.
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-16' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-17' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-18' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-19' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-20' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-21' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-22' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>
+[31-Jul-25 08:34:46 - ERROR] - asyncio - Task was destroyed but it is pending!
+task: <Task pending name='Task-23' coro=<Dispatcher.handler_worker() running at /home/ubuntu/.local/lib/python3.13/site-packages/pyrogram/dispatcher.py:202>>

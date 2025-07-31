@@ -1,7 +1,6 @@
 import asyncio
 
 from pyrogram import filters
-from strings.filters import command
 from pyrogram.enums import ChatMembersFilter
 from pyrogram.errors import FloodWait
 
@@ -21,7 +20,7 @@ from config import adminlist
 IS_BROADCASTING = False
 
 
-@app.on_message(command("اذاعة") & SUDOERS)
+@app.on_message(filters.command("broadcast") & SUDOERS)
 @language
 async def braodcast_message(client, message, _):
     global IS_BROADCASTING
