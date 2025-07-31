@@ -1812,3 +1812,13 @@ ValueError: Peer id invalid: -1002727115068
 
 2025-07-31 12:59:22,526 - Maker.Makr - WARNING - Failed to restore bot AAAK2BOT, marked as stopped
 2025-07-31 12:59:23,042 - Maker.Makr - INFO - Found 0 bots to restore
+2025-07-31 13:00:43,704 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 13:00:47,718 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 13:00:47,719 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 13:00:47,719 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 13:00:47,719 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 13:00:47,719 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 13:00:53,606 - Maker.Makr - ERROR - Bot AAAK2BOT failed to start. STDOUT: , STDERR: /workspace/venv/bin/python: can't open file '/workspace/Maked/AAAK2BOT/Maked/AAAK2BOT/__main__.py': [Errno 2] No such file or directory
+
+2025-07-31 13:00:58,762 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 3 seconds before continuing (required by "users.GetFullUser")
+2025-07-31 13:01:05,048 - pyrogram.session.session - WARNING - [bot_maker] Waiting for 7 seconds before continuing (required by "users.GetFullUser")
