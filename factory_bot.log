@@ -820,3 +820,85 @@ NameError: name 'bot_id' is not defined
 2025-07-31 12:33:57,850 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:33:58,337 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
 2025-07-31 12:33:58,781 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:34:07,395 - root - INFO - Stop signal received (SIGINT). Exiting...
+2025-07-31 12:34:11,022 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:34:11,023 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:34:11,023 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:34:11,023 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:34:11,023 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:34:12,640 - root - INFO - Stop signal received (SIGTERM). Exiting...
+2025-07-31 12:34:13,447 - pyrogram.dispatcher - INFO - Stopped 8 HandlerTasks
+2025-07-31 12:34:13,448 - pyrogram.session.session - INFO - PingTask stopped
+2025-07-31 12:34:13,448 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-07-31 12:34:13,448 - pyrogram.connection.connection - INFO - Disconnected
+2025-07-31 12:34:13,448 - pyrogram.session.session - INFO - Session stopped
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("me") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,406 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:34:31,407 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
+2025-07-31 12:34:31,407 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:34:33,306 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("cmd") in group 5662 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("forbroacasts") in group 368388 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("new_user") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("admins") in group 162728 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] CallbackQueryHandler("user_count_callback") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("me") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("alivehi") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("you") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("add_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("remove_dev") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("list_devs") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("onoff") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("maked") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("deletbot") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("botat") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("kinhsker") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("update_factory") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stop_specific_bot") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("show_running_bots") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("start_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,307 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("stooop_Allusers") in group 0 from "Maker.Makr"
+2025-07-31 12:34:33,308 - pyrogram.client - INFO - [bot_maker] [LOAD] MessageHandler("getsession") in group 0 from "Maker.session"
+2025-07-31 12:34:33,308 - pyrogram.client - INFO - [bot_maker] Successfully loaded 22 plugins from "Maker"
+2025-07-31 12:34:33,308 - pyrogram.dispatcher - INFO - Started 8 HandlerTasks
+2025-07-31 12:35:36,026 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:36,739 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:37,382 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:37,725 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:43,424 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:44,135 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:44,807 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:45,138 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:45,549 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:45,952 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:46,367 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:46,761 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:47,174 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:47,647 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:48,054 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:48,391 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:48,795 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:49,119 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:49,528 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:49,853 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:50,264 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
+2025-07-31 12:35:50,713 - Maker.Makr - ERROR - Subscription check error: 'datetime.timedelta' object has no attribute 'hours'
