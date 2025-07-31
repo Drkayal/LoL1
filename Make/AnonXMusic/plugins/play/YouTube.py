@@ -101,7 +101,7 @@ from pyrogram.types import Message, Audio
 from pyrogram.enums import ParseMode
 
 import config
-from AnonXMusic.core.pyrogram_client import pyrogram_manager  # تغيير اسم الوحدة
+from AnonXMusic import app  # استيراد الـ Pyrogram client
 from AnonXMusic.logging import LOGGER
 from AnonXMusic.utils.database import is_search_enabled, is_search_enabled1
 
@@ -894,7 +894,7 @@ class HyperSpeedDownloader:
     
     async def cache_to_channel(self, audio_info: Dict, search_query: str) -> Optional[str]:
         """حفظ الملف في قناة التخزين باستخدام Pyrogram"""
-        if not SMART_CACHE_CHANNEL or not pyrogram_manager.bot_client:
+        if not SMART_CACHE_CHANNEL or not app:
             return None
         
         try:
@@ -912,7 +912,7 @@ class HyperSpeedDownloader:
 🔍 {search_query[:50]}"""
             
             # رفع الملف للقناة باستخدام Pyrogram
-            message = await pyrogram_manager.bot_client.send_audio(
+            message = await app.send_audio(
                 chat_id=SMART_CACHE_CHANNEL,
                 audio=audio_path,
                 caption=caption,
@@ -4373,7 +4373,7 @@ async def save_to_cache(video_id: str, title: str, artist: str, duration: int, f
         # حفظ في قناة التخزين (إذا كانت متاحة)
         try:
             import config
-            from AnonXMusic.core.pyrogram_client import pyrogram_manager
+            # استخدام app المستورد بالفعل
             
             if hasattr(config, 'CACHE_CHANNEL_ID') and config.CACHE_CHANNEL_ID:
                 LOGGER(__name__).info(f"💾 حفظ المقطع في قناة التخزين...")
@@ -4388,9 +4388,9 @@ async def save_to_cache(video_id: str, title: str, artist: str, duration: int, f
                 }
                 
                 # حفظ في قناة التخزين باستخدام save_to_smart_cache
-                if pyrogram_manager and pyrogram_manager.bot_client:
+                if app:
                     saved = await save_to_smart_cache(
-                        pyrogram_manager.bot_client, 
+                        app, 
                         file_path, 
                         result_data, 
                         f"{title} {artist}",
