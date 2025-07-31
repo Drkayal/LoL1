@@ -497,6 +497,36 @@ async def maked(client, message):
 
     # نسخ ملفات AnonXMusic الكاملة للحصول على جميع الوظائف
     os.system(f"cp -r Make/AnonXMusic Maked/{id}/")
+    
+    # التأكد من صحة ملف Youtube.py بعد النسخ
+    try:
+        import ast
+        with open(f'Maked/{id}/AnonXMusic/platforms/Youtube.py', 'r') as f:
+            content = f.read()
+        ast.parse(content)
+        print(f"✅ تم نسخ Youtube.py بنجاح للبوت {id}")
+    except SyntaxError as e:
+        print(f"❌ خطأ في Youtube.py للبوت {id}: {e}")
+        # إعادة نسخ الملف مرة أخرى
+        os.system(f"cp Make/AnonXMusic/platforms/Youtube.py Maked/{id}/AnonXMusic/platforms/Youtube.py")
+        print(f"🔄 تم إعادة نسخ Youtube.py للبوت {id}")
+    except Exception as e:
+        print(f"❌ خطأ آخر في فحص Youtube.py: {e}")
+    
+    # التأكد من صحة ملف Youtube.py بعد النسخ
+    try:
+        import ast
+        with open(f'Maked/{id}/AnonXMusic/platforms/Youtube.py', 'r') as f:
+            content = f.read()
+        ast.parse(content)
+        print(f"✅ تم نسخ Youtube.py بنجاح للبوت {id}")
+    except SyntaxError as e:
+        print(f"❌ خطأ في Youtube.py للبوت {id}: {e}")
+        # إعادة نسخ الملف مرة أخرى
+        os.system(f"cp Make/AnonXMusic/platforms/Youtube.py Maked/{id}/AnonXMusic/platforms/Youtube.py")
+        print(f"🔄 تم إعادة نسخ Youtube.py للبوت {id}")
+    except Exception as e:
+        print(f"❌ خطأ آخر في فحص Youtube.py: {e}")
     os.system(f"cp -r Make/strings Maked/{id}/")
     os.system(f"cp -r Make/cookies Maked/{id}/")
     os.system(f"cp Make/config.py Maked/{id}/")
@@ -636,7 +666,7 @@ if SUPPORT_CHAT:
         
         with open(f"Maked/{id}/config.py", "w", encoding="utf-8") as f:
             # استبدال المتغيرات في config_update
-            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION)
+            final_config = config_update.replace("{TOKEN}", TOKEN).replace("{SESSION}", SESSION).replace("{LOGGER_ID}", str(loger.id))
             f.write(final_config)
 
 
