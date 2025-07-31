@@ -47,14 +47,52 @@ logger = logging.getLogger(__name__)
 # استخراج اسم القناة من الرابط
 ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 
-# إعداد اتصال MongoDB
-km = MongoClient(MONGO_DB_URL)
-mongo_async = mongo_client(MONGO_DB_URL)
-mongodb = mongo_async.AnonX
+# إعداد اتصال MongoDB مع إدارة محسنة
+class DatabaseManager:
+    def __init__(self):
+        self.sync_client = None
+        self.async_client = None
+        self._initialize_connections()
+    
+    def _initialize_connections(self):
+        try:
+            self.sync_client = MongoClient(MONGO_DB_URL, serverSelectionTimeoutMS=5000)
+            self.async_client = mongo_client(MONGO_DB_URL, serverSelectionTimeoutMS=5000)
+            # اختبار الاتصال
+            self.sync_client.admin.command('ping')
+            logger.info("MongoDB connection established successfully")
+        except Exception as e:
+            logger.error(f"Failed to connect to MongoDB: {str(e)}")
+            raise
+    
+    def get_sync_db(self):
+        if not self.sync_client:
+            self._initialize_connections()
+        return self.sync_client["Yousef"].botpsb
+    
+    def get_async_db(self):
+        if not self.async_client:
+            self._initialize_connections()
+        return self.async_client.AnonX
+    
+    def close_connections(self):
+        try:
+            if self.sync_client:
+                self.sync_client.close()
+            if self.async_client:
+                self.async_client.close()
+            logger.info("Database connections closed")
+        except Exception as e:
+            logger.error(f"Error closing database connections: {str(e)}")
+
+# إنشاء مدير قاعدة البيانات
+db_manager = DatabaseManager()
+db = db_manager.get_sync_db()
+mongodb = db_manager.get_async_db()
+
+# تهيئة المجموعات
 users = mongodb.tgusersdb
 chats = mongodb.chats
-db = km["Yousef"]
-db = db.botpsb
 mkchats = db.chatss
 blocked = []
 blockeddb = db.blocked
@@ -67,163 +105,583 @@ factory_settings = db["factory_settings"]
 off = True
 mk = []  # قائمة المحادثات
 
-# وظيفة للتحقق من صلاحيات المطور
-def is_dev(user_id):
-    return user_id in OWNER_ID or devs_collection.find_one({"user_id": user_id}) is not None
+# وظائف التحقق من المدخلات
+def validate_user_id(user_id):
+    """التحقق من صحة معرف المستخدم"""
+    try:
+        if not user_id:
+            return False, "معرف المستخدم فارغ"
+        user_id = int(user_id)
+        if user_id <= 0:
+            return False, "معرف المستخدم يجب أن يكون رقم موجب"
+        return True, user_id
+    except (ValueError, TypeError):
+        return False, "معرف المستخدم يجب أن يكون رقم صحيح"
 
-# وظائف إدارة المستخدمين
-async def is_user(user_id):
-    return await users.find_one({"user_id": int(user_id)})
+def validate_bot_token(token):
+    """التحقق من صحة توكن البوت"""
+    if not token or not isinstance(token, str):
+        return False, "توكن البوت فارغ أو غير صحيح"
+    if len(token) < 40:
+        return False, "توكن البوت قصير جداً"
+    if not token.count(':') == 1:
+        return False, "صيغة توكن البوت غير صحيحة"
+    return True, token
 
-async def add_new_user(user_id):
-    await users.insert_one({"user_id": int(user_id)})
+def validate_session_string(session):
+    """التحقق من صحة كود الجلسة"""
+    if not session or not isinstance(session, str):
+        return False, "كود الجلسة فارغ أو غير صحيح"
+    if len(session) < 50:
+        return False, "كود الجلسة قصير جداً"
+    return True, session
 
-async def del_user(user_id):
-    await users.delete_one({"user_id": int(user_id)})
+def validate_bot_username(username):
+    """التحقق من صحة معرف البوت"""
+    if not username or not isinstance(username, str):
+        return False, "معرف البوت فارغ أو غير صحيح"
+    username = username.replace("@", "").strip()
+    if len(username) < 3:
+        return False, "معرف البوت قصير جداً"
+    if not username.replace("_", "").isalnum():
+        return False, "معرف البوت يحتوي على رموز غير مسموحة"
+    return True, username
 
-async def get_users():
-    return [user["user_id"] async for user in users.find()]
+# وظيفة للتحقق من صلاحيات المطور مع إعادة المحاولة
+def is_dev(user_id, max_retries=3):
+    """التحقق من صلاحيات المطور مع آلية إعادة المحاولة"""
+    for attempt in range(max_retries):
+        try:
+            if user_id in OWNER_ID:
+                return True
+            result = devs_collection.find_one({"user_id": user_id})
+            return result is not None
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to check dev status: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to check dev status after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)  # انتظار ثانية قبل إعادة المحاولة
+    return False
 
-# وظائف البث
-def set_broadcast_status(user_id, bot_id, key):
-    broadcasts_collection.update_one(
-        {"user_id": user_id, "bot_id": bot_id},
-        {"$set": {key: True}},
-        upsert=True
-    )
+# وظائف إدارة المستخدمين مع التحقق من المدخلات وإعادة المحاولة
+async def is_user(user_id, max_retries=3):
+    """التحقق من وجود المستخدم مع إعادة المحاولة"""
+    is_valid, validated_id = validate_user_id(user_id)
+    if not is_valid:
+        logger.error(f"Invalid user_id: {user_id}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            result = await users.find_one({"user_id": validated_id})
+            return result is not None
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to check user: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to check user after {max_retries} attempts")
+                return False
+            await asyncio.sleep(1)
+    return False
 
-def get_broadcast_status(user_id, bot_id, key):
-    doc = broadcasts_collection.find_one({"user_id": user_id, "bot_id": bot_id})
-    return doc and doc.get(key)
+async def add_new_user(user_id, max_retries=3):
+    """إضافة مستخدم جديد مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_id = validate_user_id(user_id)
+    if not is_valid:
+        logger.error(f"Invalid user_id: {user_id}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            # التحقق من عدم وجود المستخدم مسبقاً
+            existing_user = await users.find_one({"user_id": validated_id})
+            if existing_user:
+                logger.info(f"User {validated_id} already exists")
+                return True
+            
+            await users.insert_one({"user_id": validated_id})
+            logger.info(f"Successfully added user {validated_id}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to add user: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to add user after {max_retries} attempts")
+                return False
+            await asyncio.sleep(1)
+    return False
 
-def delete_broadcast_status(user_id, bot_id, *keys):
-    broadcasts_collection.update_one(
-        {"user_id": user_id, "bot_id": bot_id},
-        {"$unset": {key: "" for key in keys}}
-    )
+async def del_user(user_id, max_retries=3):
+    """حذف مستخدم مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_id = validate_user_id(user_id)
+    if not is_valid:
+        logger.error(f"Invalid user_id: {user_id}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            result = await users.delete_one({"user_id": validated_id})
+            if result.deleted_count > 0:
+                logger.info(f"Successfully deleted user {validated_id}")
+                return True
+            else:
+                logger.warning(f"User {validated_id} not found for deletion")
+                return False
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to delete user: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to delete user after {max_retries} attempts")
+                return False
+            await asyncio.sleep(1)
+    return False
 
-# وظائف إدارة البوتات
-def get_bot_info(bot_username):
-    return bots_collection.find_one({"username": bot_username})
+async def get_users(max_retries=3):
+    """الحصول على قائمة المستخدمين مع إعادة المحاولة"""
+    for attempt in range(max_retries):
+        try:
+            user_list = [user["user_id"] async for user in users.find()]
+            logger.info(f"Successfully retrieved {len(user_list)} users")
+            return user_list
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get users: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get users after {max_retries} attempts")
+                return []
+            await asyncio.sleep(1)
+    return []
 
-def save_bot_info(bot_username, dev_id, pid, config_data):
-    bots_collection.update_one(
-        {"username": bot_username},
-        {"$set": {
-            "dev_id": dev_id,
-            "pid": pid,
-            "config": config_data,
-            "created_at": datetime.now(),
-            "status": "running"
-        }},
-        upsert=True
-    )
+# وظائف البث مع التحقق من المدخلات وإعادة المحاولة
+def set_broadcast_status(user_id, bot_id, key, max_retries=3):
+    """تعيين حالة البث مع التحقق من المدخلات وإعادة المحاولة"""
+    # التحقق من المدخلات
+    is_valid_user, validated_user_id = validate_user_id(user_id)
+    is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+    
+    if not is_valid_user or not is_valid_bot:
+        logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
+        return False
+    
+    if not key or not isinstance(key, str):
+        logger.error(f"Invalid key: {key}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            broadcasts_collection.update_one(
+                {"user_id": validated_user_id, "bot_id": validated_bot_id},
+                {"$set": {key: True}},
+                upsert=True
+            )
+            logger.info(f"Successfully set broadcast status for user {validated_user_id}, bot {validated_bot_id}, key {key}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to set broadcast status: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to set broadcast status after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-def update_bot_status(bot_username, status):
-    bots_collection.update_one(
-        {"username": bot_username},
-        {"$set": {"status": status}}
-    )
+def get_broadcast_status(user_id, bot_id, key, max_retries=3):
+    """الحصول على حالة البث مع التحقق من المدخلات وإعادة المحاولة"""
+    # التحقق من المدخلات
+    is_valid_user, validated_user_id = validate_user_id(user_id)
+    is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+    
+    if not is_valid_user or not is_valid_bot:
+        logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
+        return False
+    
+    if not key or not isinstance(key, str):
+        logger.error(f"Invalid key: {key}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            doc = broadcasts_collection.find_one({"user_id": validated_user_id, "bot_id": validated_bot_id})
+            return doc and doc.get(key)
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get broadcast status: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get broadcast status after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-def delete_bot_info(bot_username):
-    bots_collection.delete_one({"username": bot_username})
+def delete_broadcast_status(user_id, bot_id, *keys, max_retries=3):
+    """حذف حالة البث مع التحقق من المدخلات وإعادة المحاولة"""
+    # التحقق من المدخلات
+    is_valid_user, validated_user_id = validate_user_id(user_id)
+    is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+    
+    if not is_valid_user or not is_valid_bot:
+        logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
+        return False
+    
+    if not keys:
+        logger.error("No keys provided for deletion")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            unset_dict = {key: "" for key in keys if key and isinstance(key, str)}
+            if not unset_dict:
+                logger.error("No valid keys provided for deletion")
+                return False
+            
+            broadcasts_collection.update_one(
+                {"user_id": validated_user_id, "bot_id": validated_bot_id},
+                {"$unset": unset_dict}
+            )
+            logger.info(f"Successfully deleted broadcast status for user {validated_user_id}, bot {validated_bot_id}, keys {keys}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to delete broadcast status: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to delete broadcast status after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-def get_all_bots():
-    return list(bots_collection.find())
+# وظائف إدارة البوتات مع التحقق من المدخلات وإعادة المحاولة
+def get_bot_info(bot_username, max_retries=3):
+    """الحصول على معلومات البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_username = validate_bot_username(bot_username)
+    if not is_valid:
+        logger.error(f"Invalid bot username: {bot_username}")
+        return None
+    
+    for attempt in range(max_retries):
+        try:
+            result = bots_collection.find_one({"username": validated_username})
+            return result
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get bot info: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get bot info after {max_retries} attempts")
+                return None
+            import time
+            time.sleep(1)
+    return None
 
-def get_running_bots():
-    return list(bots_collection.find({"status": "running"}))
+def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
+    """حفظ معلومات البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid_username, validated_username = validate_bot_username(bot_username)
+    is_valid_dev, validated_dev_id = validate_user_id(dev_id)
+    
+    if not is_valid_username or not is_valid_dev:
+        logger.error(f"Invalid bot_username or dev_id: {bot_username}, {dev_id}")
+        return False
+    
+    if not isinstance(config_data, dict):
+        logger.error("Config data must be a dictionary")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            bots_collection.update_one(
+                {"username": validated_username},
+                {"$set": {
+                    "dev_id": validated_dev_id,
+                    "pid": pid,
+                    "config": config_data,
+                    "created_at": datetime.now(),
+                    "status": "running"
+                }},
+                upsert=True
+            )
+            logger.info(f"Successfully saved bot info for {validated_username}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to save bot info: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to save bot info after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-# وظائف إدارة المصنع
-def get_factory_state():
-    settings = factory_settings.find_one({"name": "factory"})
-    return settings.get("enabled", True) if settings else True
+def update_bot_status(bot_username, status, max_retries=3):
+    """تحديث حالة البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_username = validate_bot_username(bot_username)
+    if not is_valid:
+        logger.error(f"Invalid bot username: {bot_username}")
+        return False
+    
+    if not status or not isinstance(status, str):
+        logger.error(f"Invalid status: {status}")
+        return False
+    
+    valid_statuses = ["running", "stopped", "error"]
+    if status not in valid_statuses:
+        logger.error(f"Invalid status value: {status}. Must be one of {valid_statuses}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            bots_collection.update_one(
+                {"username": validated_username},
+                {"$set": {"status": status}}
+            )
+            logger.info(f"Successfully updated bot status for {validated_username} to {status}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to update bot status: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to update bot status after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-def set_factory_state(enabled):
-    factory_settings.update_one(
-        {"name": "factory"},
-        {"$set": {"enabled": enabled}},
-        upsert=True
-    )
+def delete_bot_info(bot_username, max_retries=3):
+    """حذف معلومات البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_username = validate_bot_username(bot_username)
+    if not is_valid:
+        logger.error(f"Invalid bot username: {bot_username}")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            result = bots_collection.delete_one({"username": validated_username})
+            if result.deleted_count > 0:
+                logger.info(f"Successfully deleted bot info for {validated_username}")
+                return True
+            else:
+                logger.warning(f"Bot {validated_username} not found for deletion")
+                return False
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to delete bot info: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to delete bot info after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-# وظائف إدارة العمليات
-def start_bot_process(bot_username):
-    bot_path = path.join("Maked", bot_username)
+def get_all_bots(max_retries=3):
+    """الحصول على جميع البوتات مع إعادة المحاولة"""
+    for attempt in range(max_retries):
+        try:
+            bots = list(bots_collection.find())
+            logger.info(f"Successfully retrieved {len(bots)} bots")
+            return bots
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get all bots: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get all bots after {max_retries} attempts")
+                return []
+            import time
+            time.sleep(1)
+    return []
+
+def get_running_bots(max_retries=3):
+    """الحصول على البوتات المشتغلة مع إعادة المحاولة"""
+    for attempt in range(max_retries):
+        try:
+            bots = list(bots_collection.find({"status": "running"}))
+            logger.info(f"Successfully retrieved {len(bots)} running bots")
+            return bots
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get running bots after {max_retries} attempts")
+                return []
+            import time
+            time.sleep(1)
+    return []
+
+# وظائف إدارة المصنع مع التحقق من المدخلات وإعادة المحاولة
+def get_factory_state(max_retries=3):
+    """الحصول على حالة المصنع مع إعادة المحاولة"""
+    for attempt in range(max_retries):
+        try:
+            settings = factory_settings.find_one({"name": "factory"})
+            enabled = settings.get("enabled", True) if settings else True
+            logger.info(f"Factory state retrieved: {enabled}")
+            return enabled
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get factory state: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to get factory state after {max_retries} attempts")
+                return True  # القيمة الافتراضية
+            import time
+            time.sleep(1)
+    return True
+
+def set_factory_state(enabled, max_retries=3):
+    """تعيين حالة المصنع مع التحقق من المدخلات وإعادة المحاولة"""
+    if not isinstance(enabled, bool):
+        logger.error(f"Invalid enabled value: {enabled}. Must be boolean")
+        return False
+    
+    for attempt in range(max_retries):
+        try:
+            factory_settings.update_one(
+                {"name": "factory"},
+                {"$set": {"enabled": enabled}},
+                upsert=True
+            )
+            logger.info(f"Successfully set factory state to: {enabled}")
+            return True
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to set factory state: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to set factory state after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
+
+# وظائف إدارة العمليات مع التحقق من المدخلات وإعادة المحاولة
+def start_bot_process(bot_username, max_retries=3):
+    """تشغيل عملية البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    is_valid, validated_username = validate_bot_username(bot_username)
+    if not is_valid:
+        logger.error(f"Invalid bot username: {bot_username}")
+        return None
+    
+    bot_path = path.join("Maked", validated_username)
     main_file = path.join(bot_path, "__main__.py")
     
     if not path.exists(main_file):
-        logger.error(f"Main file not found for bot: {bot_username}")
+        logger.error(f"Main file not found for bot: {validated_username}")
         return None
     
-    try:
-        # استخدام البيئة الافتراضية للبوت المصنوع
-        venv_python = path.join("/workspace/venv/bin/python")
-        
-        process = subprocess.Popen(
-            [venv_python, main_file],
-            cwd=bot_path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            env={
-                **os.environ,
-                "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
-            }
-        )
-        
-        # انتظار قليل للتأكد من بدء العملية
-        import time
-        time.sleep(2)
-        
-        # التحقق من أن العملية لا تزال تعمل
-        if process.poll() is None:
-            logger.info(f"Started bot {bot_username} with PID: {process.pid}")
-            return process.pid
-        else:
-            # قراءة الأخطاء إذا فشل التشغيل
-            stdout, stderr = process.communicate()
-            logger.error(f"Bot {bot_username} failed to start. STDOUT: {stdout}, STDERR: {stderr}")
-            return None
-            
-    except Exception as e:
-        logger.error(f"Failed to start bot {bot_username}: {str(e)}")
+    # التحقق من وجود البيئة الافتراضية
+    venv_python = path.join("/workspace/venv/bin/python")
+    if not path.exists(venv_python):
+        logger.error(f"Virtual environment not found at: {venv_python}")
         return None
+    
+    for attempt in range(max_retries):
+        try:
+            process = subprocess.Popen(
+                [venv_python, main_file],
+                cwd=bot_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                env={
+                    **os.environ,
+                    "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
+                }
+            )
+            
+            # انتظار قليل للتأكد من بدء العملية
+            import time
+            time.sleep(2)
+            
+            # التحقق من أن العملية لا تزال تعمل
+            if process.poll() is None:
+                logger.info(f"Started bot {validated_username} with PID: {process.pid}")
+                return process.pid
+            else:
+                # قراءة الأخطاء إذا فشل التشغيل
+                stdout, stderr = process.communicate()
+                logger.error(f"Bot {validated_username} failed to start. STDOUT: {stdout}, STDERR: {stderr}")
+                if attempt == max_retries - 1:
+                    return None
+                time.sleep(2)  # انتظار قبل إعادة المحاولة
+                
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to start bot {validated_username}: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to start bot {validated_username} after {max_retries} attempts")
+                return None
+            import time
+            time.sleep(2)
+    return None
 
-def stop_bot_process(pid):
-    try:
-        process = psutil.Process(pid)
-        process.terminate()
-        logger.info(f"Stopped process with PID: {pid}")
-        return True
-    except psutil.NoSuchProcess:
-        logger.warning(f"Process with PID {pid} not found")
+def stop_bot_process(pid, max_retries=3):
+    """إيقاف عملية البوت مع التحقق من المدخلات وإعادة المحاولة"""
+    if not pid or not isinstance(pid, int) or pid <= 0:
+        logger.error(f"Invalid PID: {pid}")
         return False
-    except Exception as e:
-        logger.error(f"Error stopping process {pid}: {str(e)}")
-        return False
+    
+    for attempt in range(max_retries):
+        try:
+            process = psutil.Process(pid)
+            process.terminate()
+            
+            # انتظار قليل للتأكد من إيقاف العملية
+            import time
+            time.sleep(1)
+            
+            if process.poll() is None:
+                # إذا لم تتوقف العملية، قم بإجبارها على التوقف
+                process.kill()
+                time.sleep(1)
+            
+            logger.info(f"Stopped process with PID: {pid}")
+            return True
+            
+        except psutil.NoSuchProcess:
+            logger.warning(f"Process with PID {pid} not found")
+            return True  # العملية غير موجودة تعني أنها متوقفة بالفعل
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to stop process {pid}: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to stop process {pid} after {max_retries} attempts")
+                return False
+            import time
+            time.sleep(1)
+    return False
 
-# تهيئة المصنع عند التشغيل
-async def initialize_factory():
+# تهيئة المصنع عند التشغيل مع التحقق من المدخلات وإعادة المحاولة
+async def initialize_factory(max_retries=3):
+    """تهيئة المصنع مع التحقق من المدخلات وإعادة المحاولة"""
     global off
-    off = get_factory_state()
+    
+    for attempt in range(max_retries):
+        try:
+            off = get_factory_state()
+            logger.info(f"Factory state initialized: {off}")
+            break
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get factory state: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error("Failed to initialize factory state, using default")
+                off = True
+            await asyncio.sleep(1)
     
     # استعادة البوتات المشتغلة
-    running_bots = get_running_bots()
-    logger.info(f"Found {len(running_bots)} bots to restore")
+    for attempt in range(max_retries):
+        try:
+            running_bots = get_running_bots()
+            logger.info(f"Found {len(running_bots)} bots to restore")
+            break
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
+            if attempt == max_retries - 1:
+                logger.error("Failed to get running bots, skipping restoration")
+                return
+            await asyncio.sleep(1)
     
     for bot in running_bots:
-        if bot["status"] == "running":
-            logger.info(f"Restoring bot: {bot['username']}")
-            pid = start_bot_process(bot["username"])
+        if bot.get("status") == "running":
+            bot_username = bot.get("username")
+            if not bot_username:
+                logger.warning("Bot without username found, skipping")
+                continue
+                
+            logger.info(f"Restoring bot: {bot_username}")
+            pid = start_bot_process(bot_username)
             if pid:
-                bots_collection.update_one(
-                    {"username": bot["username"]},
+                success = bots_collection.update_one(
+                    {"username": bot_username},
                     {"$set": {"pid": pid}}
                 )
-                logger.info(f"Successfully restored bot {bot['username']} with PID: {pid}")
+                if success.modified_count > 0:
+                    logger.info(f"Successfully restored bot {bot_username} with PID: {pid}")
+                else:
+                    logger.warning(f"Failed to update bot {bot_username} PID in database")
             else:
-                update_bot_status(bot["username"], "stopped")
-                logger.warning(f"Failed to restore bot {bot['username']}, marked as stopped")
+                update_bot_status(bot_username, "stopped")
+                logger.warning(f"Failed to restore bot {bot_username}, marked as stopped")
 
 # ================================================
 # ============== HANDLERS START HERE =============
@@ -231,13 +689,22 @@ async def initialize_factory():
 
 @Client.on_message(filters.text & filters.private, group=5662)
 async def cmd(client, msg):
+    # التحقق من صحة الرسالة
+    if not msg or not msg.from_user:
+        logger.warning("Invalid message received")
+        return
+    
     uid = msg.from_user.id
     if not is_dev(uid):
         return
     
-    # تعريف bot_id
-    bot_me = await client.get_me()
-    bot_id = bot_me.id
+    # تعريف bot_id مع التحقق
+    try:
+        bot_me = await client.get_me()
+        bot_id = bot_me.id
+    except Exception as e:
+        logger.error(f"Failed to get bot info: {str(e)}")
+        return
 
     if msg.text == "الغاء":
         delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up")
@@ -374,13 +841,22 @@ async def cmd(client, msg):
 
 @Client.on_message(filters.private, group=368388)
 async def forbroacasts(client, msg):
+    # التحقق من صحة الرسالة
+    if not msg or not msg.from_user:
+        logger.warning("Invalid message received in broadcast handler")
+        return
+    
     uid = msg.from_user.id
     if not is_dev(uid):
         return
     
-    # تعريف bot_id
-    bot_me = await client.get_me()
-    bot_id = bot_me.id
+    # تعريف bot_id مع التحقق
+    try:
+        bot_me = await client.get_me()
+        bot_id = bot_me.id
+    except Exception as e:
+        logger.error(f"Failed to get bot info in broadcast handler: {str(e)}")
+        return
 
     text = msg.text
     ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "الغاء"]
@@ -390,9 +866,14 @@ async def forbroacasts(client, msg):
     # معالجة تشغيل بوت محدد
     if get_broadcast_status(uid, bot_id, "start_bot"):
         delete_broadcast_status(uid, bot_id, "start_bot")
-        bot_username = text.replace("@", "").strip()
         
-        bot_info = get_bot_info(bot_username)
+        # التحقق من صحة معرف البوت
+        is_valid, validated_username = validate_bot_username(text)
+        if not is_valid:
+            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            return
+        
+        bot_info = get_bot_info(validated_username)
         if not bot_info:
             await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
@@ -401,81 +882,195 @@ async def forbroacasts(client, msg):
             await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
             return
         
-        pid = start_bot_process(bot_username)
+        pid = start_bot_process(validated_username)
         if pid:
-            update_bot_status(bot_username, "running")
-            bots_collection.update_one(
-                {"username": bot_username},
-                {"$set": {"pid": pid}}
-            )
-            await msg.reply(f"**✅ تم تشغيل البوت @{bot_username} بنجاح**", quote=True)
+            if update_bot_status(validated_username, "running"):
+                bots_collection.update_one(
+                    {"username": validated_username},
+                    {"$set": {"pid": pid}}
+                )
+                await msg.reply(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**", quote=True)
+            else:
+                await msg.reply(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**", quote=True)
         else:
-            await msg.reply(f"**❌ فشل في تشغيل البوت @{bot_username}**", quote=True)
+            await msg.reply(f"**❌ فشل في تشغيل البوت @{validated_username}**", quote=True)
         return
 
     if get_broadcast_status(uid, bot_id, "broadcast"):
         delete_broadcast_status(uid, bot_id, "broadcast")
         message = await msg.reply("• جاري الإذاعة ..", quote=True)
+        
+        # الحصول على قائمة المستخدمين مع التحقق
         users_list = await get_users()
+        if not users_list:
+            await message.edit("**❌ لا يوجد مستخدمين للإذاعة**")
+            return
+        
+        success_count = 0
+        failed_count = 0
+        
         for i, user in enumerate(users_list, start=1):
             try:
-                await msg.copy(int(user))
+                # التحقق من صحة معرف المستخدم
+                is_valid, validated_user_id = validate_user_id(user)
+                if not is_valid:
+                    logger.warning(f"Invalid user_id in broadcast: {user}")
+                    failed_count += 1
+                    continue
+                
+                await msg.copy(validated_user_id)
+                success_count += 1
+                
                 progress = int((i / len(users_list)) * 100)
                 if i % 5 == 0:
                     await message.edit(f"» نسبه الاذاعه {progress}%")
+                    
+                # تأخير لتجنب الحظر
+                await asyncio.sleep(0.1)
+                
             except PeerIdInvalid:
-                await del_user(int(user))
-        await message.edit("» تمت الاذاعه بنجاح")
+                await del_user(user)
+                failed_count += 1
+            except Exception as e:
+                logger.error(f"Broadcast error for user {user}: {str(e)}")
+                failed_count += 1
+        
+        await message.edit(f"» تمت الاذاعه بنجاح\n✅ نجح: {success_count}\n❌ فشل: {failed_count}")
 
     elif get_broadcast_status(uid, bot_id, "pinbroadcast"):
         delete_broadcast_status(uid, bot_id, "pinbroadcast")
         message = await msg.reply("» جاري الإذاعة ..", quote=True)
+        
+        # الحصول على قائمة المستخدمين مع التحقق
         users_list = await get_users()
+        if not users_list:
+            await message.edit("**❌ لا يوجد مستخدمين للإذاعة**")
+            return
+        
+        success_count = 0
+        failed_count = 0
+        
         for i, user in enumerate(users_list, start=1):
             try:
-                m = await msg.copy(int(user))
+                # التحقق من صحة معرف المستخدم
+                is_valid, validated_user_id = validate_user_id(user)
+                if not is_valid:
+                    logger.warning(f"Invalid user_id in pin broadcast: {user}")
+                    failed_count += 1
+                    continue
+                
+                m = await msg.copy(validated_user_id)
                 await m.pin(disable_notification=False, both_sides=True)
+                success_count += 1
+                
                 progress = int((i / len(users_list)) * 100)
                 if i % 5 == 0:
                     await message.edit(f"» نسبه الاذاعه {progress}%")
+                    
+                # تأخير لتجنب الحظر
+                await asyncio.sleep(0.1)
+                
             except PeerIdInvalid:
-                await del_user(int(user))
-        await message.edit("» تمت الاذاعه بنجاح")
+                await del_user(user)
+                failed_count += 1
+            except Exception as e:
+                logger.error(f"Pin broadcast error for user {user}: {str(e)}")
+                failed_count += 1
+        
+        await message.edit(f"» تمت الاذاعه بنجاح\n✅ نجح: {success_count}\n❌ فشل: {failed_count}")
 
     elif get_broadcast_status(uid, bot_id, "fbroadcast"):
         delete_broadcast_status(uid, bot_id, "fbroadcast")
         message = await msg.reply("» جاري الإذاعة ..", quote=True)
+        
+        # الحصول على قائمة المستخدمين مع التحقق
         users_list = await get_users()
+        if not users_list:
+            await message.edit("**❌ لا يوجد مستخدمين للإذاعة**")
+            return
+        
+        success_count = 0
+        failed_count = 0
+        
         for i, user in enumerate(users_list, start=1):
             try:
-                await msg.forward(int(user))
+                # التحقق من صحة معرف المستخدم
+                is_valid, validated_user_id = validate_user_id(user)
+                if not is_valid:
+                    logger.warning(f"Invalid user_id in forward broadcast: {user}")
+                    failed_count += 1
+                    continue
+                
+                await msg.forward(validated_user_id)
+                success_count += 1
+                
                 progress = int((i / len(users_list)) * 100)
                 if i % 5 == 0:
                     await message.edit(f"• نسبه الاذاعه {progress}%")
+                    
+                # تأخير لتجنب الحظر
+                await asyncio.sleep(0.1)
+                
             except PeerIdInvalid:
-                await del_user(int(user))
-        await message.edit("» تمت الاذاعه بنجاح")
+                await del_user(user)
+                failed_count += 1
+            except Exception as e:
+                logger.error(f"Forward broadcast error for user {user}: {str(e)}")
+                failed_count += 1
+        
+        await message.edit(f"» تمت الاذاعه بنجاح\n✅ نجح: {success_count}\n❌ فشل: {failed_count}")
 
 @Client.on_message(filters.command("start") & filters.private)
 async def new_user(client, msg):
-    if not await is_user(msg.from_user.id):
-        await add_new_user(msg.from_user.id) 
-        text = f"""
+    # التحقق من صحة الرسالة
+    if not msg or not msg.from_user:
+        logger.warning("Invalid message received in new_user handler")
+        return
+    
+    user_id = msg.from_user.id
+    
+    # التحقق من صحة معرف المستخدم
+    is_valid, validated_user_id = validate_user_id(user_id)
+    if not is_valid:
+        logger.error(f"Invalid user_id in new_user handler: {user_id}")
+        return
+    
+    if not await is_user(validated_user_id):
+        # إضافة المستخدم الجديد مع التحقق
+        if await add_new_user(validated_user_id):
+            text = f"""
 ** ≭︰  دخل عضو جديد لـ↫ مصنع   **
 
 ** ≭︰  الاسم : {msg.from_user.first_name}   **
 ** ≭︰  تاك : {msg.from_user.mention}   **
-** ≭︰  الايدي : {msg.from_user.id} **
-        """
-        reply_markup = InlineKeyboardMarkup(
-            [[InlineKeyboardButton(f" ≭︰عدد الاعضاء  {len(await get_users())}", callback_data=f"user_count_{msg.from_user.id}")]]
-        )
-        if msg.chat.id not in OWNER_ID:
+** ≭︰  الايدي : {validated_user_id} **
+            """
+            
+            # الحصول على عدد المستخدمين مع التحقق
             try:
-                for user_id in OWNER_ID:
-                    await client.send_message(int(user_id), text, reply_markup=reply_markup)
-            except PeerIdInvalid:
-                pass
+                users_count = len(await get_users())
+                reply_markup = InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(f" ≭︰عدد الاعضاء  {users_count}", callback_data=f"user_count_{validated_user_id}")]]
+                )
+            except Exception as e:
+                logger.error(f"Failed to get users count: {str(e)}")
+                reply_markup = InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(f" ≭︰عدد الاعضاء  غير محدد", callback_data=f"user_count_{validated_user_id}")]]
+                )
+            
+            if validated_user_id not in OWNER_ID:
+                try:
+                    for owner_id in OWNER_ID:
+                        # التحقق من صحة معرف المالك
+                        is_valid_owner, validated_owner_id = validate_user_id(owner_id)
+                        if is_valid_owner:
+                            await client.send_message(validated_owner_id, text, reply_markup=reply_markup)
+                except PeerIdInvalid:
+                    pass
+                except Exception as e:
+                    logger.error(f"Failed to send notification to owners: {str(e)}")
+        else:
+            logger.error(f"Failed to add new user: {validated_user_id}")
 
 @Client.on_message(filters.command("start") & filters.private, group=162728)
 async def admins(client, message: Message):
@@ -510,10 +1105,28 @@ async def admins(client, message: Message):
 @Client.on_callback_query(filters.regex("^user_count_"))
 async def user_count_callback(client, callback_query):
     try:
-        user_id = int(callback_query.data.split("_")[-1])
+        # التحقق من صحة الاستعلام
+        if not callback_query or not callback_query.data:
+            logger.warning("Invalid callback query received")
+            return
+        
+        # استخراج معرف المستخدم من البيانات
+        user_id_str = callback_query.data.split("_")[-1]
+        is_valid, validated_user_id = validate_user_id(user_id_str)
+        
+        if not is_valid:
+            logger.error(f"Invalid user_id in callback: {user_id_str}")
+            await callback_query.answer("خطأ في معرف المستخدم", show_alert=True)
+            return
+        
+        # التحقق من صلاحيات المستخدم
         if callback_query.from_user.id in OWNER_ID:
-            count = len(await get_users())
-            await callback_query.answer(f"عدد الأعضاء: {count}", show_alert=True)
+            try:
+                count = len(await get_users())
+                await callback_query.answer(f"عدد الأعضاء: {count}", show_alert=True)
+            except Exception as e:
+                logger.error(f"Failed to get users count: {str(e)}")
+                await callback_query.answer("فشل في الحصول على عدد الأعضاء", show_alert=True)
         else:
             await callback_query.answer("ليس لديك صلاحية", show_alert=True)
     except Exception as e:
@@ -1109,5 +1722,18 @@ async def stooop_Allusers(client, message):
     else:
         await message.reply_text(f"** ≭︰تم ايقاف {stopped_count} بوت بنجاح **")
 
+# دالة إغلاق اتصالات قاعدة البيانات
+def cleanup_database_connections():
+    """إغلاق اتصالات قاعدة البيانات بشكل آمن"""
+    try:
+        db_manager.close_connections()
+        logger.info("Database connections closed successfully")
+    except Exception as e:
+        logger.error(f"Error closing database connections: {str(e)}")
+
 # تهيئة المصنع عند التشغيل
 # سيتم استدعاؤها من bot.py
+
+# تسجيل دالة إغلاق اتصالات قاعدة البيانات عند إنهاء البرنامج
+import atexit
+atexit.register(cleanup_database_connections)
