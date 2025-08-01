@@ -4,6 +4,7 @@
 # Telegram API
 pyrogram>=2.0.0
 pyromod>=2.0.0
+TgCrypto>=1.2.0
 
 # Database
 pymongo>=4.0.0
@@ -14,3 +15,6 @@ psutil>=5.8.0
 
 # Environment variables
 python-dotenv>=0.19.0
+
+# Additional dependencies for deployment
+gunicorn>=20.1.0

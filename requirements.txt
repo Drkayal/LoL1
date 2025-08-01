@@ -16,23 +16,5 @@ psutil>=5.8.0
 # Environment variables
 python-dotenv>=0.19.0
 
-# Async support
-asyncio
-
-# File handling
-pathlib
-
-# Logging and utilities
-typing
-datetime
-uuid
-json
-time
-random
-subprocess
-shutil
-os
-sys
-
 # Additional dependencies for deployment
 gunicorn>=20.1.0
