@@ -87,7 +87,7 @@ async def cmd_handler(client, msg):
 
     elif msg.text == "❲ تشغيل بوت ❳":
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -105,7 +105,7 @@ async def cmd_handler(client, msg):
 
     elif msg.text == "❲ حذف بوت ❳":
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -126,7 +126,7 @@ async def cmd_handler(client, msg):
 
     elif msg.text == "❲ ايقاف بوت ❳":
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -204,7 +204,7 @@ async def new_user_handler(client, msg):
     name = msg.from_user.first_name
     
     # التحقق من حالة المصنع
-    if get_factory_state():
+    if await get_factory_state():
         await msg.reply("** ≭︰المصنع مغلق حاليا **")
         return
     
@@ -275,7 +275,7 @@ async def make_bot_callback_handler(client, callback_query):
         uid = callback_query.from_user.id
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await callback_query.message.edit_text(
                 "**❌ المصنع مغلق حالياً**\n\n"
                 "**📝 ملاحظة:** المصنع مغلق من قبل المطور",
@@ -528,7 +528,7 @@ async def show_running_bots_handler(client, message):
             return
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
@@ -563,7 +563,7 @@ async def start_Allusers_handler(client, message):
             return
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
@@ -635,7 +635,7 @@ async def stooop_Allusers_handler(client, message):
             return
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         

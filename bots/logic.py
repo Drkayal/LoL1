@@ -15,7 +15,8 @@ from utils import (
     rate_limit_manager
 )
 from users import validate_bot_username
-from .models import get_factory_state, get_running_bots, update_bot_status
+from .models import get_running_bots, update_bot_status
+from factory import get_factory_state
 
 def start_bot_process(bot_username, max_retries=3):
     """
@@ -401,7 +402,7 @@ async def initialize_factory(max_retries=3):
         # تهيئة حالة المصنع
         for attempt in range(max_retries):
             try:
-                factory_state = get_factory_state()
+                factory_state = await get_factory_state()
                 logger.info(f"Factory state initialized: {factory_state}")
                 break
             except Exception as e:

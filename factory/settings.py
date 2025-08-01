@@ -4,6 +4,7 @@ Factory Settings Functions - دوال إعدادات المصنع
 """
 
 import time
+import asyncio
 from utils import (
     logger, 
     ValidationError, 
@@ -25,7 +26,7 @@ def set_collections(factory_coll):
     global factory_settings
     factory_settings = factory_coll
 
-def get_factory_state(max_retries=3):
+async def get_factory_state(max_retries=3):
     """
     الحصول على حالة المصنع مع التخزين المؤقت وإعادة المحاولة
     
@@ -57,13 +58,13 @@ def get_factory_state(max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to get factory state after {max_retries} attempts")
                     return True  # القيمة الافتراضية
-                time.sleep(1)
+                await asyncio.sleep(1)
         return True
     except Exception as e:
         logger.error(f"Error in get_factory_state function: {str(e)}")
         return True
 
-def set_factory_state(enabled, max_retries=3):
+async def set_factory_state(enabled, max_retries=3):
     """
     تعيين حالة المصنع مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
@@ -98,7 +99,7 @@ def set_factory_state(enabled, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to set factory state after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except Exception as e:
         logger.error(f"Error in set_factory_state function: {str(e)}")

@@ -57,7 +57,7 @@ async def forbroacasts_handler(client, msg):
         await delete_broadcast_status(uid, bot_id, "start_bot")
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -111,7 +111,7 @@ async def forbroacasts_handler(client, msg):
         await delete_broadcast_status(uid, bot_id, "delete_bot")
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -183,7 +183,7 @@ async def forbroacasts_handler(client, msg):
         await delete_broadcast_status(uid, bot_id, "stop_bot")
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
@@ -241,7 +241,7 @@ async def forbroacasts_handler(client, msg):
         await delete_broadcast_status(uid, bot_id, "make_bot")
         
         # التحقق من حالة المصنع
-        if get_factory_state():
+        if await get_factory_state():
             await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
             return
         
