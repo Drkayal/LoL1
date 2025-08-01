@@ -264,7 +264,7 @@ async def cmd_handler(client, msg):
         for i, bot in enumerate(all_bots, 1):
             # تحديث رسالة الحالة كل 3 بوتات
             if i % 3 == 0:
-                await status_msg.edit(f"**🔄 جاري إيقاف البوتات... ({i}/{len(all_bots)})**")
+                await status_msg.edit(f"**🔄 جاري الإيقاف... ({i}/{len(all_bots)})**")
             
             if bot.get("status") != "running":
                 already_stopped += 1
@@ -401,8 +401,8 @@ async def cmd_handler(client, msg):
             await safe_reply_text(msg, "**❌ لم يتم العثور على معلومات المطور**", quote=True)
 
 @Client.on_message(filters.command("start") & filters.private)
-async def new_user_handler(client, msg):
-    """معالج المستخدمين الجدد"""
+async def start_handler(client, msg):
+    """معالج أمر start للمستخدمين والمطورين"""
     # التحقق من صحة الرسالة
     if not msg or not msg.from_user:
         logger.warning("Invalid message received")
@@ -439,54 +439,24 @@ async def new_user_handler(client, msg):
         resize_keyboard=True
     )
     
-    # إرسال رسالة الترحيب مع لوحة المفاتيح
-    await safe_reply_text(
-        msg,
-        f"**مرحبا {name} في مصنع البوتات**\n"
-        "**استخدم لوحة المفاتيح أدناه للتحكم**",
-        reply_markup=keyboard
-    )
+    # إرسال رسالة الترحيب المناسبة
+    if await is_dev(uid):
+        # رسالة للمطورين
+        await safe_reply_text(
+            msg,
+            "**مرحباً بك في صانع بوتات الميوزك الخاص بسورس لول .**",
+            reply_markup=keyboard
+        )
+    else:
+        # رسالة للمستخدمين العاديين
+        await safe_reply_text(
+            msg,
+            f"**مرحبا {name} في مصنع البوتات**\n"
+            "**استخدم لوحة المفاتيح أدناه للتحكم**",
+            reply_markup=keyboard
+        )
 
-@Client.on_message(filters.command("start") & filters.private, group=162728)
-async def admins_handler(client, message: Message):
-    """معالج المطورين"""
-    # التحقق من صحة الرسالة
-    if not message or not message.from_user:
-        logger.warning("Invalid message received")
-        return
-    
-    uid = message.from_user.id
-    name = message.from_user.first_name
-    
-    if not await is_dev(uid):
-        return
-    
-    # إنشاء لوحة أزرار الكيبورد للمطورين
-    keyboard = ReplyKeyboardMarkup(
-        [
-            ["❲ صنع بوت ❳", "❲ حذف بوت ❳"],
-            ["❲ فتح المصنع ❳", "❲ قفل المصنع ❳"],
-            ["❲ ايقاف بوت ❳", "❲ تشغيل بوت ❳"],
-            ["❲ ايقاف البوتات ❳", "❲ تشغيل البوتات ❳"],
-            ["❲ البوتات المشتغلة ❳", "❲ البوتات المصنوعه ❳"],
-            ["❲ تحديث الصانع ❳", "❲ الاحصائيات ❳"],
-            ["❲ رفع مطور ❳", "❲ تنزيل مطور ❳"],
-            ["❲ المطورين ❳", "❲ اذاعه ❳"],
-            ["❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳"],
-            ["❲ استخراج جلسه ❳", "❲ الاسكرينات المفتوحه ❳"],
-            ["❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳", "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳"],
-            ["❲ السورس ❳", "❲ مطور السورس ❳"],
-            ["❲ اخفاء الكيبورد ❳"]
-        ],
-        resize_keyboard=True
-    )
-    
-    # إرسال رسالة الترحيب للمطور مع لوحة المفاتيح
-    await safe_reply_text(
-        message,
-        "**مرحباً بك في صانع بوتات الميوزك الخاص بسورس لول .**",
-        reply_markup=keyboard
-    )
+# تم دمج معالج المطورين مع معالج المستخدمين في start_handler أعلاه
 
 @Client.on_callback_query(filters.regex("^user_count_"))
 async def user_count_callback_handler(client, callback_query):

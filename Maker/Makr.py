@@ -107,8 +107,7 @@ from bots import (
 from handlers import (
     # Command Handlers
     cmd_handler,
-    new_user_handler,
-    admins_handler,
+    start_handler,
     user_count_callback_handler,
     alivehi_handler,
     you_handler,

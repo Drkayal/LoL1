@@ -2261,3 +2261,11 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 05:45:10,378 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
 2025-08-01 05:45:10,378 - factory_bot - INFO - Cleaned up 0 temporary files
 2025-08-01 05:45:10,378 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 05:52:06,916 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 05:52:06,916 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 05:52:06,916 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 05:52:06,916 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 05:52:23,782 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 05:52:23,782 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 05:52:23,782 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 05:52:23,782 - factory_bot - INFO - Cache cleared successfully
