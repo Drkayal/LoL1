@@ -1,0 +1,366 @@
+"""
+Bot Model Functions - دوال قاعدة البيانات للبوتات
+يحتوي على دوال التعامل مع قاعدة البيانات للبوتات
+"""
+
+import time
+from datetime import datetime
+from typing import List, Optional, Dict, Any
+from utils import (
+    logger, 
+    ValidationError, 
+    DatabaseError,
+    rate_limit_manager
+)
+from users import (
+    validate_user_id,
+    validate_bot_username
+)
+
+# استيراد المتغيرات المطلوبة من الملف الرئيسي
+# سيتم استيرادها عند تشغيل التطبيق
+bots_collection = None
+factory_settings = None
+
+def set_collections(bots_coll, factory_coll):
+    """
+    تعيين المجموعات المطلوبة من الملف الرئيسي
+    
+    Args:
+        bots_coll: مجموعة البوتات
+        factory_coll: مجموعة إعدادات المصنع
+    """
+    global bots_collection, factory_settings
+    bots_collection = bots_coll
+    factory_settings = factory_coll
+
+def get_bot_info(bot_username, max_retries=3):
+    """
+    الحصول على معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        dict: معلومات البوت أو None إذا لم تكن موجودة
+    """
+    try:
+        from utils import cache_manager
+        
+        # التحقق من التخزين المؤقت أولاً
+        cache_key = f"bot_info_{bot_username}"
+        cached_result = cache_manager.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+        
+        is_valid, validated_username = validate_bot_username(bot_username)
+        if not is_valid:
+            logger.error(f"Invalid bot username: {bot_username}")
+            return None
+        
+        for attempt in range(max_retries):
+            try:
+                result = bots_collection.find_one({"username": validated_username})
+                if result:
+                    cache_manager.set(cache_key, result)
+                return result
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to get bot info: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get bot info after {max_retries} attempts")
+                    return None
+                time.sleep(1)
+        return None
+    except ValidationError as e:
+        logger.error(f"Validation error in get_bot_info: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in get_bot_info function: {str(e)}")
+        return None
+
+def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
+    """
+    حفظ معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        dev_id: معرف المطور
+        pid: معرف العملية
+        config_data: بيانات التكوين
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: True إذا تم الحفظ بنجاح، False خلاف ذلك
+    """
+    try:
+        from utils import cache_manager
+        
+        is_valid_username, validated_username = validate_bot_username(bot_username)
+        is_valid_dev, validated_dev_id = validate_user_id(dev_id)
+        
+        if not is_valid_username or not is_valid_dev:
+            logger.error(f"Invalid bot_username or dev_id: {bot_username}, {dev_id}")
+            return False
+        
+        if not isinstance(config_data, dict):
+            logger.error("Config data must be a dictionary")
+            return False
+        
+        for attempt in range(max_retries):
+            try:
+                bot_data = {
+                    "username": validated_username,
+                    "dev_id": validated_dev_id,
+                    "pid": pid,
+                    "config": config_data,
+                    "created_at": datetime.now(),
+                    "status": "running"
+                }
+                
+                bots_collection.update_one(
+                    {"username": validated_username},
+                    {"$set": bot_data},
+                    upsert=True
+                )
+                logger.info(f"Successfully saved bot info for {validated_username}")
+                
+                # تحديث التخزين المؤقت
+                cache_key = f"bot_info_{validated_username}"
+                cache_manager.set(cache_key, bot_data)
+                
+                return True
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to save bot info: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to save bot info after {max_retries} attempts")
+                    return False
+                time.sleep(1)
+        return False
+    except ValidationError as e:
+        logger.error(f"Validation error in save_bot_info: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"Error in save_bot_info function: {str(e)}")
+        return False
+
+def update_bot_status(bot_username, status, max_retries=3):
+    """
+    تحديث حالة البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        status: الحالة الجديدة
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: True إذا تم التحديث بنجاح، False خلاف ذلك
+    """
+    try:
+        from utils import cache_manager
+        
+        is_valid, validated_username = validate_bot_username(bot_username)
+        if not is_valid:
+            logger.error(f"Invalid bot username: {bot_username}")
+            return False
+        
+        if not status or not isinstance(status, str):
+            logger.error(f"Invalid status: {status}")
+            return False
+        
+        valid_statuses = ["running", "stopped", "error"]
+        if status not in valid_statuses:
+            logger.error(f"Invalid status value: {status}. Must be one of {valid_statuses}")
+            return False
+        
+        for attempt in range(max_retries):
+            try:
+                bots_collection.update_one(
+                    {"username": validated_username},
+                    {"$set": {"status": status}}
+                )
+                logger.info(f"Successfully updated bot status for {validated_username} to {status}")
+                
+                # حذف من التخزين المؤقت لتحديث البيانات
+                cache_key = f"bot_info_{validated_username}"
+                cache_manager.delete(cache_key)
+                
+                return True
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to update bot status: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to update bot status after {max_retries} attempts")
+                    return False
+                time.sleep(1)
+        return False
+    except ValidationError as e:
+        logger.error(f"Validation error in update_bot_status: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"Error in update_bot_status function: {str(e)}")
+        return False
+
+def delete_bot_info(bot_username, max_retries=3):
+    """
+    حذف معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: True إذا تم الحذف بنجاح، False خلاف ذلك
+    """
+    try:
+        from utils import cache_manager
+        
+        is_valid, validated_username = validate_bot_username(bot_username)
+        if not is_valid:
+            logger.error(f"Invalid bot username: {bot_username}")
+            return False
+        
+        for attempt in range(max_retries):
+            try:
+                result = bots_collection.delete_one({"username": validated_username})
+                if result.deleted_count > 0:
+                    logger.info(f"Successfully deleted bot info for {validated_username}")
+                    
+                    # حذف من التخزين المؤقت
+                    cache_key = f"bot_info_{validated_username}"
+                    cache_manager.delete(cache_key)
+                    
+                    return True
+                else:
+                    logger.warning(f"Bot {validated_username} not found for deletion")
+                    return False
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to delete bot info: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to delete bot info after {max_retries} attempts")
+                    return False
+                time.sleep(1)
+        return False
+    except ValidationError as e:
+        logger.error(f"Validation error in delete_bot_info: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"Error in delete_bot_info function: {str(e)}")
+        return False
+
+def get_all_bots(max_retries=3):
+    """
+    الحصول على جميع البوتات مع التخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        List[dict]: قائمة جميع البوتات
+    """
+    try:
+        from utils import cache_manager
+        
+        # التحقق من التخزين المؤقت أولاً
+        cache_key = "all_bots_list"
+        cached_result = cache_manager.get(cache_key)
+        if cached_result is not None:
+            logger.debug("Retrieved bots from cache")
+            return cached_result
+        
+        for attempt in range(max_retries):
+            try:
+                bots = list(bots_collection.find())
+                logger.info(f"Successfully retrieved {len(bots)} bots")
+                
+                # حفظ في التخزين المؤقت
+                cache_manager.set(cache_key, bots)
+                return bots
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to get all bots: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get all bots after {max_retries} attempts")
+                    return []
+                time.sleep(1)
+        return []
+    except Exception as e:
+        logger.error(f"Error in get_all_bots function: {str(e)}")
+        return []
+
+def get_running_bots(max_retries=3):
+    """
+    الحصول على البوتات المشتغلة مع التخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        List[dict]: قائمة البوتات المشتغلة
+    """
+    try:
+        from utils import cache_manager
+        
+        # التحقق من التخزين المؤقت أولاً
+        cache_key = "running_bots_list"
+        cached_result = cache_manager.get(cache_key)
+        if cached_result is not None:
+            logger.debug("Retrieved running bots from cache")
+            return cached_result
+        
+        for attempt in range(max_retries):
+            try:
+                bots = list(bots_collection.find({"status": "running"}))
+                logger.info(f"Successfully retrieved {len(bots)} running bots")
+                
+                # حفظ في التخزين المؤقت
+                cache_manager.set(cache_key, bots)
+                return bots
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get running bots after {max_retries} attempts")
+                    return []
+                time.sleep(1)
+        return []
+    except Exception as e:
+        logger.error(f"Error in get_running_bots function: {str(e)}")
+        return []
+
+def get_factory_state(max_retries=3):
+    """
+    الحصول على حالة المصنع مع التخزين المؤقت وإعادة المحاولة
+    
+    Args:
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: حالة المصنع (True = مغلق، False = مفتوح)
+    """
+    try:
+        from utils import cache_manager
+        
+        # التحقق من التخزين المؤقت أولاً
+        cache_key = "factory_state"
+        cached_result = cache_manager.get(cache_key)
+        if cached_result is not None:
+            logger.debug("Retrieved factory state from cache")
+            return cached_result
+        
+        for attempt in range(max_retries):
+            try:
+                settings = factory_settings.find_one({"name": "factory"})
+                enabled = settings.get("enabled", True) if settings else True
+                logger.info(f"Factory state retrieved: {enabled}")
+                
+                # حفظ في التخزين المؤقت
+                cache_manager.set(cache_key, enabled)
+                return enabled
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to get factory state: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get factory state after {max_retries} attempts")
+                    return True  # القيمة الافتراضية
+                time.sleep(1)
+        return True
+    except Exception as e:
+        logger.error(f"Error in get_factory_state function: {str(e)}")
+        return True

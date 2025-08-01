@@ -71,19 +71,6 @@ from db import (
     get_async_db,
     close_connections,
     
-    # Broadcast Functions
-    set_broadcast_status,
-    get_broadcast_status,
-    delete_broadcast_status,
-    
-    # Bot Functions
-    get_bot_info,
-    save_bot_info,
-    update_bot_status,
-    delete_bot_info,
-    get_all_bots,
-    get_running_bots,
-    
     # Factory Functions
     get_factory_state,
     set_factory_state,
@@ -92,7 +79,33 @@ from db import (
     clear_bot_cache,
     clear_factory_cache,
     get_database_stats,
-    set_collections
+    set_collections as set_db_collections
+)
+
+# استيراد دوال البوتات من مجلد bots
+from bots import (
+    # Logic Functions
+    start_bot_process,
+    stop_bot_process,
+    initialize_factory,
+    
+    # Model Functions
+    get_bot_info,
+    save_bot_info,
+    update_bot_status,
+    delete_bot_info,
+    get_all_bots,
+    get_running_bots,
+    set_collections as set_bots_collections
+)
+
+# استيراد دوال البث من مجلد broadcast
+from broadcast import (
+    # Status Functions
+    set_broadcast_status,
+    get_broadcast_status,
+    delete_broadcast_status,
+    set_collections as set_broadcast_collections
 )
 
 # استخراج اسم القناة من الرابط
@@ -135,187 +148,7 @@ mk = []  # قائمة المحادثات
 
 # دوال إدارة البوتات والمصنع تم نقلها إلى db/models.py
 
-# وظائف إدارة العمليات مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة
-def start_bot_process(bot_username, max_retries=3):
-    """تشغيل عملية البوت مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة"""
-    try:
-        is_valid, validated_username = validate_bot_username(bot_username)
-        if not is_valid:
-            logger.error(f"Invalid bot username: {bot_username}")
-            return None
-        
-        bot_path = path.join("Maked", validated_username)
-        main_file = path.join(bot_path, "__main__.py")
-        
-        if not path.exists(main_file):
-            logger.error(f"Main file not found for bot: {validated_username}")
-            return None
-        
-        # التحقق من وجود البيئة الافتراضية
-        venv_python = path.join("/workspace/venv/bin/python")
-        if not path.exists(venv_python):
-            logger.error(f"Virtual environment not found at: {venv_python}")
-            return None
-        
-        # إنشاء ملف مؤقت لتسجيل الأخطاء
-        log_file = temp_file_manager.create_temp_file(suffix=".log", prefix=f"bot_{validated_username}_")
-        
-        for attempt in range(max_retries):
-            try:
-                # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
-                
-                process = subprocess.Popen(
-                    [venv_python, main_file],
-                    cwd=bot_path,
-                    stdout=open(log_file, 'w'),
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    env={
-                        **os.environ,
-                        "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
-                    }
-                )
-                
-                # انتظار قليل للتأكد من بدء العملية
-                time.sleep(2)
-                
-                # التحقق من أن العملية لا تزال تعمل
-                if process.poll() is None:
-                    logger.info(f"Started bot {validated_username} with PID: {process.pid}")
-                    return process.pid
-                else:
-                    # قراءة الأخطاء إذا فشل التشغيل
-                    try:
-                        with open(log_file, 'r') as f:
-                            error_log = f.read()
-                        logger.error(f"Bot {validated_username} failed to start. Log: {error_log}")
-                    except:
-                        logger.error(f"Bot {validated_username} failed to start")
-                    
-                    if attempt == max_retries - 1:
-                        # تنظيف الملف المؤقت
-                        temp_file_manager.cleanup_temp_file(log_file)
-                        return None
-                    time.sleep(2)  # انتظار قبل إعادة المحاولة
-                    
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to start bot {validated_username}: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to start bot {validated_username} after {max_retries} attempts")
-                    # تنظيف الملف المؤقت
-                    temp_file_manager.cleanup_temp_file(log_file)
-                    return None
-                time.sleep(2)
-        
-        # تنظيف الملف المؤقت
-        temp_file_manager.cleanup_temp_file(log_file)
-        return None
-    except ValidationError as e:
-        logger.error(f"Validation error in start_bot_process: {str(e)}")
-        return None
-    except Exception as e:
-        logger.error(f"Error in start_bot_process function: {str(e)}")
-        return None
-
-def stop_bot_process(pid, max_retries=3):
-    """إيقاف عملية البوت مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة"""
-    try:
-        if not pid or not isinstance(pid, int) or pid <= 0:
-            logger.error(f"Invalid PID: {pid}")
-            return False
-        
-        for attempt in range(max_retries):
-            try:
-                # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
-                
-                process = psutil.Process(pid)
-                process.terminate()
-                
-                # انتظار قليل للتأكد من إيقاف العملية
-                time.sleep(1)
-                
-                if process.poll() is None:
-                    # إذا لم تتوقف العملية، قم بإجبارها على التوقف
-                    process.kill()
-                    time.sleep(1)
-                
-                logger.info(f"Stopped process with PID: {pid}")
-                return True
-                
-            except psutil.NoSuchProcess:
-                logger.warning(f"Process with PID {pid} not found")
-                return True  # العملية غير موجودة تعني أنها متوقفة بالفعل
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to stop process {pid}: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to stop process {pid} after {max_retries} attempts")
-                    return False
-                time.sleep(1)
-        return False
-    except Exception as e:
-        logger.error(f"Error in stop_bot_process function: {str(e)}")
-        return False
-
-# تهيئة المصنع عند التشغيل مع التحقق من المدخلات وإعادة المحاولة
-async def initialize_factory(max_retries=3):
-    """تهيئة المصنع مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة"""
-    try:
-        global off
-        
-        # انتظار لتجنب الحظر
-        await rate_limit_manager.wait_if_needed('database')
-        
-        for attempt in range(max_retries):
-            try:
-                off = get_factory_state()
-                logger.info(f"Factory state initialized: {off}")
-                break
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get factory state: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error("Failed to initialize factory state, using default")
-                    off = True
-                await asyncio.sleep(1)
-        
-        # استعادة البوتات المشتغلة
-        for attempt in range(max_retries):
-            try:
-                running_bots = get_running_bots()
-                logger.info(f"Found {len(running_bots)} bots to restore")
-                break
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
-                if attempt == max_retries - 1:
-                    logger.error("Failed to get running bots, skipping restoration")
-                    return
-                await asyncio.sleep(1)
-        
-        for bot in running_bots:
-            if bot.get("status") == "running":
-                bot_username = bot.get("username")
-                if not bot_username:
-                    logger.warning("Bot without username found, skipping")
-                    continue
-                    
-                logger.info(f"Restoring bot: {bot_username}")
-                pid = start_bot_process(bot_username)
-                if pid:
-                    success = bots_collection.update_one(
-                        {"username": bot_username},
-                        {"$set": {"pid": pid}}
-                    )
-                    if success.modified_count > 0:
-                        logger.info(f"Successfully restored bot {bot_username} with PID: {pid}")
-                    else:
-                        logger.warning(f"Failed to update bot {bot_username} PID in database")
-                else:
-                    update_bot_status(bot_username, "stopped")
-                    logger.warning(f"Failed to restore bot {bot_username}, marked as stopped")
-    except Exception as e:
-        logger.error(f"Error in initialize_factory function: {str(e)}")
-        off = True  # القيمة الافتراضية في حالة الخطأ
+# دوال إدارة العمليات تم نقلها إلى bots/logic.py
 
 # ================================================
 # ============== HANDLERS START HERE =============
@@ -1386,4 +1219,10 @@ atexit.register(cleanup_database_connections)
 set_dependencies(OWNER_ID, devs_collection, users)
 
 # تعيين المجموعات لمجلد db
-set_collections(broadcasts_collection, bots_collection, factory_settings)
+set_db_collections(broadcasts_collection, bots_collection, factory_settings)
+
+# تعيين المجموعات لمجلد bots
+set_bots_collections(bots_collection, factory_settings)
+
+# تعيين المجموعات لمجلد broadcast
+set_broadcast_collections(broadcasts_collection)
