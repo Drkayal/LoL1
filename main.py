@@ -135,22 +135,7 @@ class BotFactory:
             self.factory_settings = self.db.factory_settings
             
             # التحقق من تهيئة المجموعات
-            logger.info(f"users collection: {self.users}")
-            logger.info(f"devs_collection: {self.devs_collection}")
-            logger.info(f"bots_collection: {self.bots_collection}")
-            logger.info(f"broadcasts_collection: {self.broadcasts_collection}")
-            logger.info(f"factory_settings: {self.factory_settings}")
-            
-            # فحص إضافي للتأكد من التهيئة
-            if self.devs_collection is None:
-                logger.error("ERROR: self.devs_collection is None in setup_database")
-            else:
-                logger.info("SUCCESS: self.devs_collection is properly initialized")
-                
-            if self.users is None:
-                logger.error("ERROR: self.users is None in setup_database")
-            else:
-                logger.info("SUCCESS: self.users is properly initialized")
+            logger.info("Database collections initialized successfully")
             
             logger.info("Database setup completed successfully")
             
