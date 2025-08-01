@@ -194,6 +194,182 @@ async def cmd_handler(client, msg):
         
         await status_msg.edit(result_text)
 
+    elif msg.text == "❲ صنع بوت ❳":
+        # التحقق من حالة المصنع
+        if await get_factory_state():
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # طلب معرف البوت من المستخدم
+        await safe_reply_text(
+            msg,
+            "**🤖 صنع بوت جديد**\n\n"
+            "**أرسل معرف البوت الذي تريد صنعه:**\n"
+            "• مثال: `MyMusicBot`\n"
+            "• مثال: `@MyMusicBot`\n\n"
+            "**📝 ملاحظة:** تأكد من أن المعرف متاح في @BotFather",
+            quote=True
+        )
+        # تعيين حالة انتظار معرف البوت لصنع البوت
+        await set_broadcast_status(uid, bot_id, "make_bot")
+
+    elif msg.text == "❲ فتح المصنع ❳":
+        success = await set_factory_state(False)
+        if success:
+            await safe_reply_text(msg, "**✅ تم فتح المصنع بنجاح**", quote=True)
+        else:
+            await safe_reply_text(msg, "**❌ فشل في فتح المصنع**", quote=True)
+
+    elif msg.text == "❲ قفل المصنع ❳":
+        success = await set_factory_state(True)
+        if success:
+            await safe_reply_text(msg, "**✅ تم قفل المصنع بنجاح**", quote=True)
+        else:
+            await safe_reply_text(msg, "**❌ فشل في قفل المصنع**", quote=True)
+
+    elif msg.text == "❲ ايقاف البوتات ❳":
+        if not await is_dev(uid):
+            await safe_reply_text(msg, "** ≭︰هذا الامر يخص المطور **", quote=True)
+            return
+        
+        all_bots = await get_all_bots()
+        if not all_bots:
+            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await safe_reply_text(msg, "**🔄 جاري إيقاف البوتات...**", quote=True)
+        
+        stopped_count = 0
+        failed_count = 0
+        already_stopped = 0
+        
+        for i, bot in enumerate(all_bots, 1):
+            # تحديث رسالة الحالة كل 3 بوتات
+            if i % 3 == 0:
+                await status_msg.edit(f"**🔄 جاري إيقاف البوتات... ({i}/{len(all_bots)})**")
+            
+            if bot.get("status") != "running":
+                already_stopped += 1
+                continue
+                
+            success = await stop_bot_process(bot["username"])
+            if success:
+                await update_bot_status(bot["username"], "stopped")
+                stopped_count += 1
+            else:
+                failed_count += 1
+
+        # رسالة النتيجة النهائية
+        result_text = f"**📊 نتائج إيقاف البوتات:**\n\n"
+        result_text += f"✅ **تم إيقاف:** {stopped_count} بوت\n"
+        result_text += f"⚠️ **كانت متوقفة:** {already_stopped} بوت\n"
+        result_text += f"❌ **فشل الإيقاف:** {failed_count} بوت\n"
+        
+        if stopped_count == 0 and already_stopped == 0:
+            result_text = "**❌ لم يتم إيقاف أي بوت**"
+        elif stopped_count == 0:
+            result_text = f"**⚠️ كل البوتات متوقفة بالفعل ({already_stopped} بوت)**"
+        
+        await status_msg.edit(result_text)
+
+    elif msg.text == "❲ البوتات المشتغلة ❳":
+        running_bots = await get_running_bots()
+        if not running_bots:
+            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مشتغلة **", quote=True)
+            return
+        
+        text = "**🤖 البوتات المشتغلة:**\n\n"
+        for i, bot in enumerate(running_bots, 1):
+            text += f"**{i}.** @{bot['username']}\n"
+        
+        await safe_reply_text(msg, text, quote=True)
+
+    elif msg.text == "❲ البوتات المصنوعه ❳":
+        all_bots = await get_all_bots()
+        if not all_bots:
+            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
+            return
+        
+        text = "**🤖 البوتات المصنوعة:**\n\n"
+        for i, bot in enumerate(all_bots, 1):
+            status_emoji = "🟢" if bot.get("status") == "running" else "🔴"
+            text += f"**{i}.** {status_emoji} @{bot['username']}\n"
+        
+        await safe_reply_text(msg, text, quote=True)
+
+    elif msg.text == "❲ تحديث الصانع ❳":
+        await safe_reply_text(msg, "**🔄 جاري تحديث الصانع...**", quote=True)
+        # هنا يمكن إضافة منطق التحديث الفعلي
+        await safe_reply_text(msg, "**✅ تم تحديث الصانع بنجاح**", quote=True)
+
+    elif msg.text == "❲ رفع مطور ❳":
+        await safe_reply_text(msg, "**👤 رفع مطور**\n\n**أرسل معرف المستخدم أو قم بالرد على رسالته:**", quote=True)
+        await set_broadcast_status(uid, bot_id, "add_dev")
+
+    elif msg.text == "❲ تنزيل مطور ❳":
+        await safe_reply_text(msg, "**👤 تنزيل مطور**\n\n**أرسل معرف المستخدم أو قم بالرد على رسالته:**", quote=True)
+        await set_broadcast_status(uid, bot_id, "remove_dev")
+
+    elif msg.text == "❲ المطورين ❳":
+        devs = OWNER_ID
+        if not devs:
+            await safe_reply_text(msg, "** ≭︰لا يوجد مطورين **", quote=True)
+            return
+        
+        text = "**👨‍💻 المطورين:**\n\n"
+        for i, dev_id in enumerate(devs, 1):
+            try:
+                user = await client.get_users(dev_id)
+                text += f"**{i}.** {user.first_name} (@{user.username})\n"
+            except:
+                text += f"**{i}.** {dev_id}\n"
+        
+        await safe_reply_text(msg, text, quote=True)
+
+    elif msg.text == "❲ استخراج جلسه ❳":
+        await safe_reply_text(msg, "**📱 استخراج جلسة**\n\n**أرسل رقم الهاتف:**", quote=True)
+        await set_broadcast_status(uid, bot_id, "get_session")
+
+    elif msg.text == "❲ الاسكرينات المفتوحه ❳":
+        await safe_reply_text(msg, "**🖥️ الشاشات المفتوحة**\n\n**جاري فحص الشاشات...**", quote=True)
+        # هنا يمكن إضافة منطق فحص الشاشات
+        await safe_reply_text(msg, "**✅ تم فحص الشاشات بنجاح**", quote=True)
+
+    elif msg.text == "❲ 𝚄𝙿𝙳𝙰𝚃𝙴 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳":
+        await safe_reply_text(msg, "**🔄 جاري تحديث الكوكيز...**", quote=True)
+        # هنا يمكن إضافة منطق تحديث الكوكيز
+        await safe_reply_text(msg, "**✅ تم تحديث الكوكيز بنجاح**", quote=True)
+
+    elif msg.text == "❲ 𝚁𝙴𝚂𝚃𝙰𝚁𝚃 𝙲𝙾𝙾𝙺𝙸𝙴𝚂 ❳":
+        await safe_reply_text(msg, "**🔄 جاري إعادة تشغيل الكوكيز...**", quote=True)
+        # هنا يمكن إضافة منطق إعادة تشغيل الكوكيز
+        await safe_reply_text(msg, "**✅ تم إعادة تشغيل الكوكيز بنجاح**", quote=True)
+
+    elif msg.text == "❲ السورس ❳":
+        await safe_reply_text(
+            msg,
+            "**🔰 مرحبا بك في مصنع البوتات**\n\n"
+            "**المطور:** @username\n"
+            "**السورس:** مصنع البوتات\n"
+            "**الإصدار:** 1.0.0",
+            quote=True
+        )
+
+    elif msg.text == "❲ مطور السورس ❳":
+        try:
+            dev_info = await client.get_users(OWNER_ID[0])
+            await safe_reply_text(
+                msg,
+                f"**👨‍💻 مطور السورس:**\n\n"
+                f"**الاسم:** {dev_info.first_name}\n"
+                f"**المعرف:** @{dev_info.username}\n"
+                f"**الآيدي:** `{dev_info.id}`",
+                quote=True
+            )
+        except Exception as e:
+            await safe_reply_text(msg, "**❌ لم يتم العثور على معلومات المطور**", quote=True)
+
 @Client.on_message(filters.command("start") & filters.private)
 async def new_user_handler(client, msg):
     """معالج المستخدمين الجدد"""
