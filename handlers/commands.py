@@ -234,17 +234,10 @@ async def admins_handler(client, message: Message):
     if not await is_dev(uid):
         return
     
-    # إرسال لوحة تحكم المطور
+    # إرسال رسالة الترحيب للمطور
     await safe_reply_text(
         message,
-        f"**مرحبا {name} في لوحة تحكم المطور**\n"
-        "**اختر الأمر المطلوب:**",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❲ الاحصائيات ❳", callback_data="stats")],
-            [InlineKeyboardButton("❲ اذاعه ❳", callback_data="broadcast")],
-            [InlineKeyboardButton("❲ تشغيل البوتات ❳", callback_data="start_bots")],
-            [InlineKeyboardButton("❲ ايقاف البوتات ❳", callback_data="stop_bots")]
-        ])
+        "**مرحباً بك في صانع بوتات الميوزك الخاص بسورس لول .**"
     )
 
 @Client.on_callback_query(filters.regex("^user_count_"))
@@ -321,14 +314,7 @@ async def back_to_main_callback_handler(client, callback_query):
         if await is_dev(uid):
             # قائمة المطور
             await callback_query.message.edit_text(
-                f"**مرحبا {name} في لوحة تحكم المطور**\n"
-                "**اختر الأمر المطلوب:**",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("❲ الاحصائيات ❳", callback_data="stats")],
-                    [InlineKeyboardButton("❲ اذاعه ❳", callback_data="broadcast")],
-                    [InlineKeyboardButton("❲ تشغيل البوتات ❳", callback_data="start_bots")],
-                    [InlineKeyboardButton("❲ ايقاف البوتات ❳", callback_data="stop_bots")]
-                ])
+                "**مرحباً بك في صانع بوتات الميوزك الخاص بسورس لول .**"
             )
         else:
             # قائمة المستخدم العادي
