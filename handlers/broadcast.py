@@ -11,6 +11,7 @@ from users import is_dev, validate_user_id, del_user
 from bots import start_bot_process, get_bot_info, update_bot_status
 from broadcast import get_broadcast_status, delete_broadcast_status
 from users import validate_bot_username
+from factory.settings import get_factory_state
 
 # المتغيرات المطلوبة من الملف الرئيسي
 bots_collection = None
@@ -54,6 +55,11 @@ async def forbroacasts_handler(client, msg):
     if await get_broadcast_status(uid, bot_id, "start_bot"):
         await delete_broadcast_status(uid, bot_id, "start_bot")
         
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
         # التحقق من صحة معرف البوت
         is_valid, validated_username = validate_bot_username(text)
         if not is_valid:
@@ -69,6 +75,12 @@ async def forbroacasts_handler(client, msg):
             await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
             return
         
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply(f"**🔄 جاري تشغيل البوت @{validated_username}...**", quote=True)
+        
+        # تأخير قصير قبل بدء العملية
+        await asyncio.sleep(0.5)
+        
         process_id = start_bot_process(validated_username)
         if process_id:
             if update_bot_status(validated_username, "running"):
@@ -79,17 +91,18 @@ async def forbroacasts_handler(client, msg):
                         {"username": validated_username},
                         {"$set": {"container_id": process_id}}
                     )
+                    await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🐳 **في حاوية Docker:** `{process_id[:12]}...`")
                 elif isinstance(process_id, int):
                     # PID
                     bots_collection.update_one(
                         {"username": validated_username},
                         {"$set": {"pid": process_id}}
                     )
-                await msg.reply(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**", quote=True)
+                    await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🔧 **معرف العملية:** `PID {process_id}`")
             else:
-                await msg.reply(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**", quote=True)
+                await status_msg.edit(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**")
         else:
-            await msg.reply(f"**❌ فشل في تشغيل البوت @{validated_username}**", quote=True)
+            await status_msg.edit(f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 الأسباب المحتملة:**\n• البوت غير موجود في مجلد Maked\n• خطأ في ملفات البوت\n• مشكلة في التكوين")
         return
 
     # معالجة البث العادي

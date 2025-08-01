@@ -1995,3 +1995,7 @@ ValueError: Peer id invalid: -1002727115068
 2025-07-31 13:24:49,599 - pyrogram.session.session - INFO - NetworkTask stopped
 2025-07-31 13:24:49,599 - pyrogram.connection.connection - INFO - Disconnected
 2025-07-31 13:24:49,599 - pyrogram.session.session - INFO - Session stopped
+2025-08-01 01:08:48,089 - factory_bot - WARNING - Attempt 1 failed to get bot info: 'NoneType' object has no attribute 'find_one'
+2025-08-01 01:08:49,089 - factory_bot - WARNING - Attempt 2 failed to get bot info: 'NoneType' object has no attribute 'find_one'
+2025-08-01 01:08:50,090 - factory_bot - WARNING - Attempt 3 failed to get bot info: 'NoneType' object has no attribute 'find_one'
+2025-08-01 01:08:50,090 - factory_bot - ERROR - Failed to get bot info after 3 attempts
