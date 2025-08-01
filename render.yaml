@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: bot-factory
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: MONGO_DB_URI
+        sync: false
+      - key: OWNER_ID
+        sync: false
+      - key: CHANNEL
+        sync: false
+      - key: GROUP
+        sync: false
+      - key: PHOTO
+        sync: false
+      - key: VIDEO
+        sync: false
+      - key: LOGS
+        sync: false

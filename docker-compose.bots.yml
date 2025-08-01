@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # بوت الصانع الرئيسي
+  bot-factory:
+    build: .
+    container_name: bot-factory
+    restart: unless-stopped
+    environment:
+      - API_ID=${API_ID}
+      - API_HASH=${API_HASH}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MONGO_DB_URI=${MONGO_DB_URI}
+      - OWNER_ID=${OWNER_ID}
+    volumes:
+      - ./Maked:/app/Maked
+      - ./logs:/app/logs
+    networks:
+      - bot-network
+    depends_on:
+      - mongodb
+
+  # قاعدة البيانات
+  mongodb:
+    image: mongo:latest
+    container_name: bot-factory-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - bot-network
+    ports:
+      - "27017:27017"
+
+  # مثال على بوت منشأ (سيتم إنشاؤه تلقائياً)
+  # bot-example:
+  #   build: ./Maked/example_bot
+  #   container_name: bot-example
+  #   restart: unless-stopped
+  #   environment:
+  #     - BOT_USERNAME=example_bot
+  #     - BOT_WORKING_DIR=/app
+  #   networks:
+  #     - bot-network
+  #   depends_on:
+  #     - mongodb
+
+networks:
+  bot-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
