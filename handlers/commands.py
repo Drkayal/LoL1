@@ -6,7 +6,7 @@ Command Handlers - معالجات الأوامر
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
-from utils import logger
+from utils import logger, safe_reply_text, safe_edit_text, safe_answer_callback, safe_edit_callback_message
 from users import is_dev, is_user, add_new_user, get_users, get_dev_count
 from bots import (
     start_bot_process, stop_bot_process, get_all_bots, get_running_bots,
@@ -54,16 +54,17 @@ async def cmd_handler(client, msg):
 
     if msg.text == "الغاء":
         await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up", "start_bot", "delete_bot", "stop_bot", "make_bot")
-        await msg.reply("» تم الغاء بنجاح", quote=True)
+        await safe_reply_text(msg, "» تم الغاء بنجاح", quote=True)
 
     elif msg.text == "❲ اخفاء الكيبورد ❳":
-        await msg.reply("≭︰تم اخفاء الكيبورد ارسل /start لعرضه مره اخرى", reply_markup=ReplyKeyboardRemove(), quote=True)
+        await safe_reply_text(msg, "≭︰تم اخفاء الكيبورد ارسل /start لعرضه مره اخرى", reply_markup=ReplyKeyboardRemove(), quote=True)
 
     elif msg.text == "❲ الاحصائيات ❳":
         user_list = await get_users()
         bots_count = await get_bots_count()
         running_bots = len(await get_running_bots())
-        await msg.reply(
+        await safe_reply_text(
+            msg,
             f"**≭︰عدد الاعضاء  **{len(user_list)}\n"
             f"**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}\n"
             f"**≭︰عدد البوتات المصنوعة  **{bots_count}\n"

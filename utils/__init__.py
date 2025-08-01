@@ -19,6 +19,14 @@ from .tempfiles import TempFileManager, temp_file_manager
 
 from .rate_limit import RateLimitManager, rate_limit_manager
 
+from .async_helpers import (
+    safe_reply_text,
+    safe_edit_text,
+    safe_send_message,
+    safe_answer_callback,
+    safe_edit_callback_message
+)
+
 __all__ = [
     # Errors
     'ValidationError',
@@ -41,5 +49,12 @@ __all__ = [
     
     # Rate Limit
     'RateLimitManager',
-    'rate_limit_manager'
+    'rate_limit_manager',
+    
+    # Async Helpers
+    'safe_reply_text',
+    'safe_edit_text',
+    'safe_send_message',
+    'safe_answer_callback',
+    'safe_edit_callback_message'
 ]

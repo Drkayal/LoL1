@@ -6,7 +6,7 @@ Broadcast Handlers - معالجات البث
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.errors import PeerIdInvalid
-from utils import logger
+from utils import logger, safe_reply_text, safe_edit_text
 from users import is_dev, validate_user_id, del_user
 from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info, save_bot_info, update_bot_process_id
 from broadcast import get_broadcast_status, delete_broadcast_status

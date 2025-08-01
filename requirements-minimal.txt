@@ -3,7 +3,6 @@
 
 # Telegram API
 pyrogram>=2.0.0
-pyromod>=2.0.0
 TgCrypto>=1.2.0
 
 # Database
