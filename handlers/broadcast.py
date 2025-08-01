@@ -82,9 +82,9 @@ async def forbroacasts_handler(client, msg):
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)
         
-        process_id = start_bot_process(validated_username)
+        process_id = await start_bot_process(validated_username)
         if process_id:
-            if update_bot_status(validated_username, "running"):
+            if await update_bot_status(validated_username, "running"):
                 # تحديد نوع المعرف وتحديث الحقل المناسب
                 if isinstance(process_id, str):
                     # Container ID
@@ -139,9 +139,9 @@ async def forbroacasts_handler(client, msg):
                 pid = bot_info.get("pid")
                 
                 if container_id:
-                    stop_bot_process(container_id)
+                    await stop_bot_process(container_id)
                 elif pid:
-                    stop_bot_process(pid)
+                    await stop_bot_process(pid)
                 
                 await status_msg.edit(f"**⏹️ تم إيقاف البوت @{validated_username}**\n**🔄 جاري الحذف...**")
                 await asyncio.sleep(1)
@@ -213,22 +213,22 @@ async def forbroacasts_handler(client, msg):
             pid = bot_info.get("pid")
             
             if container_id:
-                success = stop_bot_process(container_id)
+                success = await stop_bot_process(container_id)
                 if success:
-                    update_bot_status(validated_username, "stopped")
+                    await update_bot_status(validated_username, "stopped")
                     await status_msg.edit(f"**✅ تم إيقاف البوت @{validated_username} بنجاح**\n🐳 **من حاوية Docker:** `{container_id[:12]}...`")
                 else:
                     await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**")
             elif pid:
-                success = stop_bot_process(pid)
+                success = await stop_bot_process(pid)
                 if success:
-                    update_bot_status(validated_username, "stopped")
+                    await update_bot_status(validated_username, "stopped")
                     await status_msg.edit(f"**✅ تم إيقاف البوت @{validated_username} بنجاح**\n🔧 **من العملية:** `PID {pid}`")
                 else:
                     await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**")
             else:
                 # البوت مسجل كـ running لكن لا يوجد container_id أو pid
-                update_bot_status(validated_username, "stopped")
+                await update_bot_status(validated_username, "stopped")
                 await status_msg.edit(f"**✅ تم تحديث حالة البوت @{validated_username} إلى متوقف**")
                 
         except Exception as e:

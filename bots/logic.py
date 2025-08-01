@@ -18,7 +18,7 @@ from users import validate_bot_username
 from .models import get_running_bots, update_bot_status
 from factory import get_factory_state
 
-def start_bot_process(bot_username, max_retries=3):
+async def start_bot_process(bot_username, max_retries=3):
     """
     تشغيل عملية البوت في حاوية Docker مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة
     
@@ -99,7 +99,7 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
         for attempt in range(max_retries):
             try:
                 # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
+                await asyncio.sleep(0.5)  # تأخير بين المحاولات
                 
                 logger.info(f"Building Docker image for bot: {bot_username}")
                 
@@ -124,7 +124,7 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
                     if attempt == max_retries - 1:
                         temp_file_manager.cleanup_temp_file(log_file)
                         return None
-                    time.sleep(2)
+                    await asyncio.sleep(2)
                     continue
                 
                 logger.info(f"Starting Docker container for bot: {bot_username}")
@@ -150,7 +150,7 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
                     logger.info(f"Started bot {bot_username} in Docker container: {container_id}")
                     
                     # التحقق من أن الحاوية تعمل
-                    time.sleep(3)
+                    await asyncio.sleep(3)
                     check_process = subprocess.run(
                         ["docker", "ps", "--filter", f"id={container_id}", "--format", "{{.Status}}"],
                         capture_output=True,
@@ -170,14 +170,14 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
                         if attempt == max_retries - 1:
                             temp_file_manager.cleanup_temp_file(log_file)
                             return None
-                        time.sleep(2)
+                        await asyncio.sleep(2)
                 else:
                     logger.error(f"Failed to start Docker container for bot {bot_username}: {run_process.stderr}")
                     
                     if attempt == max_retries - 1:
                         temp_file_manager.cleanup_temp_file(log_file)
                         return None
-                    time.sleep(2)
+                    await asyncio.sleep(2)
                     
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to start bot {bot_username} in Docker: {str(e)}")
@@ -185,7 +185,7 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
                     logger.error(f"Failed to start bot {bot_username} in Docker after {max_retries} attempts")
                     temp_file_manager.cleanup_temp_file(log_file)
                     return None
-                time.sleep(2)
+                await asyncio.sleep(2)
         
         temp_file_manager.cleanup_temp_file(log_file)
         return None
@@ -213,7 +213,7 @@ def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
         for attempt in range(max_retries):
             try:
                 # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
+                await asyncio.sleep(0.5)  # تأخير بين المحاولات
                 
                 # إعداد متغيرات البيئة للبوت
                 bot_env = {
@@ -234,7 +234,7 @@ def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
                 )
                 
                 # انتظار قليل للتأكد من بدء العملية
-                time.sleep(3)
+                await asyncio.sleep(3)
                 
                 # التحقق من أن العملية لا تزال تعمل
                 if process.poll() is None:
@@ -254,7 +254,7 @@ def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
                         # تنظيف الملف المؤقت
                         temp_file_manager.cleanup_temp_file(log_file)
                         return None
-                    time.sleep(2)  # انتظار قبل إعادة المحاولة
+                    await asyncio.sleep(2)  # انتظار قبل إعادة المحاولة
                     
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to start bot {bot_username}: {str(e)}")
@@ -263,7 +263,7 @@ def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
                     # تنظيف الملف المؤقت
                     temp_file_manager.cleanup_temp_file(log_file)
                     return None
-                time.sleep(2)
+                await asyncio.sleep(2)
         
         # تنظيف الملف المؤقت
         temp_file_manager.cleanup_temp_file(log_file)
@@ -272,7 +272,7 @@ def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
         logger.error(f"Error in _start_bot_directly: {str(e)}")
         return None
 
-def stop_bot_process(process_id, max_retries=3):
+async def stop_bot_process(process_id, max_retries=3):
     """
     إيقاف البوت (حاوية Docker أو عملية مباشرة) مع التحقق من المدخلات وإدارة الملفات المؤقتة وإعادة المحاولة
     
@@ -307,7 +307,7 @@ def _stop_docker_container(container_id, max_retries=3):
         for attempt in range(max_retries):
             try:
                 # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
+                await asyncio.sleep(0.5)  # تأخير بين المحاولات
                 
                 # إيقاف الحاوية
                 stop_process = subprocess.run(
@@ -337,14 +337,14 @@ def _stop_docker_container(container_id, max_retries=3):
                     if attempt == max_retries - 1:
                         logger.error(f"Failed to stop container {container_id} after {max_retries} attempts")
                         return False
-                    time.sleep(1)
+                    await asyncio.sleep(1)
                     
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to stop container {container_id}: {str(e)}")
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to stop container {container_id} after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except Exception as e:
         logger.error(f"Error in _stop_docker_container: {str(e)}")
@@ -356,7 +356,7 @@ def _stop_direct_process(pid, max_retries=3):
         for attempt in range(max_retries):
             try:
                 # انتظار لتجنب الحظر
-                time.sleep(0.5)  # تأخير بين المحاولات
+                await asyncio.sleep(0.5)  # تأخير بين المحاولات
                 
                 # استخدام psutil لإيقاف العملية
                 import psutil
@@ -364,12 +364,12 @@ def _stop_direct_process(pid, max_retries=3):
                 process.terminate()
                 
                 # انتظار قليل للتأكد من إيقاف العملية
-                time.sleep(1)
+                await asyncio.sleep(1)
                 
                 if process.poll() is None:
                     # إذا لم تتوقف العملية، قم بإجبارها على التوقف
                     process.kill()
-                    time.sleep(1)
+                    await asyncio.sleep(1)
                 
                 logger.info(f"Stopped process with PID: {pid}")
                 return True
@@ -382,7 +382,7 @@ def _stop_direct_process(pid, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to stop process {pid} after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except Exception as e:
         logger.error(f"Error in _stop_direct_process: {str(e)}")
