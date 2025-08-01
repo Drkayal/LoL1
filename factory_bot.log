@@ -2582,3 +2582,17 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 08:17:57,239 - factory_bot - ERROR - Failed to check dev after 3 attempts
 2025-08-01 08:17:57,775 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
 2025-08-01 08:17:57,775 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:18:34,024 - factory_bot - INFO - Bot stopped successfully
+2025-08-01 08:18:34,024 - factory_bot - INFO - Bot Factory shutdown completed
+2025-08-01 08:18:34,292 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 08:18:34,554 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 08:18:34,554 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 08:18:34,554 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 08:18:34,554 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 08:18:34,554 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 08:18:34,555 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 08:18:34,555 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 08:18:34,555 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 08:18:34,555 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 08:18:34,555 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 08:18:34,555 - factory_bot - INFO - Cache cleared successfully
