@@ -12,10 +12,6 @@ from .manager import (
 )
 
 from .models import (
-    # Factory functions
-    get_factory_state,
-    set_factory_state,
-    
     # Utility functions
     clear_bot_cache,
     clear_factory_cache,
@@ -40,10 +36,6 @@ __all__ = [
     'get_sync_db',
     'get_async_db',
     'close_connections',
-    
-    # Factory Functions
-    'get_factory_state',
-    'set_factory_state',
     
     # Utility Functions
     'clear_bot_cache',

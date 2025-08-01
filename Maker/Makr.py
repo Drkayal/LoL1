@@ -71,15 +71,19 @@ from db import (
     get_async_db,
     close_connections,
     
-    # Factory Functions
-    get_factory_state,
-    set_factory_state,
-    
     # Utility Functions
     clear_bot_cache,
     clear_factory_cache,
     get_database_stats,
     set_collections as set_db_collections
+)
+
+# استيراد دوال المصنع من مجلد factory
+from factory import (
+    # Settings Functions
+    get_factory_state,
+    set_factory_state,
+    set_collections as set_factory_collections
 )
 
 # استيراد دوال البوتات من مجلد bots
@@ -1226,3 +1230,6 @@ set_bots_collections(bots_collection, factory_settings)
 
 # تعيين المجموعات لمجلد broadcast
 set_broadcast_collections(broadcasts_collection)
+
+# تعيين المجموعات لمجلد factory
+set_factory_collections(factory_settings)
