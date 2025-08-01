@@ -135,6 +135,10 @@ async def is_dev(user_id, max_retries=3):
             
         for attempt in range(max_retries):
             try:
+                logger.info(f"Attempt {attempt + 1}: devs type: {type(devs)}")
+                logger.info(f"Attempt {attempt + 1}: devs value: {devs}")
+                logger.info(f"Attempt {attempt + 1}: validated_id: {validated_id}")
+                
                 result = await devs.find_one({"user_id": validated_id})
                 is_developer = result is not None
                 cache_manager.set(cache_key, is_developer)
