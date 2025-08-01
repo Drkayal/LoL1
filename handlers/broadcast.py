@@ -81,10 +81,10 @@ async def forbroacasts_handler(client, msg):
             await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
-            bot_info = await get_bot_info(validated_username)
-    if not bot_info:
-        await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
-        return
+        bot_info = await get_bot_info(validated_username)
+        if not bot_info:
+            await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            return
     
     if bot_info.get("status") == "running":
         await safe_reply_text(msg, "**⚠️ هذا البوت يعمل بالفعل**", quote=True)

@@ -1,22 +1,14 @@
 """
-Broadcast Status Functions - دوال حالة البث
-يحتوي على دوال إدارة حالة البث في قاعدة البيانات
+Broadcast Status Management - إدارة حالة البث
+يحتوي على دوال إدارة حالة البث للمستخدمين
 """
 
-import time
 import asyncio
-from typing import Optional
-from utils import (
-    logger, 
-    ValidationError, 
-    DatabaseError,
-    rate_limit_manager,
-    cache_manager
-)
-from users import validate_user_id
+from typing import Optional, Tuple
+from utils import logger, cache_manager, rate_limit_manager
+from utils.errors import ValidationError
 
-# استيراد المتغيرات المطلوبة من الملف الرئيسي
-# سيتم استيرادها عند تشغيل التطبيق
+# المتغيرات العامة
 broadcasts_collection = None
 
 def set_collections(broadcasts_coll):
@@ -28,6 +20,36 @@ def set_collections(broadcasts_coll):
     """
     global broadcasts_collection
     broadcasts_collection = broadcasts_coll
+
+async def validate_user_id(user_id) -> Tuple[bool, Optional[int]]:
+    """
+    التحقق من صحة معرف المستخدم
+    
+    Args:
+        user_id: معرف المستخدم المراد التحقق منه
+        
+    Returns:
+        Tuple[bool, Optional[int]]: (صحة المعرف، المعرف المحقق)
+    """
+    try:
+        if user_id is None:
+            return False, None
+        
+        # تحويل إلى int إذا كان string
+        if isinstance(user_id, str):
+            try:
+                user_id = int(user_id)
+            except ValueError:
+                return False, None
+        
+        # التحقق من أن المعرف موجب
+        if not isinstance(user_id, int) or user_id <= 0:
+            return False, None
+        
+        return True, user_id
+    except Exception as e:
+        logger.error(f"Error validating user_id {user_id}: {str(e)}")
+        return False, None
 
 async def set_broadcast_status(user_id, bot_id, key, max_retries=3):
     """
@@ -44,8 +66,8 @@ async def set_broadcast_status(user_id, bot_id, key, max_retries=3):
     """
     try:
         # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+        is_valid_user, validated_user_id = await validate_user_id(user_id)
+        is_valid_bot, validated_bot_id = await validate_user_id(bot_id)
         
         if not is_valid_user or not is_valid_bot:
             logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
@@ -60,12 +82,18 @@ async def set_broadcast_status(user_id, bot_id, key, max_retries=3):
         
         for attempt in range(max_retries):
             try:
+                # استخدام upsert للتأكد من إنشاء المستند إذا لم يكن موجوداً
                 broadcasts_collection.update_one(
                     {"user_id": validated_user_id, "bot_id": validated_bot_id},
                     {"$set": {key: True}},
                     upsert=True
                 )
                 logger.info(f"Successfully set broadcast status for user {validated_user_id}, bot {validated_bot_id}, key {key}")
+                
+                # تحديث التخزين المؤقت
+                cache_key = f"broadcast_status_{validated_user_id}_{validated_bot_id}_{key}"
+                cache_manager.set(cache_key, True)
+                
                 return True
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to set broadcast status: {str(e)}")
@@ -88,7 +116,7 @@ async def get_broadcast_status(user_id, bot_id, key, max_retries=3):
     Args:
         user_id: معرف المستخدم
         bot_id: معرف البوت
-        key: المفتاح المطلوب
+        key: المفتاح المراد الحصول عليه
         max_retries: عدد المحاولات الأقصى
         
     Returns:
@@ -96,8 +124,8 @@ async def get_broadcast_status(user_id, bot_id, key, max_retries=3):
     """
     try:
         # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+        is_valid_user, validated_user_id = await validate_user_id(user_id)
+        is_valid_bot, validated_bot_id = await validate_user_id(bot_id)
         
         if not is_valid_user or not is_valid_bot:
             logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")
@@ -151,8 +179,8 @@ async def delete_broadcast_status(user_id, bot_id, *keys, max_retries=3):
     """
     try:
         # التحقق من المدخلات
-        is_valid_user, validated_user_id = validate_user_id(user_id)
-        is_valid_bot, validated_bot_id = validate_user_id(bot_id)
+        is_valid_user, validated_user_id = await validate_user_id(user_id)
+        is_valid_bot, validated_bot_id = await validate_user_id(bot_id)
         
         if not is_valid_user or not is_valid_bot:
             logger.error(f"Invalid user_id or bot_id: {user_id}, {bot_id}")

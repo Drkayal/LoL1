@@ -1,37 +1,65 @@
 """
-User Logic Functions - دوال إدارة المستخدمين
-يحتوي على جميع دوال إدارة المستخدمين في المشروع
+User Management Logic - منطق إدارة المستخدمين
+يحتوي على جميع الدوال المتعلقة بإدارة المستخدمين والمطورين
 """
 
-import time
 import asyncio
-from typing import List, Optional
-from utils import ValidationError, logger, cache_manager, rate_limit_manager
-from .validation import validate_user_id
+from typing import List, Optional, Tuple
+from utils import logger, cache_manager, rate_limit_manager
+from utils.errors import ValidationError
 
-# استيراد المتغيرات المطلوبة من الملف الرئيسي
-# سيتم استيرادها عند تشغيل التطبيق
-OWNER_ID = None
-devs_collection = None
+# المتغيرات العامة
 users = None
+devs = None
+OWNER_ID = None
 
 def set_dependencies(owner_id, devs_coll, users_coll):
     """
-    تعيين التبعيات المطلوبة من الملف الرئيسي
+    تعيين المتغيرات المطلوبة من الملف الرئيسي
     
     Args:
-        owner_id: قائمة معرفات المالكين
-        devs_coll: مجموعة المطورين في قاعدة البيانات
-        users_coll: مجموعة المستخدمين في قاعدة البيانات
+        owner_id: معرف المالك
+        devs_coll: مجموعة المطورين
+        users_coll: مجموعة المستخدمين
     """
-    global OWNER_ID, devs_collection, users
-    OWNER_ID = owner_id
-    devs_collection = devs_coll
+    global users, devs, OWNER_ID
     users = users_coll
+    devs = devs_coll
+    OWNER_ID = owner_id
+
+async def validate_user_id(user_id) -> Tuple[bool, Optional[int]]:
+    """
+    التحقق من صحة معرف المستخدم
+    
+    Args:
+        user_id: معرف المستخدم المراد التحقق منه
+        
+    Returns:
+        Tuple[bool, Optional[int]]: (صحة المعرف، المعرف المحقق)
+    """
+    try:
+        if user_id is None:
+            return False, None
+        
+        # تحويل إلى int إذا كان string
+        if isinstance(user_id, str):
+            try:
+                user_id = int(user_id)
+            except ValueError:
+                return False, None
+        
+        # التحقق من أن المعرف موجب
+        if not isinstance(user_id, int) or user_id <= 0:
+            return False, None
+        
+        return True, user_id
+    except Exception as e:
+        logger.error(f"Error validating user_id {user_id}: {str(e)}")
+        return False, None
 
 async def is_dev(user_id, max_retries=3):
     """
-    التحقق من صلاحيات المطور مع التخزين المؤقت وآلية إعادة المحاولة
+    التحقق من كون المستخدم مطور مع التخزين المؤقت وإعادة المحاولة
     
     Args:
         user_id: معرف المستخدم المراد التحقق منه
@@ -42,29 +70,34 @@ async def is_dev(user_id, max_retries=3):
     """
     try:
         # التحقق من التخزين المؤقت أولاً
-        cache_key = f"dev_status_{user_id}"
+        cache_key = f"is_dev_{user_id}"
         cached_result = cache_manager.get(cache_key)
         if cached_result is not None:
             return cached_result
         
-        # التحقق من المالكين مباشرة
-        if user_id in OWNER_ID:
-            cache_manager.set(cache_key, True)
-            return True
+        is_valid, validated_id = await validate_user_id(user_id)
+        if not is_valid:
+            logger.error(f"Invalid user_id: {user_id}")
+            return False
         
-        # البحث في قاعدة البيانات
+        # انتظار لتجنب الحظر
+        await rate_limit_manager.async_wait_if_needed('database')
+        
         for attempt in range(max_retries):
             try:
-                result = devs_collection.find_one({"user_id": user_id})
+                result = await devs.find_one({"user_id": validated_id})
                 is_developer = result is not None
                 cache_manager.set(cache_key, is_developer)
                 return is_developer
             except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed to check dev status: {str(e)}")
+                logger.warning(f"Attempt {attempt + 1} failed to check dev: {str(e)}")
                 if attempt == max_retries - 1:
-                    logger.error(f"Failed to check dev status after {max_retries} attempts")
+                    logger.error(f"Failed to check dev after {max_retries} attempts")
                     return False
                 await asyncio.sleep(1)
+        return False
+    except ValidationError as e:
+        logger.error(f"Validation error in is_dev: {str(e)}")
         return False
     except Exception as e:
         logger.error(f"Error in is_dev function: {str(e)}")
@@ -88,7 +121,7 @@ async def is_user(user_id, max_retries=3):
         if cached_result is not None:
             return cached_result
         
-        is_valid, validated_id = validate_user_id(user_id)
+        is_valid, validated_id = await validate_user_id(user_id)
         if not is_valid:
             logger.error(f"Invalid user_id: {user_id}")
             return False
@@ -128,7 +161,7 @@ async def add_new_user(user_id, max_retries=3):
         bool: True إذا تمت الإضافة بنجاح، False خلاف ذلك
     """
     try:
-        is_valid, validated_id = validate_user_id(user_id)
+        is_valid, validated_id = await validate_user_id(user_id)
         if not is_valid:
             logger.error(f"Invalid user_id: {user_id}")
             return False
@@ -178,7 +211,7 @@ async def del_user(user_id, max_retries=3):
         bool: True إذا تم الحذف بنجاح، False خلاف ذلك
     """
     try:
-        is_valid, validated_id = validate_user_id(user_id)
+        is_valid, validated_id = await validate_user_id(user_id)
         if not is_valid:
             logger.error(f"Invalid user_id: {user_id}")
             return False
@@ -222,24 +255,16 @@ async def get_users(max_retries=3):
         List[int]: قائمة معرفات المستخدمين
     """
     try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "all_users_list"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            logger.debug("Retrieved users from cache")
-            return cached_result
-        
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
         for attempt in range(max_retries):
             try:
-                user_list = [user["user_id"] async for user in users.find()]
-                logger.info(f"Successfully retrieved {len(user_list)} users")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, user_list)
-                return user_list
+                cursor = users.find({}, {"user_id": 1})
+                user_list = await cursor.to_list(length=None)
+                user_ids = [user["user_id"] for user in user_list]
+                logger.info(f"Successfully retrieved {len(user_ids)} users")
+                return user_ids
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to get users: {str(e)}")
                 if attempt == max_retries - 1:
@@ -253,7 +278,7 @@ async def get_users(max_retries=3):
 
 async def get_user_count(max_retries=3):
     """
-    الحصول على عدد المستخدمين مع التخزين المؤقت وإعادة المحاولة
+    الحصول على عدد المستخدمين مع إعادة المحاولة
     
     Args:
         max_retries: عدد المحاولات الأقصى
@@ -262,12 +287,6 @@ async def get_user_count(max_retries=3):
         int: عدد المستخدمين
     """
     try:
-        # التحقق من التخزين المؤقت أولاً
-        cache_key = "user_count"
-        cached_result = cache_manager.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-        
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
@@ -275,9 +294,6 @@ async def get_user_count(max_retries=3):
             try:
                 count = await users.count_documents({})
                 logger.info(f"Successfully retrieved user count: {count}")
-                
-                # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, count)
                 return count
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to get user count: {str(e)}")
@@ -295,19 +311,19 @@ def clear_user_cache(user_id: Optional[int] = None):
     مسح التخزين المؤقت للمستخدمين
     
     Args:
-        user_id: معرف المستخدم المحدد (اختياري). إذا لم يتم تحديده، سيتم مسح جميع التخزين المؤقت
+        user_id: معرف المستخدم المراد مسح تخزينه المؤقت (اختياري)
     """
     try:
         if user_id is not None:
-            # مسح التخزين المؤقت لمستخدم محدد
+            # مسح تخزين مؤقت لمستخدم محدد
             cache_manager.delete(f"user_exists_{user_id}")
-            cache_manager.delete(f"dev_status_{user_id}")
-            logger.debug(f"Cleared cache for user {user_id}")
+            cache_manager.delete(f"is_dev_{user_id}")
+            logger.info(f"Cleared cache for user {user_id}")
         else:
-            # مسح جميع التخزين المؤقت المتعلق بالمستخدمين
-            cache_manager.delete("all_users_list")
-            cache_manager.delete("user_count")
-            logger.debug("Cleared all user-related cache")
+            # مسح جميع التخزين المؤقت للمستخدمين
+            cache_manager.clear_pattern("user_exists_*")
+            cache_manager.clear_pattern("is_dev_*")
+            logger.info("Cleared all user cache")
     except Exception as e:
         logger.error(f"Error clearing user cache: {str(e)}")
 
@@ -319,10 +335,9 @@ async def get_dev_count():
         int: عدد المطورين
     """
     try:
-        # عدد المالكين + عدد المطورين في قاعدة البيانات
-        owner_count = len(OWNER_ID)
-        dev_count = devs_collection.count_documents({"user_id": {"$nin": OWNER_ID}})
-        return owner_count + dev_count
+        if OWNER_ID:
+            return len(OWNER_ID)
+        return 0
     except Exception as e:
         logger.error(f"Error getting dev count: {str(e)}")
-        return len(OWNER_ID)  # إرجاع عدد المالكين فقط في حالة الخطأ
+        return 0
