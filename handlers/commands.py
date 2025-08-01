@@ -217,10 +217,7 @@ async def new_user_handler(client, msg):
     await safe_reply_text(
         msg,
         f"**مرحبا {name} في مصنع البوتات**\n"
-        "**لصنع بوت اضغط على زر صنع بوت**",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❲ صنع بوت ❳", callback_data="make_bot")]
-        ])
+        "**استخدم لوحة المفاتيح أدناه للتحكم**"
     )
 
 @Client.on_message(filters.command("start") & filters.private, group=162728)
@@ -337,10 +334,7 @@ async def back_to_main_callback_handler(client, callback_query):
             # قائمة المستخدم العادي
             await callback_query.message.edit_text(
                 f"**مرحبا {name} في مصنع البوتات**\n"
-                "**لصنع بوت اضغط على زر صنع بوت**",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("❲ صنع بوت ❳", callback_data="make_bot")]
-                ])
+                "**استخدم لوحة المفاتيح أدناه للتحكم**"
             )
             
     except Exception as e:
