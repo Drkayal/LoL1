@@ -41,10 +41,27 @@ def start_bot_process(bot_username, max_retries=3):
             logger.error(f"Main file not found for bot: {validated_username}")
             return None
         
-        # التحقق من وجود البيئة الافتراضية
-        venv_python = path.join("/workspace/venv/bin/python")
-        if not path.exists(venv_python):
-            logger.error(f"Virtual environment not found at: {venv_python}")
+        # التحقق من وجود ملفات البوت الأساسية
+        config_file = path.join(bot_path, "config.py")
+        owner_file = path.join(bot_path, "OWNER.py")
+        
+        if not path.exists(config_file):
+            logger.error(f"Config file not found for bot: {validated_username}")
+            return None
+        
+        if not path.exists(owner_file):
+            logger.error(f"Owner file not found for bot: {validated_username}")
+            return None
+        
+        # استخدام Python المتاح في النظام
+        python_executable = "python3"
+        
+        # التحقق من وجود Python
+        try:
+            subprocess.run([python_executable, "--version"], 
+                         capture_output=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            logger.error(f"Python3 not found in system")
             return None
         
         # إنشاء ملف مؤقت لتسجيل الأخطاء
@@ -55,20 +72,26 @@ def start_bot_process(bot_username, max_retries=3):
                 # انتظار لتجنب الحظر
                 time.sleep(0.5)  # تأخير بين المحاولات
                 
+                # إعداد متغيرات البيئة للبوت
+                bot_env = {
+                    **os.environ,
+                    "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}",
+                    "BOT_WORKING_DIR": bot_path,
+                    "BOT_USERNAME": validated_username
+                }
+                
+                # تشغيل البوت
                 process = subprocess.Popen(
-                    [venv_python, main_file],
+                    [python_executable, main_file],
                     cwd=bot_path,
                     stdout=open(log_file, 'w'),
                     stderr=subprocess.STDOUT,
                     text=True,
-                    env={
-                        **os.environ,
-                        "PYTHONPATH": f"{bot_path}:{os.environ.get('PYTHONPATH', '')}"
-                    }
+                    env=bot_env
                 )
                 
                 # انتظار قليل للتأكد من بدء العملية
-                time.sleep(2)
+                time.sleep(3)
                 
                 # التحقق من أن العملية لا تزال تعمل
                 if process.poll() is None:
