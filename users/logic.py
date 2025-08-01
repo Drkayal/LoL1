@@ -23,9 +23,23 @@ def set_dependencies(owner_id, devs_coll, users_coll):
         users_coll: مجموعة المستخدمين
     """
     global users, devs, OWNER_ID
+    
+    # التحقق من صحة المدخلات
+    if devs_coll is None:
+        raise ValueError("devs_coll cannot be None")
+    if users_coll is None:
+        raise ValueError("users_coll cannot be None")
+    if owner_id is None:
+        raise ValueError("owner_id cannot be None")
+    
     users = users_coll
     devs = devs_coll
     OWNER_ID = owner_id
+    
+    logger.info("Dependencies set successfully")
+    logger.info(f"users collection: {users}")
+    logger.info(f"devs collection: {devs}")
+    logger.info(f"OWNER_ID: {OWNER_ID}")
 
 async def validate_user_id(user_id) -> Tuple[bool, Optional[int]]:
     """
@@ -83,6 +97,11 @@ async def is_dev(user_id, max_retries=3):
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
+        # التحقق من تهيئة المتغيرات
+        if devs is None:
+            logger.error("devs collection is not initialized")
+            return False
+            
         for attempt in range(max_retries):
             try:
                 result = await devs.find_one({"user_id": validated_id})
@@ -129,6 +148,11 @@ async def is_user(user_id, max_retries=3):
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
+        # التحقق من تهيئة المتغيرات
+        if users is None:
+            logger.error("users collection is not initialized")
+            return False
+            
         for attempt in range(max_retries):
             try:
                 result = await users.find_one({"user_id": validated_id})
@@ -166,6 +190,11 @@ async def add_new_user(user_id, max_retries=3):
             logger.error(f"Invalid user_id: {user_id}")
             return False
         
+        # التحقق من تهيئة المتغيرات
+        if users is None:
+            logger.error("users collection is not initialized")
+            return False
+            
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
@@ -216,6 +245,11 @@ async def del_user(user_id, max_retries=3):
             logger.error(f"Invalid user_id: {user_id}")
             return False
         
+        # التحقق من تهيئة المتغيرات
+        if users is None:
+            logger.error("users collection is not initialized")
+            return False
+            
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
@@ -255,6 +289,11 @@ async def get_users(max_retries=3):
         List[int]: قائمة معرفات المستخدمين
     """
     try:
+        # التحقق من تهيئة المتغيرات
+        if users is None:
+            logger.error("users collection is not initialized")
+            return []
+            
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         
@@ -287,6 +326,11 @@ async def get_user_count(max_retries=3):
         int: عدد المستخدمين
     """
     try:
+        # التحقق من تهيئة المتغيرات
+        if users is None:
+            logger.error("users collection is not initialized")
+            return 0
+            
         # انتظار لتجنب الحظر
         await rate_limit_manager.async_wait_if_needed('database')
         

@@ -134,6 +134,13 @@ class BotFactory:
             self.bots_collection = self.db.bots
             self.factory_settings = self.db.factory_settings
             
+            # التحقق من تهيئة المجموعات
+            logger.info(f"users collection: {self.users}")
+            logger.info(f"devs_collection: {self.devs_collection}")
+            logger.info(f"bots_collection: {self.bots_collection}")
+            logger.info(f"broadcasts_collection: {self.broadcasts_collection}")
+            logger.info(f"factory_settings: {self.factory_settings}")
+            
             logger.info("Database setup completed successfully")
             
         except Exception as e:
@@ -143,6 +150,25 @@ class BotFactory:
     def setup_dependencies(self):
         """إعداد التبعيات لجميع الوحدات"""
         try:
+            # التحقق من تهيئة المجموعات
+            if self.devs_collection is None:
+                logger.error("devs_collection is None")
+                raise Exception("devs_collection is not initialized")
+            if self.users is None:
+                logger.error("users is None")
+                raise Exception("users is not initialized")
+            if self.bots_collection is None:
+                logger.error("bots_collection is None")
+                raise Exception("bots_collection is not initialized")
+            if self.broadcasts_collection is None:
+                logger.error("broadcasts_collection is None")
+                raise Exception("broadcasts_collection is not initialized")
+            if self.factory_settings is None:
+                logger.error("factory_settings is None")
+                raise Exception("factory_settings is not initialized")
+                
+            logger.info("All collections are properly initialized")
+            
             # إعداد تبعيات المستخدمين
             set_users_dependencies(OWNER_ID, self.devs_collection, self.users)
             
