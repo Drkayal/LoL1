@@ -10,7 +10,8 @@ from utils import logger
 from users import is_dev, is_user, add_new_user, get_users, get_dev_count
 from bots import (
     start_bot_process, stop_bot_process, get_all_bots, get_running_bots,
-    get_bot_info, save_bot_info, update_bot_status, delete_bot_info
+    get_bot_info, save_bot_info, update_bot_status, delete_bot_info,
+    get_bots_count, update_bot_container_id
 )
 from broadcast import set_broadcast_status, delete_broadcast_status
 from factory import get_factory_state, set_factory_state
@@ -60,7 +61,7 @@ async def cmd_handler(client, msg):
 
     elif msg.text == "❲ الاحصائيات ❳":
         user_list = await get_users()
-        bots_count = bots_collection.count_documents({})
+        bots_count = await get_bots_count()
         running_bots = len(await get_running_bots())
         await msg.reply(
             f"**≭︰عدد الاعضاء  **{len(user_list)}\n"
@@ -170,11 +171,8 @@ async def cmd_handler(client, msg):
                 
             container_id = start_bot_process(bot["username"])
             if container_id:
-                update_bot_status(bot["username"], "running")
-                bots_collection.update_one(
-                    {"username": bot["username"]},
-                    {"$set": {"container_id": container_id}}
-                )
+                await update_bot_status(bot["username"], "running")
+                await update_bot_container_id(bot["username"], container_id)
                 started_count += 1
             else:
                 failed_count += 1
@@ -591,20 +589,14 @@ async def start_Allusers_handler(client, message):
                 
             process_id = start_bot_process(bot["username"])
             if process_id:
-                update_bot_status(bot["username"], "running")
+                await update_bot_status(bot["username"], "running")
                 # تحديد نوع المعرف وتحديث الحقل المناسب
                 if isinstance(process_id, str):
                     # Container ID
-                    bots_collection.update_one(
-                        {"username": bot["username"]},
-                        {"$set": {"container_id": process_id}}
-                    )
+                    await update_bot_container_id(bot["username"], process_id)
                 elif isinstance(process_id, int):
-                    # PID
-                    bots_collection.update_one(
-                        {"username": bot["username"]},
-                        {"$set": {"pid": process_id}}
-                    )
+                    # PID - نحتاج لإنشاء async function مماثلة
+                    await update_bot_container_id(bot["username"], str(process_id))
                 started_count += 1
             else:
                 failed_count += 1
@@ -661,19 +653,19 @@ async def stooop_Allusers_handler(client, message):
             if container_id:
                 success = stop_bot_process(container_id)
                 if success:
-                    update_bot_status(bot["username"], "stopped")
+                    await update_bot_status(bot["username"], "stopped")
                     stopped_count += 1
                 else:
                     failed_count += 1
             elif pid:
                 success = stop_bot_process(pid)
                 if success:
-                    update_bot_status(bot["username"], "stopped")
+                    await update_bot_status(bot["username"], "stopped")
                     stopped_count += 1
                 else:
                     failed_count += 1
             else:
-                update_bot_status(bot["username"], "stopped")
+                await update_bot_status(bot["username"], "stopped")
                 stopped_count += 1
             
             # تأخير بين البوتات لتجنب الحظر

@@ -346,7 +346,7 @@ async def forbroacasts_handler(client, msg):
                 "status": "created"
             }
             
-            save_success = save_bot_info(validated_username, uid, None, config_data)
+            save_success = await save_bot_info(validated_username, uid, None, config_data)
             if not save_success:
                 await status_msg.edit(f"**❌ فشل في حفظ معلومات البوت في قاعدة البيانات**")
                 return

@@ -80,7 +80,7 @@ async def get_bot_info(bot_username, max_retries=3):
         logger.error(f"Error in get_bot_info function: {str(e)}")
         return None
 
-def save_bot_info(bot_username, dev_id, container_id, config_data, max_retries=3):
+async def save_bot_info(bot_username, dev_id, container_id, config_data, max_retries=3):
     """
     حفظ معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
@@ -136,7 +136,7 @@ def save_bot_info(bot_username, dev_id, container_id, config_data, max_retries=3
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to save bot info after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except ValidationError as e:
         logger.error(f"Validation error in save_bot_info: {str(e)}")
@@ -145,7 +145,7 @@ def save_bot_info(bot_username, dev_id, container_id, config_data, max_retries=3
         logger.error(f"Error in save_bot_info function: {str(e)}")
         return False
 
-def update_bot_status(bot_username, status, max_retries=3):
+async def update_bot_status(bot_username, status, max_retries=3):
     """
     تحديث حالة البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
@@ -192,7 +192,7 @@ def update_bot_status(bot_username, status, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to update bot status after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except ValidationError as e:
         logger.error(f"Validation error in update_bot_status: {str(e)}")
@@ -201,7 +201,7 @@ def update_bot_status(bot_username, status, max_retries=3):
         logger.error(f"Error in update_bot_status function: {str(e)}")
         return False
 
-def delete_bot_info(bot_username, max_retries=3):
+async def delete_bot_info(bot_username, max_retries=3):
     """
     حذف معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
@@ -239,7 +239,7 @@ def delete_bot_info(bot_username, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to delete bot info after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except ValidationError as e:
         logger.error(f"Validation error in delete_bot_info: {str(e)}")
@@ -378,13 +378,81 @@ async def get_running_bots(max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to get running bots after {max_retries} attempts")
                     return []
-                time.sleep(1)
+                await asyncio.sleep(1)
         return []
     except Exception as e:
         logger.error(f"Error in get_running_bots function: {str(e)}")
         return []
 
-def get_factory_state(max_retries=3):
+async def get_bots_count(max_retries=3):
+    """
+    الحصول على عدد البوتات مع إعادة المحاولة
+    
+    Args:
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        int: عدد البوتات
+    """
+    try:
+        for attempt in range(max_retries):
+            try:
+                count = bots_collection.count_documents({})
+                logger.debug(f"Retrieved bots count: {count}")
+                return count
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to get bots count: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get bots count after {max_retries} attempts")
+                    return 0
+                await asyncio.sleep(1)
+        return 0
+    except Exception as e:
+        logger.error(f"Error in get_bots_count function: {str(e)}")
+        return 0
+
+async def update_bot_container_id(bot_username, container_id, max_retries=3):
+    """
+    تحديث معرف الحاوية للبوت مع إعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        container_id: معرف الحاوية
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: True إذا تم التحديث بنجاح، False خلاف ذلك
+    """
+    try:
+        is_valid, validated_username = validate_bot_username(bot_username)
+        if not is_valid:
+            logger.error(f"Invalid bot username: {bot_username}")
+            return False
+        
+        for attempt in range(max_retries):
+            try:
+                result = bots_collection.update_one(
+                    {"username": validated_username},
+                    {"$set": {"container_id": container_id}}
+                )
+                if result.modified_count > 0:
+                    logger.info(f"Successfully updated container ID for bot {validated_username}")
+                    return True
+                else:
+                    logger.warning(f"No document updated for bot {validated_username}")
+                    return False
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to update container ID: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to update container ID after {max_retries} attempts")
+                    return False
+                await asyncio.sleep(1)
+        return False
+    except Exception as e:
+        logger.error(f"Error in update_bot_container_id function: {str(e)}")
+        return False
+
+async def get_factory_state(max_retries=3):
     """
     الحصول على حالة المصنع مع التخزين المؤقت وإعادة المحاولة
     
@@ -418,7 +486,7 @@ def get_factory_state(max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to get factory state after {max_retries} attempts")
                     return True  # القيمة الافتراضية
-                time.sleep(1)
+                await asyncio.sleep(1)
         return True
     except Exception as e:
         logger.error(f"Error in get_factory_state function: {str(e)}")
