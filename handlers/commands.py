@@ -175,13 +175,28 @@ async def cmd_handler(client, msg):
             if bot.get("status") == "running":
                 already_running += 1
                 continue
+            
+            try:
+                # التحقق من وجود مجلد البوت
+                import os
+                bot_path = os.path.join("Maked", bot["username"])
+                if not os.path.exists(bot_path):
+                    failed_count += 1
+                    continue
                 
-            container_id = await start_bot_process(bot["username"])
-            if container_id:
-                await update_bot_status(bot["username"], "running")
-                await update_bot_container_id(bot["username"], container_id)
-                started_count += 1
-            else:
+                container_id = await start_bot_process(bot["username"])
+                if container_id:
+                    await update_bot_status(bot["username"], "running")
+                    await update_bot_container_id(bot["username"], container_id)
+                    started_count += 1
+                else:
+                    failed_count += 1
+                
+                # تأخير قصير بين تشغيل البوتات
+                await asyncio.sleep(0.5)
+                
+            except Exception as e:
+                logger.error(f"Error starting bot {bot['username']}: {str(e)}")
                 failed_count += 1
 
         # رسالة النتيجة النهائية
