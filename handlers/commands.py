@@ -52,7 +52,7 @@ async def cmd_handler(client, msg):
         return
 
     if msg.text == "الغاء":
-        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up", "start_bot", "delete_bot", "stop_bot")
+        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up", "start_bot", "delete_bot", "stop_bot", "make_bot")
         await msg.reply("» تم الغاء بنجاح", quote=True)
 
     elif msg.text == "❲ اخفاء الكيبورد ❳":
@@ -266,6 +266,82 @@ async def user_count_callback_handler(client, callback_query):
     except Exception as e:
         logger.error(f"Error in user_count_callback: {str(e)}")
 
+@Client.on_callback_query(filters.regex("^make_bot$"))
+async def make_bot_callback_handler(client, callback_query):
+    """معالج زر صنع البوت"""
+    try:
+        await callback_query.answer()
+        
+        uid = callback_query.from_user.id
+        
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await callback_query.message.edit_text(
+                "**❌ المصنع مغلق حالياً**\n\n"
+                "**📝 ملاحظة:** المصنع مغلق من قبل المطور",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]
+                ])
+            )
+            return
+        
+        # طلب معرف البوت من المستخدم
+        await callback_query.message.edit_text(
+            "**🤖 صنع بوت جديد**\n\n"
+            "**أرسل معرف البوت الذي تريد صنعه:**\n"
+            "• مثال: `MyMusicBot`\n"
+            "• مثال: `@MyMusicBot`\n\n"
+            "**📝 ملاحظة:** تأكد من أن المعرف متاح في @BotFather",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]
+            ])
+        )
+        
+        # تعيين حالة انتظار معرف البوت لصنع البوت
+        try:
+            bot_me = await client.get_me()
+            bot_id = bot_me.id
+            await set_broadcast_status(uid, bot_id, "make_bot")
+        except Exception as e:
+            logger.error(f"Failed to set broadcast status for make_bot: {str(e)}")
+            
+    except Exception as e:
+        logger.error(f"Error in make_bot_callback: {str(e)}")
+
+@Client.on_callback_query(filters.regex("^back_to_main$"))
+async def back_to_main_callback_handler(client, callback_query):
+    """معالج العودة للقائمة الرئيسية"""
+    try:
+        await callback_query.answer()
+        
+        uid = callback_query.from_user.id
+        name = callback_query.from_user.first_name
+        
+        if is_dev(uid):
+            # قائمة المطور
+            await callback_query.message.edit_text(
+                f"**مرحبا {name} في لوحة تحكم المطور**\n"
+                "**اختر الأمر المطلوب:**",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("❲ الاحصائيات ❳", callback_data="stats")],
+                    [InlineKeyboardButton("❲ اذاعه ❳", callback_data="broadcast")],
+                    [InlineKeyboardButton("❲ تشغيل البوتات ❳", callback_data="start_bots")],
+                    [InlineKeyboardButton("❲ ايقاف البوتات ❳", callback_data="stop_bots")]
+                ])
+            )
+        else:
+            # قائمة المستخدم العادي
+            await callback_query.message.edit_text(
+                f"**مرحبا {name} في مصنع البوتات**\n"
+                "**لصنع بوت اضغط على زر صنع بوت**",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("❲ صنع بوت ❳", callback_data="make_bot")]
+                ])
+            )
+            
+    except Exception as e:
+        logger.error(f"Error in back_to_main_callback: {str(e)}")
+
 @Client.on_message(filters.command(["❲ السورس ❳"], ""))
 async def alivehi_handler(client: Client, message):
     """معالج أمر السورس"""
@@ -385,20 +461,7 @@ async def onoff_handler(client, message):
     except Exception as e:
         logger.error(f"Error in onoff handler: {str(e)}")
 
-@Client.on_message(filters.command("❲ صنع بوت ❳", "") & filters.private)
-async def maked_handler(client, message):
-    """معالج صنع بوت"""
-    try:
-        if not is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
-            return
-        
-        # هذا يتطلب تنفيذ منطق صنع البوت
-        # سيتم إضافة المنطق هنا
-        
-        await message.reply("**🔄 جاري صنع البوت...**")
-    except Exception as e:
-        logger.error(f"Error in maked handler: {str(e)}")
+# تم نقل معالجة "❲ صنع بوت ❳" إلى callback_query handler
 
 # تم نقل معالجة "❲ حذف بوت ❳" إلى cmd_handler
 

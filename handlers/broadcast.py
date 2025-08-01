@@ -8,10 +8,11 @@ from pyrogram import Client, filters
 from pyrogram.errors import PeerIdInvalid
 from utils import logger
 from users import is_dev, validate_user_id, del_user
-from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info
+from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info, save_bot_info
 from broadcast import get_broadcast_status, delete_broadcast_status
 from users import validate_bot_username
 from factory.settings import get_factory_state
+from datetime import datetime
 
 # المتغيرات المطلوبة من الملف الرئيسي
 bots_collection = None
@@ -47,7 +48,7 @@ async def forbroacasts_handler(client, msg):
         return
 
     text = msg.text
-    ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "❲ تشغيل بوت ❳", "❲ حذف بوت ❳", "❲ ايقاف بوت ❳", "الغاء"]
+    ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "❲ تشغيل بوت ❳", "❲ حذف بوت ❳", "❲ ايقاف بوت ❳", "❲ صنع بوت ❳", "الغاء"]
     if text in ignore:
         return
 
@@ -233,6 +234,139 @@ async def forbroacasts_handler(client, msg):
         except Exception as e:
             logger.error(f"Error stopping bot {validated_username}: {str(e)}")
             await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
+        return
+
+    # معالجة صنع بوت جديد
+    if await get_broadcast_status(uid, bot_id, "make_bot"):
+        await delete_broadcast_status(uid, bot_id, "make_bot")
+        
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # التحقق من صحة معرف البوت
+        is_valid, validated_username = validate_bot_username(text)
+        if not is_valid:
+            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            return
+        
+        # التحقق من عدم وجود البوت بالفعل
+        existing_bot = get_bot_info(validated_username)
+        if existing_bot:
+            await msg.reply("**⚠️ هذا البوت موجود بالفعل في المصنع**", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply(f"**🔄 جاري صنع البوت @{validated_username}...**", quote=True)
+        
+        # تأخير قصير قبل بدء العملية
+        await asyncio.sleep(0.5)
+        
+        try:
+            # إنشاء مجلد البوت
+            import os
+            import shutil
+            bot_path = os.path.join("Maked", validated_username)
+            
+            if os.path.exists(bot_path):
+                await status_msg.edit(f"**❌ مجلد البوت موجود بالفعل: {bot_path}**")
+                return
+            
+            # نسخ مجلد Make إلى مجلد البوت الجديد
+            make_path = "Make"
+            if not os.path.exists(make_path):
+                await status_msg.edit(f"**❌ مجلد Make غير موجود**")
+                return
+            
+            await status_msg.edit(f"**📁 جاري نسخ ملفات البوت...**")
+            
+            # نسخ المجلد
+            shutil.copytree(make_path, bot_path)
+            
+            await status_msg.edit(f"**⚙️ جاري تحديث إعدادات البوت...**")
+            
+            # تحديث ملف OWNER.py
+            owner_file = os.path.join(bot_path, "OWNER.py")
+            if os.path.exists(owner_file):
+                with open(owner_file, 'r', encoding='utf-8') as f:
+                    owner_content = f.read()
+                
+                # تحديث معرف المطور
+                owner_content = owner_content.replace(
+                    'OWNER__ID = 985612253',
+                    f'OWNER__ID = {uid}'
+                )
+                owner_content = owner_content.replace(
+                    'OWNER_DEVELOPER = 985612253',
+                    f'OWNER_DEVELOPER = {uid}'
+                )
+                
+                # تحديث اسم المطور
+                user_name = msg.from_user.first_name
+                owner_content = owner_content.replace(
+                    'OWNER_NAME = "𝐷𝑟. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"',
+                    f'OWNER_NAME = "{user_name}"'
+                )
+                
+                # تحديث معرف البوت
+                owner_content = owner_content.replace(
+                    'OWNER = ["AAAKP"]',
+                    f'OWNER = ["{validated_username}"]'
+                )
+                
+                with open(owner_file, 'w', encoding='utf-8') as f:
+                    f.write(owner_content)
+            
+            await status_msg.edit(f"**🔧 جاري تحديث ملف التكوين...**")
+            
+            # تحديث ملف config.py
+            config_file = os.path.join(bot_path, "config.py")
+            if os.path.exists(config_file):
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    config_content = f.read()
+                
+                # تحديث معرف البوت في BOT_TOKEN
+                config_content = config_content.replace(
+                    'BOT_TOKEN = getenv("BOT_TOKEN", "7557280783:AAF44S35fdkcURM4j4Rp5-OOkASZ3_uCSR4")',
+                    'BOT_TOKEN = getenv("BOT_TOKEN", "")'
+                )
+                
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    f.write(config_content)
+            
+            await status_msg.edit(f"**💾 جاري حفظ معلومات البوت...**")
+            
+            # حفظ معلومات البوت في قاعدة البيانات
+            config_data = {
+                "bot_username": validated_username,
+                "owner_id": uid,
+                "owner_name": user_name,
+                "created_at": datetime.now().isoformat(),
+                "status": "created"
+            }
+            
+            save_success = save_bot_info(validated_username, uid, None, config_data)
+            if not save_success:
+                await status_msg.edit(f"**❌ فشل في حفظ معلومات البوت في قاعدة البيانات**")
+                return
+            
+            await status_msg.edit(
+                f"**✅ تم صنع البوت @{validated_username} بنجاح!**\n\n"
+                f"**📁 المجلد:** `{bot_path}`\n"
+                f"**👤 المطور:** `{user_name}`\n"
+                f"**🆔 معرف المطور:** `{uid}`\n\n"
+                f"**📝 الخطوات التالية:**\n"
+                f"1. اذهب إلى @BotFather\n"
+                f"2. أنشئ بوت جديد باسم `{validated_username}`\n"
+                f"3. احصل على توكن البوت\n"
+                f"4. أضف التوكن في ملف `config.py`\n"
+                f"5. استخدم زر '❲ تشغيل بوت ❳' لتشغيل البوت"
+            )
+            
+        except Exception as e:
+            logger.error(f"Error creating bot {validated_username}: {str(e)}")
+            await status_msg.edit(f"**❌ فشل في صنع البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
         return
 
     # معالجة البث العادي
