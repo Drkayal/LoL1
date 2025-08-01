@@ -61,7 +61,7 @@ async def cmd_handler(client, msg):
     elif msg.text == "❲ الاحصائيات ❳":
         user_list = await get_users()
         bots_count = bots_collection.count_documents({})
-        running_bots = len(get_running_bots())
+        running_bots = len(await await get_running_bots())
         await msg.reply(
             f"**≭︰عدد الاعضاء  **{len(user_list)}\n"
             f"**≭︰عدد مطورين في المصنع  **{len(OWNER_ID)}\n"
@@ -147,7 +147,7 @@ async def cmd_handler(client, msg):
             await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
             return
         
-        all_bots = get_all_bots()
+        all_bots = await await get_all_bots()
         if not all_bots:
             await msg.reply("** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
             return
@@ -473,7 +473,7 @@ async def botat_handler(client, message):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
-        all_bots = get_all_bots()
+        all_bots = await get_all_bots()
         if not all_bots:
             await message.reply("**❌ لا توجد بوتات مصنوعة**")
             return
@@ -532,7 +532,7 @@ async def show_running_bots_handler(client, message):
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
-        running_bots = get_running_bots()
+        running_bots = await get_running_bots()
         if not running_bots:
             await message.reply("**❌ لا توجد بوتات مشتغلة**")
             return
@@ -567,7 +567,7 @@ async def start_Allusers_handler(client, message):
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
-        all_bots = get_all_bots()
+        all_bots = await get_all_bots()
         if not all_bots:
             await message.reply("**❌ لا توجد بوتات مصنوعة**")
             return
@@ -639,7 +639,7 @@ async def stooop_Allusers_handler(client, message):
             await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
-        running_bots = get_running_bots()
+        running_bots = await get_running_bots()
         if not running_bots:
             await message.reply("**❌ لا توجد بوتات مشتغلة**")
             return

@@ -4,6 +4,7 @@ Bot Model Functions - دوال قاعدة البيانات للبوتات
 """
 
 import time
+import asyncio
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from utils import (
@@ -34,7 +35,7 @@ def set_collections(bots_coll, factory_coll):
     bots_collection = bots_coll
     factory_settings = factory_coll
 
-def get_bot_info(bot_username, max_retries=3):
+async def get_bot_info(bot_username, max_retries=3):
     """
     الحصول على معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
@@ -70,7 +71,7 @@ def get_bot_info(bot_username, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to get bot info after {max_retries} attempts")
                     return None
-                time.sleep(1)
+                await asyncio.sleep(1)
         return None
     except ValidationError as e:
         logger.error(f"Validation error in get_bot_info: {str(e)}")
@@ -247,7 +248,7 @@ def delete_bot_info(bot_username, max_retries=3):
         logger.error(f"Error in delete_bot_info function: {str(e)}")
         return False
 
-def get_all_bots(max_retries=3):
+async def get_all_bots(max_retries=3):
     """
     الحصول على جميع البوتات مع التخزين المؤقت وإعادة المحاولة
     
@@ -280,13 +281,13 @@ def get_all_bots(max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to get all bots after {max_retries} attempts")
                     return []
-                time.sleep(1)
+                await asyncio.sleep(1)
         return []
     except Exception as e:
         logger.error(f"Error in get_all_bots function: {str(e)}")
         return []
 
-def get_running_bots(max_retries=3):
+async def get_running_bots(max_retries=3):
     """
     الحصول على البوتات المشتغلة مع التحقق من وجود الحاويات والتخزين المؤقت وإعادة المحاولة
     

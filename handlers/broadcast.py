@@ -67,7 +67,7 @@ async def forbroacasts_handler(client, msg):
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
-        bot_info = get_bot_info(validated_username)
+        bot_info = await get_bot_info(validated_username)
         if not bot_info:
             await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
@@ -121,7 +121,7 @@ async def forbroacasts_handler(client, msg):
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
-        bot_info = get_bot_info(validated_username)
+        bot_info = await get_bot_info(validated_username)
         if not bot_info:
             await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
@@ -193,7 +193,7 @@ async def forbroacasts_handler(client, msg):
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
-        bot_info = get_bot_info(validated_username)
+        bot_info = await get_bot_info(validated_username)
         if not bot_info:
             await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
@@ -252,7 +252,7 @@ async def forbroacasts_handler(client, msg):
             return
         
         # التحقق من عدم وجود البوت بالفعل
-        existing_bot = get_bot_info(validated_username)
+        existing_bot = await get_bot_info(validated_username)
         if existing_bot:
             await msg.reply("**⚠️ هذا البوت موجود بالفعل في المصنع**", quote=True)
             return

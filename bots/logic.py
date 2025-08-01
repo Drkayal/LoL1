@@ -413,7 +413,7 @@ async def initialize_factory(max_retries=3):
         # استعادة البوتات المشتغلة
         for attempt in range(max_retries):
             try:
-                running_bots = get_running_bots()
+                running_bots = await get_running_bots()
                 logger.info(f"Found {len(running_bots)} bots to restore")
                 break
             except Exception as e:
