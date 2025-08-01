@@ -8,7 +8,7 @@ from pyrogram import Client, filters
 from pyrogram.errors import PeerIdInvalid
 from utils import logger
 from users import is_dev, validate_user_id, del_user
-from bots import start_bot_process, get_bot_info, update_bot_status
+from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info
 from broadcast import get_broadcast_status, delete_broadcast_status
 from users import validate_bot_username
 from factory.settings import get_factory_state
@@ -47,7 +47,7 @@ async def forbroacasts_handler(client, msg):
         return
 
     text = msg.text
-    ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "الغاء"]
+    ignore = ["❲ اذاعه ❳", "❲ اذاعه بالتوجيه ❳", "❲ اذاعه بالتثبيت ❳", "❲ الاحصائيات ❳", "❲ اخفاء الكيبورد ❳", "❲ تشغيل بوت ❳", "❲ حذف بوت ❳", "❲ ايقاف بوت ❳", "الغاء"]
     if text in ignore:
         return
 
@@ -103,6 +103,136 @@ async def forbroacasts_handler(client, msg):
                 await status_msg.edit(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**")
         else:
             await status_msg.edit(f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 الأسباب المحتملة:**\n• البوت غير موجود في مجلد Maked\n• خطأ في ملفات البوت\n• مشكلة في التكوين")
+        return
+
+    # معالجة حذف بوت محدد
+    if await get_broadcast_status(uid, bot_id, "delete_bot"):
+        await delete_broadcast_status(uid, bot_id, "delete_bot")
+        
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # التحقق من صحة معرف البوت
+        is_valid, validated_username = validate_bot_username(text)
+        if not is_valid:
+            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            return
+        
+        bot_info = get_bot_info(validated_username)
+        if not bot_info:
+            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply(f"**🔄 جاري حذف البوت @{validated_username}...**", quote=True)
+        
+        # تأخير قصير قبل بدء العملية
+        await asyncio.sleep(0.5)
+        
+        try:
+            # إيقاف البوت أولاً إذا كان يعمل
+            if bot_info.get("status") == "running":
+                container_id = bot_info.get("container_id")
+                pid = bot_info.get("pid")
+                
+                if container_id:
+                    stop_bot_process(container_id)
+                elif pid:
+                    stop_bot_process(pid)
+                
+                await status_msg.edit(f"**⏹️ تم إيقاف البوت @{validated_username}**\n**🔄 جاري الحذف...**")
+                await asyncio.sleep(1)
+            
+            # حذف من قاعدة البيانات
+            delete_success = delete_bot_info(validated_username)
+            if not delete_success:
+                await status_msg.edit(f"**❌ فشل في حذف البوت @{validated_username} من قاعدة البيانات**")
+                return
+            
+            # حذف مجلد البوت
+            import shutil
+            import os
+            bot_path = os.path.join("Maked", validated_username)
+            
+            if os.path.exists(bot_path):
+                try:
+                    shutil.rmtree(bot_path)
+                    folder_deleted = True
+                except Exception as e:
+                    logger.error(f"Failed to delete bot folder {bot_path}: {str(e)}")
+                    folder_deleted = False
+            else:
+                folder_deleted = True  # المجلد غير موجود أصلاً
+            
+            # رسالة النتيجة النهائية
+            if folder_deleted:
+                await status_msg.edit(f"**✅ تم حذف البوت @{validated_username} بنجاح**\n\n**🗑️ تم حذفه من:**\n• قاعدة البيانات\n• مجلد Maked")
+            else:
+                await status_msg.edit(f"**⚠️ تم حذف البوت @{validated_username} جزئياً**\n\n**✅ تم حذفه من:**\n• قاعدة البيانات\n\n**❌ فشل في حذف:**\n• مجلد Maked")
+                
+        except Exception as e:
+            logger.error(f"Error deleting bot {validated_username}: {str(e)}")
+            await status_msg.edit(f"**❌ فشل في حذف البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
+        return
+
+    # معالجة إيقاف بوت محدد
+    if await get_broadcast_status(uid, bot_id, "stop_bot"):
+        await delete_broadcast_status(uid, bot_id, "stop_bot")
+        
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # التحقق من صحة معرف البوت
+        is_valid, validated_username = validate_bot_username(text)
+        if not is_valid:
+            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            return
+        
+        bot_info = get_bot_info(validated_username)
+        if not bot_info:
+            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            return
+        
+        if bot_info.get("status") != "running":
+            await msg.reply("**⚠️ هذا البوت متوقف بالفعل**", quote=True)
+            return
+        
+        # إرسال رسالة بداية العملية
+        status_msg = await msg.reply(f"**🔄 جاري إيقاف البوت @{validated_username}...**", quote=True)
+        
+        # تأخير قصير قبل بدء العملية
+        await asyncio.sleep(0.5)
+        
+        try:
+            container_id = bot_info.get("container_id")
+            pid = bot_info.get("pid")
+            
+            if container_id:
+                success = stop_bot_process(container_id)
+                if success:
+                    update_bot_status(validated_username, "stopped")
+                    await status_msg.edit(f"**✅ تم إيقاف البوت @{validated_username} بنجاح**\n🐳 **من حاوية Docker:** `{container_id[:12]}...`")
+                else:
+                    await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**")
+            elif pid:
+                success = stop_bot_process(pid)
+                if success:
+                    update_bot_status(validated_username, "stopped")
+                    await status_msg.edit(f"**✅ تم إيقاف البوت @{validated_username} بنجاح**\n🔧 **من العملية:** `PID {pid}`")
+                else:
+                    await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**")
+            else:
+                # البوت مسجل كـ running لكن لا يوجد container_id أو pid
+                update_bot_status(validated_username, "stopped")
+                await status_msg.edit(f"**✅ تم تحديث حالة البوت @{validated_username} إلى متوقف**")
+                
+        except Exception as e:
+            logger.error(f"Error stopping bot {validated_username}: {str(e)}")
+            await status_msg.edit(f"**❌ فشل في إيقاف البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
         return
 
     # معالجة البث العادي

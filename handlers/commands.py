@@ -52,7 +52,7 @@ async def cmd_handler(client, msg):
         return
 
     if msg.text == "الغاء":
-        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up")
+        await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast", "fbroadcast", "users_up", "start_bot", "delete_bot", "stop_bot")
         await msg.reply("» تم الغاء بنجاح", quote=True)
 
     elif msg.text == "❲ اخفاء الكيبورد ❳":
@@ -102,6 +102,45 @@ async def cmd_handler(client, msg):
         )
         # تعيين حالة انتظار معرف البوت
         await set_broadcast_status(uid, bot_id, "start_bot")
+
+    elif msg.text == "❲ حذف بوت ❳":
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # طلب معرف البوت من المستخدم
+        await msg.reply(
+            "**🗑️ حذف بوت نهائياً**\n\n"
+            "**أرسل معرف البوت الذي تريد حذفه:**\n"
+            "• مثال: `AAAK2BOT`\n"
+            "• مثال: `@AAAK2BOT`\n\n"
+            "**⚠️ تحذير:** سيتم حذف البوت نهائياً من:\n"
+            "• قاعدة البيانات\n"
+            "• مجلد Maked\n"
+            "• إيقاف العملية إذا كانت مشتغلة",
+            quote=True
+        )
+        # تعيين حالة انتظار معرف البوت للحذف
+        await set_broadcast_status(uid, bot_id, "delete_bot")
+
+    elif msg.text == "❲ ايقاف بوت ❳":
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            return
+        
+        # طلب معرف البوت من المستخدم
+        await msg.reply(
+            "**⏹️ إيقاف بوت محدد**\n\n"
+            "**أرسل معرف البوت الذي تريد إيقافه:**\n"
+            "• مثال: `AAAK2BOT`\n"
+            "• مثال: `@AAAK2BOT`\n\n"
+            "**📝 ملاحظة:** سيتم إيقاف البوت مؤقتاً",
+            quote=True
+        )
+        # تعيين حالة انتظار معرف البوت للإيقاف
+        await set_broadcast_status(uid, bot_id, "stop_bot")
 
     elif msg.text == "❲ تشغيل البوتات ❳":
         if not is_dev(uid):
@@ -361,18 +400,7 @@ async def maked_handler(client, message):
     except Exception as e:
         logger.error(f"Error in maked handler: {str(e)}")
 
-@Client.on_message(filters.command("❲ حذف بوت ❳", "") & filters.private)
-async def deletbot_handler(client, message):
-    """معالج حذف بوت"""
-    try:
-        if not is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
-            return
-        
-        # طلب معرف البوت من المستخدم
-        await message.reply("**أرسل معرف البوت الذي تريد حذفه**")
-    except Exception as e:
-        logger.error(f"Error in deletbot handler: {str(e)}")
+# تم نقل معالجة "❲ حذف بوت ❳" إلى cmd_handler
 
 @Client.on_message(filters.command("❲ البوتات المصنوعه ❳", ""))
 async def botat_handler(client, message):
@@ -426,18 +454,7 @@ async def update_factory_handler(client: Client, message):
     except Exception as e:
         logger.error(f"Error in update_factory handler: {str(e)}")
 
-@Client.on_message(filters.command("❲ ايقاف بوت ❳", ""))
-async def stop_specific_bot_handler(client, message):
-    """معالج إيقاف بوت محدد"""
-    try:
-        if not is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
-            return
-        
-        # طلب معرف البوت من المستخدم
-        await message.reply("**أرسل معرف البوت الذي تريد إيقافه**")
-    except Exception as e:
-        logger.error(f"Error in stop_specific_bot handler: {str(e)}")
+# تم نقل معالجة "❲ ايقاف بوت ❳" إلى cmd_handler
 
 @Client.on_message(filters.command("❲ البوتات المشتغلة ❳", ""))
 async def show_running_bots_handler(client, message):
