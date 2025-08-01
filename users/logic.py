@@ -94,6 +94,11 @@ async def is_dev(user_id, max_retries=3):
         bool: True إذا كان المستخدم مطور، False خلاف ذلك
     """
     try:
+        # فحص إضافي في بداية الدالة
+        logger.info(f"is_dev called for user_id: {user_id}")
+        logger.info(f"devs variable at start: {devs}")
+        logger.info(f"users variable at start: {users}")
+        logger.info(f"OWNER_ID variable at start: {OWNER_ID}")
         # التحقق من التخزين المؤقت أولاً
         cache_key = f"is_dev_{user_id}"
         cached_result = cache_manager.get(cache_key)
@@ -114,6 +119,7 @@ async def is_dev(user_id, max_retries=3):
             logger.error(f"devs variable: {devs}")
             logger.error(f"users variable: {users}")
             logger.error(f"OWNER_ID variable: {OWNER_ID}")
+            logger.error("This should not happen - devs was initialized but became None")
             return False
             
         for attempt in range(max_retries):
