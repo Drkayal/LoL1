@@ -235,23 +235,23 @@ async def forbroacasts_handler(client, msg):
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # التحقق من صحة معرف البوت
         is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
-            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
         # التحقق من عدم وجود البوت بالفعل
         existing_bot = await get_bot_info(validated_username)
         if existing_bot:
-            await msg.reply("**⚠️ هذا البوت موجود بالفعل في المصنع**", quote=True)
+            await safe_reply_text(msg, "**⚠️ هذا البوت موجود بالفعل في المصنع**", quote=True)
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await msg.reply(f"**🔄 جاري صنع البوت @{validated_username}...**", quote=True)
+        status_msg = await safe_reply_text(msg, f"**🔄 جاري صنع البوت @{validated_username}...**", quote=True)
         
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)
@@ -263,21 +263,21 @@ async def forbroacasts_handler(client, msg):
             bot_path = os.path.join("Maked", validated_username)
             
             if os.path.exists(bot_path):
-                await status_msg.edit(f"**❌ مجلد البوت موجود بالفعل: {bot_path}**")
+                await safe_edit_text(status_msg, f"**❌ مجلد البوت موجود بالفعل: {bot_path}**")
                 return
             
             # نسخ مجلد Make إلى مجلد البوت الجديد
             make_path = "Make"
             if not os.path.exists(make_path):
-                await status_msg.edit(f"**❌ مجلد Make غير موجود**")
+                await safe_edit_text(status_msg, f"**❌ مجلد Make غير موجود**")
                 return
             
-            await status_msg.edit(f"**📁 جاري نسخ ملفات البوت...**")
+            await safe_edit_text(status_msg, f"**📁 جاري نسخ ملفات البوت...**")
             
             # نسخ المجلد
             shutil.copytree(make_path, bot_path)
             
-            await status_msg.edit(f"**⚙️ جاري تحديث إعدادات البوت...**")
+            await safe_edit_text(status_msg, f"**⚙️ جاري تحديث إعدادات البوت...**")
             
             # تحديث ملف OWNER.py
             owner_file = os.path.join(bot_path, "OWNER.py")
@@ -311,7 +311,7 @@ async def forbroacasts_handler(client, msg):
                 with open(owner_file, 'w', encoding='utf-8') as f:
                     f.write(owner_content)
             
-            await status_msg.edit(f"**🔧 جاري تحديث ملف التكوين...**")
+            await safe_edit_text(status_msg, f"**🔧 جاري تحديث ملف التكوين...**")
             
             # تحديث ملف config.py
             config_file = os.path.join(bot_path, "config.py")
@@ -328,7 +328,7 @@ async def forbroacasts_handler(client, msg):
                 with open(config_file, 'w', encoding='utf-8') as f:
                     f.write(config_content)
             
-            await status_msg.edit(f"**💾 جاري حفظ معلومات البوت...**")
+            await safe_edit_text(status_msg, f"**💾 جاري حفظ معلومات البوت...**")
             
             # حفظ معلومات البوت في قاعدة البيانات
             config_data = {
@@ -341,10 +341,11 @@ async def forbroacasts_handler(client, msg):
             
             save_success = await save_bot_info(validated_username, uid, None, config_data)
             if not save_success:
-                await status_msg.edit(f"**❌ فشل في حفظ معلومات البوت في قاعدة البيانات**")
+                await safe_edit_text(status_msg, f"**❌ فشل في حفظ معلومات البوت في قاعدة البيانات**")
                 return
             
-            await status_msg.edit(
+            await safe_edit_text(
+                status_msg,
                 f"**✅ تم صنع البوت @{validated_username} بنجاح!**\n\n"
                 f"**📁 المجلد:** `{bot_path}`\n"
                 f"**👤 المطور:** `{user_name}`\n"
@@ -359,13 +360,13 @@ async def forbroacasts_handler(client, msg):
             
         except Exception as e:
             logger.error(f"Error creating bot {validated_username}: {str(e)}")
-            await status_msg.edit(f"**❌ فشل في صنع البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
+            await safe_edit_text(status_msg, f"**❌ فشل في صنع البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
         return
 
     # معالجة البث العادي
     if await get_broadcast_status(uid, bot_id, "broadcast"):
         await delete_broadcast_status(uid, bot_id, "broadcast")
-        message = await msg.reply("• جاري الإذاعة ..", quote=True)
+        message = await safe_reply_text(msg, "• جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
         from users import get_users
@@ -408,7 +409,7 @@ async def forbroacasts_handler(client, msg):
     # معالجة البث بالتثبيت
     elif await get_broadcast_status(uid, bot_id, "pinbroadcast"):
         await delete_broadcast_status(uid, bot_id, "pinbroadcast")
-        message = await msg.reply("» جاري الإذاعة ..", quote=True)
+        message = await safe_reply_text(msg, "» جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
         from users import get_users
