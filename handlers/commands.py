@@ -207,14 +207,15 @@ async def new_user_handler(client, msg):
     
     # التحقق من حالة المصنع
     if await get_factory_state():
-        await msg.reply("** ≭︰المصنع مغلق حاليا **")
+        await safe_reply_text(msg, "** ≭︰المصنع مغلق حاليا **")
         return
     
     # إضافة المستخدم الجديد
     await add_new_user(uid)
     
     # إرسال رسالة الترحيب
-    await msg.reply(
+    await safe_reply_text(
+        msg,
         f"**مرحبا {name} في مصنع البوتات**\n"
         "**لصنع بوت اضغط على زر صنع بوت**",
         reply_markup=InlineKeyboardMarkup([
@@ -237,7 +238,8 @@ async def admins_handler(client, message: Message):
         return
     
     # إرسال لوحة تحكم المطور
-    await message.reply(
+    await safe_reply_text(
+        message,
         f"**مرحبا {name} في لوحة تحكم المطور**\n"
         "**اختر الأمر المطلوب:**",
         reply_markup=InlineKeyboardMarkup([
@@ -348,7 +350,8 @@ async def back_to_main_callback_handler(client, callback_query):
 async def alivehi_handler(client: Client, message):
     """معالج أمر السورس"""
     try:
-        await message.reply(
+        await safe_reply_text(
+            message,
             "**🔰 مرحبا بك في مصنع البوتات**\n\n"
             "**المطور:** @username\n"
             "**السورس:** مصنع البوتات\n"
@@ -449,17 +452,17 @@ async def onoff_handler(client, message):
         command = message.text
         
         if "❲ فتح المصنع ❳" in command:
-            success = set_factory_state(False)
+            success = await set_factory_state(False)
             if success:
-                await message.reply("**✅ تم فتح المصنع بنجاح**")
+                await safe_reply_text(message, "**✅ تم فتح المصنع بنجاح**")
             else:
-                await message.reply("**❌ فشل في فتح المصنع**")
+                await safe_reply_text(message, "**❌ فشل في فتح المصنع**")
         elif "❲ قفل المصنع ❳" in command:
-            success = set_factory_state(True)
+            success = await set_factory_state(True)
             if success:
-                await message.reply("**✅ تم قفل المصنع بنجاح**")
+                await safe_reply_text(message, "**✅ تم قفل المصنع بنجاح**")
             else:
-                await message.reply("**❌ فشل في قفل المصنع**")
+                await safe_reply_text(message, "**❌ فشل في قفل المصنع**")
     except Exception as e:
         logger.error(f"Error in onoff handler: {str(e)}")
 
