@@ -2205,3 +2205,17 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 01:32:21,552 - factory_bot - INFO - Factory initialization completed. Restored: 0, Failed: 0
 2025-08-01 01:32:21,552 - factory_bot - INFO - Factory initialization completed
 2025-08-01 01:32:21,552 - factory_bot - INFO - Bot Factory is ready and running!
+2025-08-01 01:33:15,799 - factory_bot - INFO - Bot stopped successfully
+2025-08-01 01:33:15,800 - factory_bot - INFO - Bot Factory shutdown completed
+2025-08-01 01:33:16,005 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:33:16,006 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:33:16,006 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:33:16,006 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:33:16,006 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:33:16,006 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 01:33:16,006 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:33:16,006 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:33:16,006 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:33:16,006 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:33:16,006 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:33:16,006 - factory_bot - INFO - Cache cleared successfully
