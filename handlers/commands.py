@@ -41,7 +41,7 @@ async def cmd_handler(client, msg):
         return
     
     uid = msg.from_user.id
-    if not is_dev(uid):
+    if not await is_dev(uid):
         return
     
     # تعريف bot_id مع التحقق
@@ -144,7 +144,7 @@ async def cmd_handler(client, msg):
         await set_broadcast_status(uid, bot_id, "stop_bot")
 
     elif msg.text == "❲ تشغيل البوتات ❳":
-        if not is_dev(uid):
+        if not await is_dev(uid):
             await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
             return
         
@@ -169,7 +169,7 @@ async def cmd_handler(client, msg):
                 already_running += 1
                 continue
                 
-            container_id = start_bot_process(bot["username"])
+            container_id = await start_bot_process(bot["username"])
             if container_id:
                 await update_bot_status(bot["username"], "running")
                 await update_bot_container_id(bot["username"], container_id)
@@ -229,7 +229,7 @@ async def admins_handler(client, message: Message):
     uid = message.from_user.id
     name = message.from_user.first_name
     
-    if not is_dev(uid):
+    if not await is_dev(uid):
         return
     
     # إرسال لوحة تحكم المطور
@@ -315,7 +315,7 @@ async def back_to_main_callback_handler(client, callback_query):
         uid = callback_query.from_user.id
         name = callback_query.from_user.first_name
         
-        if is_dev(uid):
+        if await is_dev(uid):
             # قائمة المطور
             await callback_query.message.edit_text(
                 f"**مرحبا {name} في لوحة تحكم المطور**\n"
@@ -383,7 +383,7 @@ async def you_handler(client: Client, message):
 async def add_dev_handler(client, message: Message):
     """معالج رفع مطور"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -404,7 +404,7 @@ async def add_dev_handler(client, message: Message):
 async def remove_dev_handler(client, message: Message):
     """معالج تنزيل مطور"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -425,11 +425,11 @@ async def remove_dev_handler(client, message: Message):
 async def list_devs_handler(client, message: Message):
     """معالج قائمة المطورين"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
-        dev_count = get_dev_count()
+        dev_count = await get_dev_count()
         await message.reply(f"**👥 عدد المطورين:** {dev_count}")
     except Exception as e:
         logger.error(f"Error in list_devs handler: {str(e)}")
@@ -438,7 +438,7 @@ async def list_devs_handler(client, message: Message):
 async def onoff_handler(client, message):
     """معالج فتح/قفل المصنع"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -467,7 +467,7 @@ async def onoff_handler(client, message):
 async def botat_handler(client, message):
     """معالج قائمة البوتات المصنوعة"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -489,7 +489,7 @@ async def botat_handler(client, message):
 async def kinhsker_handler(client: Client, message):
     """معالج الشاشات المفتوحة"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -504,7 +504,7 @@ async def kinhsker_handler(client: Client, message):
 async def update_factory_handler(client: Client, message):
     """معالج تحديث الصانع"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -521,7 +521,7 @@ async def update_factory_handler(client: Client, message):
 async def show_running_bots_handler(client, message):
     """معالج عرض البوتات المشتغلة"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -556,7 +556,7 @@ async def show_running_bots_handler(client, message):
 async def start_Allusers_handler(client, message):
     """معالج تشغيل جميع البوتات"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -587,7 +587,7 @@ async def start_Allusers_handler(client, message):
             if i % 3 == 0:
                 await status_msg.edit(f"**🔄 جاري التشغيل... ({i}/{len(startable_bots)})**")
                 
-            process_id = start_bot_process(bot["username"])
+            process_id = await start_bot_process(bot["username"])
             if process_id:
                 await update_bot_status(bot["username"], "running")
                 # تحديد نوع المعرف وتحديث الحقل المناسب
@@ -622,7 +622,7 @@ async def start_Allusers_handler(client, message):
 async def stooop_Allusers_handler(client, message):
     """معالج إيقاف جميع البوتات"""
     try:
-        if not is_dev(message.from_user.id):
+        if not await is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
@@ -651,14 +651,14 @@ async def stooop_Allusers_handler(client, message):
             pid = bot.get("pid")
             
             if container_id:
-                success = stop_bot_process(container_id)
+                success = await stop_bot_process(container_id)
                 if success:
                     await update_bot_status(bot["username"], "stopped")
                     stopped_count += 1
                 else:
                     failed_count += 1
             elif pid:
-                success = stop_bot_process(pid)
+                success = await stop_bot_process(pid)
                 if success:
                     await update_bot_status(bot["username"], "stopped")
                     stopped_count += 1

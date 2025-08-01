@@ -75,7 +75,7 @@ async def start_bot_process(bot_username, max_retries=3):
         logger.error(f"Error in start_bot_process function: {str(e)}")
         return None
 
-def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
+async def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
     """تشغيل البوت في حاوية Docker"""
     try:
         dockerfile_path = path.join(bot_path, "Dockerfile")
@@ -193,7 +193,7 @@ def _start_bot_in_docker(bot_username, bot_path, max_retries=3):
         logger.error(f"Error in _start_bot_in_docker: {str(e)}")
         return None
 
-def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
+async def _start_bot_directly(bot_username, bot_path, main_file, max_retries=3):
     """تشغيل البوت مباشرة في النظام"""
     try:
         # استخدام Python المتاح في النظام
@@ -301,7 +301,7 @@ async def stop_bot_process(process_id, max_retries=3):
         logger.error(f"Error in stop_bot_process function: {str(e)}")
         return False
 
-def _stop_docker_container(container_id, max_retries=3):
+async def _stop_docker_container(container_id, max_retries=3):
     """إيقاف حاوية Docker"""
     try:
         for attempt in range(max_retries):
@@ -350,7 +350,7 @@ def _stop_docker_container(container_id, max_retries=3):
         logger.error(f"Error in _stop_docker_container: {str(e)}")
         return False
 
-def _stop_direct_process(pid, max_retries=3):
+async def _stop_direct_process(pid, max_retries=3):
     """إيقاف عملية مباشرة"""
     try:
         for attempt in range(max_retries):

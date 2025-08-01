@@ -36,7 +36,7 @@ async def forbroacasts_handler(client, msg):
         return
     
     uid = msg.from_user.id
-    if not is_dev(uid):
+    if not await is_dev(uid):
         return
     
     # تعريف bot_id مع التحقق
@@ -62,7 +62,7 @@ async def forbroacasts_handler(client, msg):
             return
         
         # التحقق من صحة معرف البوت
-        is_valid, validated_username = validate_bot_username(text)
+        is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
@@ -116,7 +116,7 @@ async def forbroacasts_handler(client, msg):
             return
         
         # التحقق من صحة معرف البوت
-        is_valid, validated_username = validate_bot_username(text)
+        is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
@@ -188,7 +188,7 @@ async def forbroacasts_handler(client, msg):
             return
         
         # التحقق من صحة معرف البوت
-        is_valid, validated_username = validate_bot_username(text)
+        is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
@@ -246,7 +246,7 @@ async def forbroacasts_handler(client, msg):
             return
         
         # التحقق من صحة معرف البوت
-        is_valid, validated_username = validate_bot_username(text)
+        is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
             await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
@@ -387,7 +387,7 @@ async def forbroacasts_handler(client, msg):
         for i, user in enumerate(users_list, start=1):
             try:
                 # التحقق من صحة معرف المستخدم
-                is_valid, validated_user_id = validate_user_id(user)
+                is_valid, validated_user_id = await validate_user_id(user)
                 if not is_valid:
                     logger.warning(f"Invalid user_id in broadcast: {user}")
                     failed_count += 1
@@ -430,7 +430,7 @@ async def forbroacasts_handler(client, msg):
         for i, user in enumerate(users_list, start=1):
             try:
                 # التحقق من صحة معرف المستخدم
-                is_valid, validated_user_id = validate_user_id(user)
+                is_valid, validated_user_id = await validate_user_id(user)
                 if not is_valid:
                     logger.warning(f"Invalid user_id in pin broadcast: {user}")
                     failed_count += 1
@@ -474,7 +474,7 @@ async def forbroacasts_handler(client, msg):
         for i, user in enumerate(users_list, start=1):
             try:
                 # التحقق من صحة معرف المستخدم
-                is_valid, validated_user_id = validate_user_id(user)
+                is_valid, validated_user_id = await validate_user_id(user)
                 if not is_valid:
                     logger.warning(f"Invalid user_id in forward broadcast: {user}")
                     failed_count += 1

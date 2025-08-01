@@ -29,7 +29,7 @@ def set_dependencies(owner_id, devs_coll, users_coll):
     devs_collection = devs_coll
     users = users_coll
 
-def is_dev(user_id, max_retries=3):
+async def is_dev(user_id, max_retries=3):
     """
     التحقق من صلاحيات المطور مع التخزين المؤقت وآلية إعادة المحاولة
     
@@ -64,7 +64,7 @@ def is_dev(user_id, max_retries=3):
                 if attempt == max_retries - 1:
                     logger.error(f"Failed to check dev status after {max_retries} attempts")
                     return False
-                time.sleep(1)
+                await asyncio.sleep(1)
         return False
     except Exception as e:
         logger.error(f"Error in is_dev function: {str(e)}")
@@ -311,7 +311,7 @@ def clear_user_cache(user_id: Optional[int] = None):
     except Exception as e:
         logger.error(f"Error clearing user cache: {str(e)}")
 
-def get_dev_count():
+async def get_dev_count():
     """
     الحصول على عدد المطورين
     

@@ -5,7 +5,7 @@ Validation Functions - دوال التحقق من المدخلات
 
 from utils import ValidationError, logger
 
-def validate_user_id(user_id):
+async def validate_user_id(user_id):
     """
     التحقق من صحة معرف المستخدم
     
@@ -104,7 +104,7 @@ def validate_session_string(session):
     except Exception as e:
         raise ValidationError(f"خطأ غير متوقع في التحقق من كود الجلسة: {str(e)}")
 
-def validate_bot_username(username):
+async def validate_bot_username(username):
     """
     التحقق من صحة معرف البوت
     

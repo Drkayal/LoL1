@@ -55,7 +55,7 @@ async def get_bot_info(bot_username, max_retries=3):
         if cached_result is not None:
             return cached_result
         
-        is_valid, validated_username = validate_bot_username(bot_username)
+        is_valid, validated_username = await validate_bot_username(bot_username)
         if not is_valid:
             logger.error(f"Invalid bot username: {bot_username}")
             return None
@@ -97,8 +97,8 @@ async def save_bot_info(bot_username, dev_id, container_id, config_data, max_ret
     try:
         from utils import cache_manager
         
-        is_valid_username, validated_username = validate_bot_username(bot_username)
-        is_valid_dev, validated_dev_id = validate_user_id(dev_id)
+        is_valid_username, validated_username = await validate_bot_username(bot_username)
+        is_valid_dev, validated_dev_id = await validate_user_id(dev_id)
         
         if not is_valid_username or not is_valid_dev:
             logger.error(f"Invalid bot_username or dev_id: {bot_username}, {dev_id}")
@@ -160,7 +160,7 @@ async def update_bot_status(bot_username, status, max_retries=3):
     try:
         from utils import cache_manager
         
-        is_valid, validated_username = validate_bot_username(bot_username)
+        is_valid, validated_username = await validate_bot_username(bot_username)
         if not is_valid:
             logger.error(f"Invalid bot username: {bot_username}")
             return False
@@ -215,7 +215,7 @@ async def delete_bot_info(bot_username, max_retries=3):
     try:
         from utils import cache_manager
         
-        is_valid, validated_username = validate_bot_username(bot_username)
+        is_valid, validated_username = await validate_bot_username(bot_username)
         if not is_valid:
             logger.error(f"Invalid bot username: {bot_username}")
             return False
@@ -424,7 +424,7 @@ async def update_bot_container_id(bot_username, container_id, max_retries=3):
         bool: True إذا تم التحديث بنجاح، False خلاف ذلك
     """
     try:
-        is_valid, validated_username = validate_bot_username(bot_username)
+        is_valid, validated_username = await validate_bot_username(bot_username)
         if not is_valid:
             logger.error(f"Invalid bot username: {bot_username}")
             return False
