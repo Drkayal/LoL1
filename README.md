@@ -79,10 +79,12 @@ Bot-Factory-Maker/
 ### المتطلبات الأساسية
 - Python 3.8 أو أحدث
 - MongoDB قاعدة بيانات
+- Docker (للنشر في الحاويات)
 - حساب Telegram Bot
 
 ### خطوات التثبيت
 
+#### الطريقة الأولى: التثبيت المباشر
 1. **استنساخ المشروع**
 ```bash
 git clone <repository-url>
@@ -97,6 +99,58 @@ pip install -r requirements.txt
 3. **إعداد الإعدادات**
    - تعديل `OWNER.py` بإعداداتك
    - تعديل `config.py` إذا لزم الأمر
+
+#### الطريقة الثانية: التثبيت باستخدام Docker (موصى به)
+1. **استنساخ المشروع**
+```bash
+git clone <repository-url>
+cd Bot-Factory-Maker
+```
+
+2. **إعداد متغيرات البيئة**
+```bash
+cp .env.example .env
+# تعديل .env بمعلوماتك
+```
+
+3. **بناء وتشغيل باستخدام Docker**
+```bash
+docker-compose up -d
+```
+
+### إدارة البوتات في Docker
+
+النظام الآن يشغل البوتات المنشأة تلقائياً في حاويات Docker منفصلة لعزل أفضل وإدارة أسهل.
+
+#### الأوامر المتاحة:
+```bash
+# بناء صور جميع البوتات
+make docker-bots-build
+
+# تشغيل جميع البوتات
+make docker-bots-start
+
+# إيقاف جميع البوتات
+make docker-bots-stop
+
+# عرض الحاويات المشتغلة
+make docker-bots-list
+
+# تنظيف الحاويات المتوقفة
+make docker-bots-clean
+
+# عرض سجلات البوت
+make docker-bots-logs CONTAINER=<container_id>
+```
+
+#### إدارة يدوية للبوتات:
+```bash
+# استخدام سكريبت الإدارة
+python scripts/manage_bots.py build-all
+python scripts/manage_bots.py start-all
+python scripts/manage_bots.py stop-all
+python scripts/manage_bots.py list
+```
 
 4. **تشغيل البوت**
 ```bash

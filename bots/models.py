@@ -79,14 +79,14 @@ def get_bot_info(bot_username, max_retries=3):
         logger.error(f"Error in get_bot_info function: {str(e)}")
         return None
 
-def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
+def save_bot_info(bot_username, dev_id, container_id, config_data, max_retries=3):
     """
     حفظ معلومات البوت مع التحقق من المدخلات والتخزين المؤقت وإعادة المحاولة
     
     Args:
         bot_username: معرف البوت
         dev_id: معرف المطور
-        pid: معرف العملية
+        container_id: معرف الحاوية
         config_data: بيانات التكوين
         max_retries: عدد المحاولات الأقصى
         
@@ -112,7 +112,7 @@ def save_bot_info(bot_username, dev_id, pid, config_data, max_retries=3):
                 bot_data = {
                     "username": validated_username,
                     "dev_id": validated_dev_id,
-                    "pid": pid,
+                    "container_id": container_id,
                     "config": config_data,
                     "created_at": datetime.now(),
                     "status": "running"
@@ -288,7 +288,7 @@ def get_all_bots(max_retries=3):
 
 def get_running_bots(max_retries=3):
     """
-    الحصول على البوتات المشتغلة مع التخزين المؤقت وإعادة المحاولة
+    الحصول على البوتات المشتغلة مع التحقق من وجود الحاويات والتخزين المؤقت وإعادة المحاولة
     
     Args:
         max_retries: عدد المحاولات الأقصى
@@ -298,6 +298,7 @@ def get_running_bots(max_retries=3):
     """
     try:
         from utils import cache_manager
+        import subprocess
         
         # التحقق من التخزين المؤقت أولاً
         cache_key = "running_bots_list"
@@ -309,11 +310,40 @@ def get_running_bots(max_retries=3):
         for attempt in range(max_retries):
             try:
                 bots = list(bots_collection.find({"status": "running"}))
-                logger.info(f"Successfully retrieved {len(bots)} running bots")
+                logger.info(f"Retrieved {len(bots)} bots with running status")
+                
+                # التحقق من وجود الحاويات فعلياً
+                verified_running_bots = []
+                for bot in bots:
+                    container_id = bot.get("container_id")
+                    if container_id:
+                        try:
+                            # التحقق من أن الحاوية تعمل
+                            result = subprocess.run(
+                                ["docker", "ps", "--filter", f"id={container_id}", "--format", "{{.Status}}"],
+                                capture_output=True,
+                                text=True
+                            )
+                            if "Up" in result.stdout:
+                                verified_running_bots.append(bot)
+                            else:
+                                # الحاوية غير موجودة أو متوقفة، تحديث الحالة
+                                logger.warning(f"Container {container_id} for bot {bot.get('username')} is not running")
+                                update_bot_status(bot.get("username"), "stopped")
+                        except Exception as e:
+                            logger.warning(f"Failed to check container {container_id}: {str(e)}")
+                            # في حالة فشل التحقق، نفترض أن البوت متوقف
+                            update_bot_status(bot.get("username"), "stopped")
+                    else:
+                        # لا يوجد معرف حاوية، تحديث الحالة
+                        logger.warning(f"Bot {bot.get('username')} has no container_id")
+                        update_bot_status(bot.get("username"), "stopped")
+                
+                logger.info(f"Successfully verified {len(verified_running_bots)} running bots")
                 
                 # حفظ في التخزين المؤقت
-                cache_manager.set(cache_key, bots)
-                return bots
+                cache_manager.set(cache_key, verified_running_bots)
+                return verified_running_bots
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed to get running bots: {str(e)}")
                 if attempt == max_retries - 1:

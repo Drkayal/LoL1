@@ -69,12 +69,12 @@ async def forbroacasts_handler(client, msg):
             await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
             return
         
-        pid = start_bot_process(validated_username)
-        if pid:
+        container_id = start_bot_process(validated_username)
+        if container_id:
             if update_bot_status(validated_username, "running"):
                 bots_collection.update_one(
                     {"username": validated_username},
-                    {"$set": {"pid": pid}}
+                    {"$set": {"container_id": container_id}}
                 )
                 await msg.reply(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**", quote=True)
             else:

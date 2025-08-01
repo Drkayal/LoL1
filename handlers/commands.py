@@ -117,12 +117,12 @@ async def cmd_handler(client, msg):
                 already_running += 1
                 continue
                 
-            pid = start_bot_process(bot["username"])
-            if pid:
+            container_id = start_bot_process(bot["username"])
+            if container_id:
                 update_bot_status(bot["username"], "running")
                 bots_collection.update_one(
                     {"username": bot["username"]},
-                    {"$set": {"pid": pid}}
+                    {"$set": {"container_id": container_id}}
                 )
                 started_count += 1
             else:
@@ -442,7 +442,8 @@ async def show_running_bots_handler(client, message):
         
         bot_list = "**🟢 البوتات المشتغلة:**\n\n"
         for i, bot in enumerate(running_bots, 1):
-            bot_list += f"{i}. @{bot['username']}\n"
+            container_id = bot.get('container_id', 'غير محدد')
+            bot_list += f"{i}. @{bot['username']}\n   🐳 الحاوية: `{container_id[:12]}...`\n\n"
         
         await message.reply(bot_list)
     except Exception as e:
@@ -477,12 +478,12 @@ async def start_Allusers_handler(client, message):
                 already_running += 1
                 continue
                 
-            pid = start_bot_process(bot["username"])
-            if pid:
+            container_id = start_bot_process(bot["username"])
+            if container_id:
                 update_bot_status(bot["username"], "running")
                 bots_collection.update_one(
                     {"username": bot["username"]},
-                    {"$set": {"pid": pid}}
+                    {"$set": {"container_id": container_id}}
                 )
                 started_count += 1
             else:
@@ -522,9 +523,9 @@ async def stooop_Allusers_handler(client, message):
             if i % 3 == 0:
                 await status_msg.edit(f"**🔄 جاري الإيقاف... ({i}/{len(running_bots)})**")
             
-            pid = bot.get("pid")
-            if pid:
-                success = stop_bot_process(pid)
+            container_id = bot.get("container_id")
+            if container_id:
+                success = stop_bot_process(container_id)
                 if success:
                     update_bot_status(bot["username"], "stopped")
                     stopped_count += 1

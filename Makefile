@@ -100,3 +100,41 @@ dev-setup: install setup
 # Production setup
 prod-setup: install install-package
 	@echo "Production environment setup completed!"
+
+# Docker commands
+docker-build:
+	@echo "Building Docker image..."
+	docker build -t bot-factory .
+
+docker-run:
+	@echo "Starting Docker containers..."
+	docker-compose up -d
+
+docker-stop:
+	@echo "Stopping Docker containers..."
+	docker-compose down
+
+# Bot management in Docker
+docker-bots-build:
+	@echo "Building all bot Docker images..."
+	python scripts/manage_bots.py build-all
+
+docker-bots-start:
+	@echo "Starting all bots in Docker..."
+	python scripts/manage_bots.py start-all
+
+docker-bots-stop:
+	@echo "Stopping all bots in Docker..."
+	python scripts/manage_bots.py stop-all
+
+docker-bots-clean:
+	@echo "Cleaning Docker containers and images..."
+	python scripts/manage_bots.py clean
+
+docker-bots-list:
+	@echo "Listing running bot containers..."
+	python scripts/manage_bots.py list
+
+docker-bots-logs:
+	@echo "Showing bot logs..."
+	@if [ -n "$(CONTAINER)" ]; then python scripts/manage_bots.py logs $(CONTAINER); else echo "Usage: make docker-bots-logs CONTAINER=<container_id>"; fi
