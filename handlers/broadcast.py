@@ -58,26 +58,26 @@ async def forbroacasts_handler(client, msg):
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # التحقق من صحة معرف البوت
         is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
-            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
         bot_info = await get_bot_info(validated_username)
         if not bot_info:
-            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
         
         if bot_info.get("status") == "running":
-            await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
+            await safe_reply_text(msg, "**⚠️ هذا البوت يعمل بالفعل**", quote=True)
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await msg.reply(f"**🔄 جاري تشغيل البوت @{validated_username}...**", quote=True)
+        status_msg = await safe_reply_text(msg, f"**🔄 جاري تشغيل البوت @{validated_username}...**", quote=True)
         
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)
@@ -105,22 +105,22 @@ async def forbroacasts_handler(client, msg):
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # التحقق من صحة معرف البوت
         is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
-            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
         bot_info = await get_bot_info(validated_username)
         if not bot_info:
-            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await msg.reply(f"**🔄 جاري حذف البوت @{validated_username}...**", quote=True)
+        status_msg = await safe_reply_text(msg, f"**🔄 جاري حذف البوت @{validated_username}...**", quote=True)
         
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)
@@ -177,26 +177,26 @@ async def forbroacasts_handler(client, msg):
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # التحقق من صحة معرف البوت
         is_valid, validated_username = await validate_bot_username(text)
         if not is_valid:
-            await msg.reply(f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
+            await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
         bot_info = await get_bot_info(validated_username)
         if not bot_info:
-            await msg.reply("**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+            await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
         
         if bot_info.get("status") != "running":
-            await msg.reply("**⚠️ هذا البوت متوقف بالفعل**", quote=True)
+            await safe_reply_text(msg, "**⚠️ هذا البوت متوقف بالفعل**", quote=True)
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await msg.reply(f"**🔄 جاري إيقاف البوت @{validated_username}...**", quote=True)
+        status_msg = await safe_reply_text(msg, f"**🔄 جاري إيقاف البوت @{validated_username}...**", quote=True)
         
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)

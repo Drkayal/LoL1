@@ -75,26 +75,27 @@ async def cmd_handler(client, msg):
     elif msg.text == "❲ اذاعه ❳":
         await set_broadcast_status(uid, bot_id, "broadcast")
         await delete_broadcast_status(uid, bot_id, "fbroadcast", "pinbroadcast")
-        await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
+        await safe_reply_text(msg, "ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ اذاعه بالتوجيه ❳":
         await set_broadcast_status(uid, bot_id, "fbroadcast")
         await delete_broadcast_status(uid, bot_id, "broadcast", "pinbroadcast")
-        await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
+        await safe_reply_text(msg, "ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ اذاعه بالتثبيت ❳":
         await set_broadcast_status(uid, bot_id, "pinbroadcast")
         await delete_broadcast_status(uid, bot_id, "broadcast", "fbroadcast")
-        await msg.reply("ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
+        await safe_reply_text(msg, "ارسل الاذاعه :-\n نص + ملف + متحركه + ملصق + صوره ", quote=True)
 
     elif msg.text == "❲ تشغيل بوت ❳":
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # طلب معرف البوت من المستخدم
-        await msg.reply(
+        await safe_reply_text(
+            msg,
             "**🔧 تشغيل بوت محدد**\n\n"
             "**أرسل معرف البوت الذي تريد تشغيله:**\n"
             "• مثال: `AAAK2BOT`\n"
@@ -108,11 +109,12 @@ async def cmd_handler(client, msg):
     elif msg.text == "❲ حذف بوت ❳":
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # طلب معرف البوت من المستخدم
-        await msg.reply(
+        await safe_reply_text(
+            msg,
             "**🗑️ حذف بوت نهائياً**\n\n"
             "**أرسل معرف البوت الذي تريد حذفه:**\n"
             "• مثال: `AAAK2BOT`\n"
@@ -129,11 +131,12 @@ async def cmd_handler(client, msg):
     elif msg.text == "❲ ايقاف بوت ❳":
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await msg.reply("**❌ المصنع مغلق حالياً**", quote=True)
+            await safe_reply_text(msg, "**❌ المصنع مغلق حالياً**", quote=True)
             return
         
         # طلب معرف البوت من المستخدم
-        await msg.reply(
+        await safe_reply_text(
+            msg,
             "**⏹️ إيقاف بوت محدد**\n\n"
             "**أرسل معرف البوت الذي تريد إيقافه:**\n"
             "• مثال: `AAAK2BOT`\n"
@@ -146,16 +149,16 @@ async def cmd_handler(client, msg):
 
     elif msg.text == "❲ تشغيل البوتات ❳":
         if not await is_dev(uid):
-            await msg.reply("** ≭︰هذا الامر يخص المطور **", quote=True)
+            await safe_reply_text(msg, "** ≭︰هذا الامر يخص المطور **", quote=True)
             return
         
         all_bots = await get_all_bots()
         if not all_bots:
-            await msg.reply("** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
+            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مصنوعة **", quote=True)
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await msg.reply("**🔄 جاري تشغيل البوتات...**", quote=True)
+        status_msg = await safe_reply_text(msg, "**🔄 جاري تشغيل البوتات...**", quote=True)
         
         started_count = 0
         failed_count = 0
