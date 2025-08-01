@@ -2355,3 +2355,29 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 08:12:52,181 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
 2025-08-01 08:12:53,446 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
 2025-08-01 08:12:53,446 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:13:54,418 - factory_bot - INFO - User 985612253 already exists
+2025-08-01 08:13:54,682 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:55,946 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:57,210 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:57,210 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:13:57,653 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:57,917 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:58,917 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:13:59,180 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:00,183 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:00,183 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:14:00,446 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:00,709 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:00,709 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:14:00,983 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:01,303 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:01,710 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:02,247 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:02,567 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:02,975 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:02,975 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:14:03,511 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:03,511 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:14:03,830 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:14:03,830 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:14:04,093 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
