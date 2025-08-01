@@ -375,14 +375,15 @@ async def you_handler(client: Client, message):
         dev_info = await get_user_info(OWNER_ID[0])
         
         if dev_info:
-            await message.reply(
+            await safe_reply_text(
+                message,
                 f"**👨‍💻 مطور السورس:**\n\n"
                 f"**الاسم:** {dev_info.first_name}\n"
                 f"**المعرف:** @{dev_info.username}\n"
                 f"**الآيدي:** `{dev_info.id}`"
             )
         else:
-            await message.reply("**❌ لم يتم العثور على معلومات المطور**")
+            await safe_reply_text(message, "**❌ لم يتم العثور على معلومات المطور**")
     except Exception as e:
         logger.error(f"Error in you handler: {str(e)}")
 
@@ -391,11 +392,11 @@ async def add_dev_handler(client, message: Message):
     """معالج رفع مطور"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         if not message.reply_to_message:
-            await message.reply("**❌ يجب الرد على رسالة المستخدم**")
+            await safe_reply_text(message, "**❌ يجب الرد على رسالة المستخدم**")
             return
         
         user_id = message.reply_to_message.from_user.id
@@ -403,7 +404,7 @@ async def add_dev_handler(client, message: Message):
         # إضافة المطور (هذا يتطلب تنفيذ دالة إضافة المطور)
         # await add_dev(user_id)
         
-        await message.reply(f"**✅ تم رفع المستخدم {user_id} كمطور**")
+        await safe_reply_text(message, f"**✅ تم رفع المستخدم {user_id} كمطور**")
     except Exception as e:
         logger.error(f"Error in add_dev handler: {str(e)}")
 
@@ -412,11 +413,11 @@ async def remove_dev_handler(client, message: Message):
     """معالج تنزيل مطور"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         if not message.reply_to_message:
-            await message.reply("**❌ يجب الرد على رسالة المستخدم**")
+            await safe_reply_text(message, "**❌ يجب الرد على رسالة المستخدم**")
             return
         
         user_id = message.reply_to_message.from_user.id
@@ -424,7 +425,7 @@ async def remove_dev_handler(client, message: Message):
         # تنزيل المطور (هذا يتطلب تنفيذ دالة تنزيل المطور)
         # await remove_dev(user_id)
         
-        await message.reply(f"**✅ تم تنزيل المستخدم {user_id} من المطورين**")
+        await safe_reply_text(message, f"**✅ تم تنزيل المستخدم {user_id} من المطورين**")
     except Exception as e:
         logger.error(f"Error in remove_dev handler: {str(e)}")
 
@@ -433,11 +434,11 @@ async def list_devs_handler(client, message: Message):
     """معالج قائمة المطورين"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         dev_count = await get_dev_count()
-        await message.reply(f"**👥 عدد المطورين:** {dev_count}")
+        await safe_reply_text(message, f"**👥 عدد المطورين:** {dev_count}")
     except Exception as e:
         logger.error(f"Error in list_devs handler: {str(e)}")
 
@@ -475,12 +476,12 @@ async def botat_handler(client, message):
     """معالج قائمة البوتات المصنوعة"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         all_bots = await get_all_bots()
         if not all_bots:
-            await message.reply("**❌ لا توجد بوتات مصنوعة**")
+            await safe_reply_text(message, "**❌ لا توجد بوتات مصنوعة**")
             return
         
         bot_list = "**🤖 قائمة البوتات المصنوعة:**\n\n"
@@ -488,7 +489,7 @@ async def botat_handler(client, message):
             status = "🟢" if bot.get("status") == "running" else "🔴"
             bot_list += f"{i}. {status} @{bot['username']}\n"
         
-        await message.reply(bot_list)
+        await safe_reply_text(message, bot_list)
     except Exception as e:
         logger.error(f"Error in botat handler: {str(e)}")
 
@@ -497,13 +498,13 @@ async def kinhsker_handler(client: Client, message):
     """معالج الشاشات المفتوحة"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         # هذا يتطلب تنفيذ منطق عرض الشاشات المفتوحة
         # سيتم إضافة المنطق هنا
         
-        await message.reply("**🖥️ جاري جلب الشاشات المفتوحة...**")
+        await safe_reply_text(message, "**🖥️ جاري جلب الشاشات المفتوحة...**")
     except Exception as e:
         logger.error(f"Error in kinhsker handler: {str(e)}")
 
@@ -512,13 +513,13 @@ async def update_factory_handler(client: Client, message):
     """معالج تحديث الصانع"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         # هذا يتطلب تنفيذ منطق تحديث الصانع
         # سيتم إضافة المنطق هنا
         
-        await message.reply("**🔄 جاري تحديث الصانع...**")
+        await safe_reply_text(message, "**🔄 جاري تحديث الصانع...**")
     except Exception as e:
         logger.error(f"Error in update_factory handler: {str(e)}")
 
@@ -529,17 +530,17 @@ async def show_running_bots_handler(client, message):
     """معالج عرض البوتات المشتغلة"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await message.reply("**❌ المصنع مغلق حالياً**")
+            await safe_reply_text(message, "**❌ المصنع مغلق حالياً**")
             return
         
         running_bots = await get_running_bots()
         if not running_bots:
-            await message.reply("**❌ لا توجد بوتات مشتغلة**")
+            await safe_reply_text(message, "**❌ لا توجد بوتات مشتغلة**")
             return
         
         bot_list = f"**🟢 البوتات المشتغلة ({len(running_bots)} بوت):**\n\n"
@@ -555,7 +556,7 @@ async def show_running_bots_handler(client, message):
             else:
                 bot_list += f"{i}. @{bot['username']}\n   ⚠️ معرف غير محدد\n   👤 المطور: `{dev_id}`\n\n"
         
-        await message.reply(bot_list)
+        await safe_reply_text(message, bot_list)
     except Exception as e:
         logger.error(f"Error in show_running_bots handler: {str(e)}")
 
@@ -564,27 +565,27 @@ async def start_Allusers_handler(client, message):
     """معالج تشغيل جميع البوتات"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await message.reply("**❌ المصنع مغلق حالياً**")
+            await safe_reply_text(message, "**❌ المصنع مغلق حالياً**")
             return
         
         all_bots = await get_all_bots()
         if not all_bots:
-            await message.reply("**❌ لا توجد بوتات مصنوعة**")
+            await safe_reply_text(message, "**❌ لا توجد بوتات مصنوعة**")
             return
         
         # التحقق من وجود بوتات قابلة للتشغيل
         startable_bots = [bot for bot in all_bots if bot.get("status") != "running"]
         if not startable_bots:
-            await message.reply("**✅ جميع البوتات تعمل بالفعل**")
+            await safe_reply_text(message, "**✅ جميع البوتات تعمل بالفعل**")
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await message.reply(f"**🔄 جاري تشغيل {len(startable_bots)} بوت...**")
+        status_msg = await safe_reply_text(message, f"**🔄 جاري تشغيل {len(startable_bots)} بوت...**")
         
         started_count = 0
         failed_count = 0
@@ -630,21 +631,21 @@ async def stooop_Allusers_handler(client, message):
     """معالج إيقاف جميع البوتات"""
     try:
         if not await is_dev(message.from_user.id):
-            await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            await safe_reply_text(message, "**❌ هذا الأمر يخص المطور فقط**")
             return
         
         # التحقق من حالة المصنع
         if await get_factory_state():
-            await message.reply("**❌ المصنع مغلق حالياً**")
+            await safe_reply_text(message, "**❌ المصنع مغلق حالياً**")
             return
         
         running_bots = await get_running_bots()
         if not running_bots:
-            await message.reply("**❌ لا توجد بوتات مشتغلة**")
+            await safe_reply_text(message, "**❌ لا توجد بوتات مشتغلة**")
             return
         
         # إرسال رسالة بداية العملية
-        status_msg = await message.reply("**🔄 جاري إيقاف جميع البوتات...**")
+        status_msg = await safe_reply_text(message, "**🔄 جاري إيقاف جميع البوتات...**")
         
         stopped_count = 0
         failed_count = 0

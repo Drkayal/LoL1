@@ -453,7 +453,7 @@ async def forbroacasts_handler(client, msg):
     # معالجة البث بالتوجيه
     elif await get_broadcast_status(uid, bot_id, "fbroadcast"):
         await delete_broadcast_status(uid, bot_id, "fbroadcast")
-        message = await msg.reply("» جاري الإذاعة ..", quote=True)
+        message = await safe_reply_text(msg, "» جاري الإذاعة ..", quote=True)
         
         # الحصول على قائمة المستخدمين مع التحقق
         from users import get_users
