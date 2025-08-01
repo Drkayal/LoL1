@@ -6,42 +6,52 @@
   "env": {
     "API_ID": {
       "description": "Telegram API ID من my.telegram.org",
+      "value": "17490746",
       "required": true
     },
     "API_HASH": {
       "description": "Telegram API Hash من my.telegram.org",
+      "value": "ed923c3d59d699018e79254c6f8b6671",
       "required": true
     },
     "BOT_TOKEN": {
       "description": "توكن البوت من @BotFather",
+      "value": "8020231543:AAHFLDS8a77eqGA045YZFV8uQjvr34IvWrM",
       "required": true
     },
     "MONGO_DB_URI": {
       "description": "رابط قاعدة بيانات MongoDB",
+      "value": "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/bot_factory?retryWrites=true&w=majority&appName=Cluster0",
       "required": true
     },
     "OWNER_ID": {
       "description": "معرف المطور (رقم)",
+      "value": "985612253",
       "required": true
     },
     "CHANNEL": {
       "description": "رابط قناة السورس",
+      "value": "https://t.me/K55DD",
       "required": false
     },
     "GROUP": {
       "description": "رابط مجموعة السورس",
+      "value": "https://t.me/YMMYN",
       "required": false
     },
     "PHOTO": {
       "description": "رابط صورة السورس",
+      "value": "https://t.me/MusicxXxYousef/90",
       "required": false
     },
     "VIDEO": {
       "description": "رابط فيديو السورس",
+      "value": "https://t.me/MusicxXxYousef/91",
       "required": false
     },
     "LOGS": {
       "description": "معرف قناة السجلات",
+      "value": "xjjfjfhh",
       "required": false
     }
   },

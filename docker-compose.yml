@@ -9,16 +9,16 @@ services:
     container_name: bot-factory
     restart: unless-stopped
     environment:
-      - API_ID=${API_ID}
-      - API_HASH=${API_HASH}
-      - BOT_TOKEN=${BOT_TOKEN}
-      - MONGO_DB_URI=${MONGO_DB_URI}
-      - OWNER_ID=${OWNER_ID}
-      - CHANNEL=${CHANNEL}
-      - GROUP=${GROUP}
-      - PHOTO=${PHOTO}
-      - VIDEO=${VIDEO}
-      - LOGS=${LOGS}
+      - API_ID=17490746
+      - API_HASH=ed923c3d59d699018e79254c6f8b6671
+      - BOT_TOKEN=8020231543:AAHFLDS8a77eqGA045YZFV8uQjvr34IvWrM
+      - MONGO_DB_URI=mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/bot_factory?retryWrites=true&w=majority&appName=Cluster0
+      - OWNER_ID=985612253
+      - CHANNEL=https://t.me/K55DD
+      - GROUP=https://t.me/YMMYN
+      - PHOTO=https://t.me/MusicxXxYousef/90
+      - VIDEO=https://t.me/MusicxXxYousef/91
+      - LOGS=xjjfjfhh
     volumes:
       - ./Maked:/app/Maked
       - ./logs:/app/logs
