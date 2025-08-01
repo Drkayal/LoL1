@@ -2239,3 +2239,17 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 01:34:24,649 - factory_bot - INFO - Bot Factory is ready and running!
 2025-08-01 01:34:36,209 - factory_bot - ERROR - Failed to get bot info: Task <Task pending name='Task-50' coro=<MessageHandler.resolve_future_or_callback() running at /workspace/bot_env/lib/python3.13/site-packages/pyromod/listen/message_handler.py:98> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181]> got Future <Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384]> attached to a different loop
 2025-08-01 01:34:36,213 - factory_bot - ERROR - Failed to get bot info in broadcast handler: Task <Task pending name='Task-52' coro=<MessageHandler.resolve_future_or_callback() running at /workspace/bot_env/lib/python3.13/site-packages/pyromod/listen/message_handler.py:98> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181]> got Future <Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384]> attached to a different loop
+2025-08-01 01:38:44,062 - factory_bot - INFO - Bot stopped successfully
+2025-08-01 01:38:44,062 - factory_bot - INFO - Bot Factory shutdown completed
+2025-08-01 01:38:44,268 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:38:44,269 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:38:44,269 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:38:44,269 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:38:44,269 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:38:44,269 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 01:38:44,269 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:38:44,269 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:38:44,269 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:38:44,269 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:38:44,269 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:38:44,269 - factory_bot - INFO - Cache cleared successfully

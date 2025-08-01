@@ -4,62 +4,48 @@
 version: '3.8'
 
 services:
-  # MongoDB Database
-  mongodb:
-    image: mongo:6.0
-    container_name: bot_factory_mongodb
+  bot-factory:
+    build: .
+    container_name: bot-factory
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: bot_factory
+      - API_ID=${API_ID}
+      - API_HASH=${API_HASH}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MONGO_DB_URI=${MONGO_DB_URI}
+      - OWNER_ID=${OWNER_ID}
+      - CHANNEL=${CHANNEL}
+      - GROUP=${GROUP}
+      - PHOTO=${PHOTO}
+      - VIDEO=${VIDEO}
+      - LOGS=${LOGS}
+    volumes:
+      - ./Maked:/app/Maked
+      - ./logs:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - bot-network
+
+  mongodb:
+    image: mongo:6.0
+    container_name: bot-factory-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=bot_factory
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - bot_factory_network
-
-  # Bot Factory Application
-  bot-factory:
-    build: .
-    container_name: bot_factory_app
-    restart: unless-stopped
-    depends_on:
-      - mongodb
-    environment:
-      - MONGODB_URL=mongodb://admin:password123@mongodb:27017/bot_factory?authSource=admin
-      - PYTHONPATH=/app
-    volumes:
-      - ./logs:/app/logs
-      - ./temp:/app/temp
-      - ./cache:/app/cache
-      - ./Maked:/app/Maked
-    networks:
-      - bot_factory_network
-    # Uncomment the following lines if you want to expose the bot to the host
-    # ports:
-    #   - "8000:8000"
-
-  # Redis Cache (Optional - for future use)
-  redis:
-    image: redis:7-alpine
-    container_name: bot_factory_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - bot_factory_network
+      - bot-network
 
 volumes:
   mongodb_data:
-    driver: local
-  redis_data:
-    driver: local
 
 networks:
-  bot_factory_network:
+  bot-network:
     driver: bridge

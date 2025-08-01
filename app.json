@@ -1,0 +1,64 @@
+{
+  "name": "Bot Factory Maker",
+  "description": "مصنع البوتات - نظام متكامل لإنشاء وإدارة بوتات Telegram",
+  "repository": "https://github.com/yourusername/bot-factory",
+  "keywords": ["python", "telegram", "bot", "factory", "pyrogram"],
+  "env": {
+    "API_ID": {
+      "description": "Telegram API ID من my.telegram.org",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Telegram API Hash من my.telegram.org",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "توكن البوت من @BotFather",
+      "required": true
+    },
+    "MONGO_DB_URI": {
+      "description": "رابط قاعدة بيانات MongoDB",
+      "required": true
+    },
+    "OWNER_ID": {
+      "description": "معرف المطور (رقم)",
+      "required": true
+    },
+    "CHANNEL": {
+      "description": "رابط قناة السورس",
+      "required": false
+    },
+    "GROUP": {
+      "description": "رابط مجموعة السورس",
+      "required": false
+    },
+    "PHOTO": {
+      "description": "رابط صورة السورس",
+      "required": false
+    },
+    "VIDEO": {
+      "description": "رابط فيديو السورس",
+      "required": false
+    },
+    "LOGS": {
+      "description": "معرف قناة السجلات",
+      "required": false
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox"
+    }
+  ]
+}

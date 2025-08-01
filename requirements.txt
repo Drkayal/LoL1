@@ -4,6 +4,7 @@
 # Telegram API
 pyrogram>=2.0.0
 pyromod>=2.0.0
+TgCrypto>=1.2.0
 
 # Database
 pymongo>=4.0.0
@@ -32,3 +33,6 @@ subprocess
 shutil
 os
 sys
+
+# Additional dependencies for deployment
+gunicorn>=20.1.0
