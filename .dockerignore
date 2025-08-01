@@ -80,3 +80,8 @@ render.yaml
 app.json
 Procfile
 runtime.txt
+
+# Bot files
+Maked/
+*.session
+*.session-journal
