@@ -81,14 +81,28 @@ async def forbroacasts_handler(client, msg):
             await safe_reply_text(msg, f"**❌ معرف البوت غير صحيح: {text}**", quote=True)
             return
         
-        bot_info = await get_bot_info(validated_username)
-        if not bot_info:
-            await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
-            return
-        
-        if bot_info.get("status") == "running":
-            await safe_reply_text(msg, "**⚠️ هذا البوت يعمل بالفعل**", quote=True)
-            return
+            bot_info = await get_bot_info(validated_username)
+    if not bot_info:
+        await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
+        return
+    
+    if bot_info.get("status") == "running":
+        await safe_reply_text(msg, "**⚠️ هذا البوت يعمل بالفعل**", quote=True)
+        return
+    
+    # التحقق من وجود مجلد البوت
+    import os
+    bot_path = os.path.join("Maked", validated_username)
+    if not os.path.exists(bot_path):
+        await safe_reply_text(
+            msg, 
+            f"**❌ مجلد البوت @{validated_username} غير موجود**\n\n"
+            "**📝 الحل:**\n"
+            "• تأكد من أن البوت تم صنعه بشكل صحيح\n"
+            "• جرب إعادة صنع البوت باستخدام زر '❲ صنع بوت ❳'", 
+            quote=True
+        )
+        return
         
         # إرسال رسالة بداية العملية
         status_msg = await safe_reply_text(msg, f"**🔄 جاري تشغيل البوت @{validated_username}...**", quote=True)
@@ -96,21 +110,56 @@ async def forbroacasts_handler(client, msg):
         # تأخير قصير قبل بدء العملية
         await asyncio.sleep(0.5)
         
-        process_id = await start_bot_process(validated_username)
-        if process_id:
-            if await update_bot_status(validated_username, "running"):
-                # تحديد نوع المعرف وتحديث الحقل المناسب
-                await update_bot_process_id(validated_username, process_id)
-                if isinstance(process_id, str):
-                    # Container ID
-                    await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🐳 **في حاوية Docker:** `{process_id[:12]}...`")
-                elif isinstance(process_id, int):
-                    # PID
-                    await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🔧 **معرف العملية:** `PID {process_id}`")
+        try:
+            process_id = await start_bot_process(validated_username)
+            if process_id:
+                if await update_bot_status(validated_username, "running"):
+                    # تحديد نوع المعرف وتحديث الحقل المناسب
+                    await update_bot_process_id(validated_username, process_id)
+                    if isinstance(process_id, str):
+                        # Container ID
+                        await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🐳 **في حاوية Docker:** `{process_id[:12]}...`")
+                    elif isinstance(process_id, int):
+                        # PID
+                        await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🔧 **معرف العملية:** `PID {process_id}`")
+                else:
+                    await status_msg.edit(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**")
             else:
-                await status_msg.edit(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**")
-        else:
-            await status_msg.edit(f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 الأسباب المحتملة:**\n• البوت غير موجود في مجلد Maked\n• خطأ في ملفات البوت\n• مشكلة في التكوين")
+                # فحص الأسباب المحتملة للفشل
+                import os
+                bot_path = os.path.join("Maked", validated_username)
+                
+                error_message = f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 الأسباب المحتملة:**\n"
+                
+                if not os.path.exists(bot_path):
+                    error_message += "• ❌ البوت غير موجود في مجلد Maked\n"
+                else:
+                    error_message += "• ✅ البوت موجود في مجلد Maked\n"
+                    
+                    # فحص ملف config.py
+                    config_file = os.path.join(bot_path, "config.py")
+                    if not os.path.exists(config_file):
+                        error_message += "• ❌ ملف config.py غير موجود\n"
+                    else:
+                        error_message += "• ✅ ملف config.py موجود\n"
+                    
+                    # فحص ملف OWNER.py
+                    owner_file = os.path.join(bot_path, "OWNER.py")
+                    if not os.path.exists(owner_file):
+                        error_message += "• ❌ ملف OWNER.py غير موجود\n"
+                    else:
+                        error_message += "• ✅ ملف OWNER.py موجود\n"
+                
+                error_message += "\n**💡 الحلول:**\n"
+                error_message += "• تأكد من صحة ملفات البوت\n"
+                error_message += "• تحقق من صحة التوكن في config.py\n"
+                error_message += "• تأكد من صحة معرف المطور في OWNER.py\n"
+                error_message += "• جرب إعادة تشغيل البوت لاحقاً"
+                
+                await status_msg.edit(error_message)
+        except Exception as e:
+            logger.error(f"Error starting bot {validated_username}: {str(e)}")
+            await status_msg.edit(f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
         return
 
     # معالجة حذف بوت محدد - مرحلة التأكيد
