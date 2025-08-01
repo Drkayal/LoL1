@@ -113,7 +113,7 @@ async def forbroacasts_handler(client, msg):
             await status_msg.edit(f"**❌ فشل في تشغيل البوت @{validated_username}**\n\n**🔍 الأسباب المحتملة:**\n• البوت غير موجود في مجلد Maked\n• خطأ في ملفات البوت\n• مشكلة في التكوين")
         return
 
-    # معالجة حذف بوت محدد
+    # معالجة حذف بوت محدد - مرحلة التأكيد
     if await get_broadcast_status(uid, bot_id, "delete_bot"):
         await delete_broadcast_status(uid, bot_id, "delete_bot")
         
@@ -132,6 +132,54 @@ async def forbroacasts_handler(client, msg):
         if not bot_info:
             await safe_reply_text(msg, "**❌ هذا البوت غير موجود في قاعدة البيانات**", quote=True)
             return
+        
+        # حفظ معلومات البوت للتأكيد
+        from utils.cache import set_bot_creation_data
+        delete_data = {
+            "bot_username": validated_username,
+            "bot_info": bot_info,
+            "stage": "delete_confirmation"
+        }
+        set_bot_creation_data(uid, delete_data)
+        
+        # طلب التأكيد
+        status_text = f"**🗑️ تأكيد حذف البوت @{validated_username}**\n\n"
+        status_text += f"**📋 معلومات البوت:**\n"
+        status_text += f"• **الاسم:** {bot_info.get('bot_name', 'غير محدد')}\n"
+        status_text += f"• **المطور:** {bot_info.get('owner_name', 'غير محدد')}\n"
+        status_text += f"• **الحالة:** {bot_info.get('status', 'غير محدد')}\n"
+        status_text += f"• **تاريخ الإنشاء:** {bot_info.get('created_at', 'غير محدد')}\n\n"
+        status_text += f"**⚠️ تحذير:** سيتم حذف البوت نهائياً من:\n"
+        status_text += f"• قاعدة البيانات\n"
+        status_text += f"• مجلد Maked\n"
+        status_text += f"• إيقاف العملية إذا كانت مشتغلة\n\n"
+        status_text += f"**📝 أرسل 'نعم' لتأكيد الحذف أو 'لا' للإلغاء**"
+        
+        await safe_reply_text(msg, status_text, quote=True)
+        await set_broadcast_status(uid, bot_id, "delete_bot_confirm")
+        return
+
+    # معالجة تأكيد حذف البوت
+    if await get_broadcast_status(uid, bot_id, "delete_bot_confirm"):
+        await delete_broadcast_status(uid, bot_id, "delete_bot_confirm")
+        
+        # التحقق من التأكيد
+        if text.lower() not in ["نعم", "yes", "y", "1"]:
+            await safe_reply_text(msg, "**❌ تم إلغاء عملية الحذف**", quote=True)
+            # حذف البيانات المؤقتة
+            from utils.cache import delete_bot_creation_data
+            delete_bot_creation_data(uid)
+            return
+        
+        # الحصول على بيانات البوت
+        from utils.cache import get_bot_creation_data, delete_bot_creation_data
+        delete_data = get_bot_creation_data(uid)
+        if not delete_data or delete_data.get("stage") != "delete_confirmation":
+            await safe_reply_text(msg, "**❌ انتهت صلاحية الجلسة**\n\n**📝 ابدأ العملية من جديد**", quote=True)
+            return
+        
+        validated_username = delete_data["bot_username"]
+        bot_info = delete_data["bot_info"]
         
         # إرسال رسالة بداية العملية
         status_msg = await safe_reply_text(msg, f"**🔄 جاري حذف البوت @{validated_username}...**", quote=True)
@@ -183,6 +231,9 @@ async def forbroacasts_handler(client, msg):
         except Exception as e:
             logger.error(f"Error deleting bot {validated_username}: {str(e)}")
             await status_msg.edit(f"**❌ فشل في حذف البوت @{validated_username}**\n\n**🔍 السبب:** {str(e)}")
+        finally:
+            # حذف البيانات المؤقتة
+            delete_bot_creation_data(uid)
         return
 
     # معالجة إيقاف بوت محدد
