@@ -24,6 +24,11 @@ def set_dependencies(owner_id, devs_coll, users_coll):
     """
     global users, devs, OWNER_ID
     
+    logger.info("set_dependencies called with:")
+    logger.info(f"owner_id: {owner_id}")
+    logger.info(f"devs_coll: {devs_coll}")
+    logger.info(f"users_coll: {users_coll}")
+    
     # التحقق من صحة المدخلات
     if devs_coll is None:
         raise ValueError("devs_coll cannot be None")
@@ -99,6 +104,12 @@ async def is_dev(user_id, max_retries=3):
         logger.info(f"devs variable at start: {devs}")
         logger.info(f"users variable at start: {users}")
         logger.info(f"OWNER_ID variable at start: {OWNER_ID}")
+        
+        # فحص إضافي للتأكد من التهيئة
+        if devs is None:
+            logger.error("CRITICAL ERROR: devs is None in is_dev function")
+            logger.error("This means set_dependencies was not called or failed")
+            return False
         # التحقق من التخزين المؤقت أولاً
         cache_key = f"is_dev_{user_id}"
         cached_result = cache_manager.get(cache_key)
