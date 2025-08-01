@@ -206,7 +206,7 @@ async def cmd_handler(client, msg):
         result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
         
         if started_count == 0 and already_running == 0:
-            result_text = "**❌ لم يتم تشغيل أي بوت**"
+            result_text = "**❌ لم يتم تشغيل أي بوت**\n\n**💡 الحلول:**\n• تأكد من وجود البوتات في مجلد Maked\n• تحقق من صحة ملفات البوتات"
         elif started_count == 0:
             result_text = f"**⚠️ كل البوتات تعمل بالفعل ({already_running} بوت)**"
         
@@ -269,12 +269,20 @@ async def cmd_handler(client, msg):
             if bot.get("status") != "running":
                 already_stopped += 1
                 continue
+            
+            try:
+                success = await stop_bot_process(bot["username"])
+                if success:
+                    await update_bot_status(bot["username"], "stopped")
+                    stopped_count += 1
+                else:
+                    failed_count += 1
                 
-            success = await stop_bot_process(bot["username"])
-            if success:
-                await update_bot_status(bot["username"], "stopped")
-                stopped_count += 1
-            else:
+                # تأخير قصير بين إيقاف البوتات
+                await asyncio.sleep(0.3)
+                
+            except Exception as e:
+                logger.error(f"Error stopping bot {bot['username']}: {str(e)}")
                 failed_count += 1
 
         # رسالة النتيجة النهائية
@@ -284,7 +292,7 @@ async def cmd_handler(client, msg):
         result_text += f"❌ **فشل الإيقاف:** {failed_count} بوت\n"
         
         if stopped_count == 0 and already_stopped == 0:
-            result_text = "**❌ لم يتم إيقاف أي بوت**"
+            result_text = "**❌ لم يتم إيقاف أي بوت**\n\n**💡 الحلول:**\n• تأكد من وجود بوتات مشتغلة\n• تحقق من صحة عمليات البوتات"
         elif stopped_count == 0:
             result_text = f"**⚠️ كل البوتات متوقفة بالفعل ({already_stopped} بوت)**"
         
@@ -293,13 +301,18 @@ async def cmd_handler(client, msg):
     elif msg.text == "❲ البوتات المشتغلة ❳":
         running_bots = await get_running_bots()
         if not running_bots:
-            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مشتغلة **", quote=True)
+            await safe_reply_text(msg, "** ≭︰لا يوجد بوتات مشتغلة **\n\n**💡 يمكنك تشغيل البوتات باستخدام زر '❲ تشغيل البوتات ❳'**", quote=True)
             return
         
-        text = "**🤖 البوتات المشتغلة:**\n\n"
+        text = f"**🤖 البوتات المشتغلة ({len(running_bots)} بوت):**\n\n"
         for i, bot in enumerate(running_bots, 1):
-            text += f"**{i}.** @{bot['username']}\n"
+            # إضافة معلومات إضافية إذا كانت متاحة
+            status_info = ""
+            if bot.get("created_at"):
+                status_info = f" • تم إنشاؤه: {bot['created_at']}"
+            text += f"**{i}.** 🟢 @{bot['username']}{status_info}\n"
         
+        text += f"\n**📊 إجمالي البوتات المشتغلة:** {len(running_bots)}"
         await safe_reply_text(msg, text, quote=True)
 
     elif msg.text == "❲ البوتات المصنوعه ❳":
