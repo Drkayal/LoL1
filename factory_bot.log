@@ -2173,3 +2173,35 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 01:27:43,438 - factory_bot - INFO - Bot Factory is ready and running!
 2025-08-01 01:30:43,028 - factory_bot - ERROR - Failed to get bot info: Task <Task pending name='Task-84' coro=<MessageHandler.resolve_future_or_callback() running at /workspace/bot_env/lib/python3.13/site-packages/pyromod/listen/message_handler.py:98> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181]> got Future <Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384]> attached to a different loop
 2025-08-01 01:30:43,032 - factory_bot - ERROR - Failed to get bot info in broadcast handler: Task <Task pending name='Task-86' coro=<MessageHandler.resolve_future_or_callback() running at /workspace/bot_env/lib/python3.13/site-packages/pyromod/listen/message_handler.py:98> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181]> got Future <Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384]> attached to a different loop
+2025-08-01 01:31:53,006 - factory_bot - INFO - Bot stopped successfully
+2025-08-01 01:31:53,006 - factory_bot - INFO - Bot Factory shutdown completed
+2025-08-01 01:31:53,275 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:31:53,275 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:31:53,275 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:31:53,275 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:31:53,275 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:31:53,275 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 01:31:53,276 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 01:31:53,276 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 01:31:53,276 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 01:31:53,276 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 01:31:53,276 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 01:31:53,276 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 01:32:13,825 - factory_bot - INFO - Bot Factory initialized successfully
+2025-08-01 01:32:13,825 - factory_bot - INFO - Starting Bot Factory...
+2025-08-01 01:32:15,894 - factory_bot - INFO - Synchronous database connection established successfully
+2025-08-01 01:32:15,895 - factory_bot - INFO - Asynchronous database connection established successfully
+2025-08-01 01:32:16,099 - factory_bot - INFO - Database setup completed successfully
+2025-08-01 01:32:16,099 - factory_bot - INFO - Dependencies setup completed successfully
+2025-08-01 01:32:16,100 - factory_bot - INFO - Bot client created successfully
+2025-08-01 01:32:21,142 - factory_bot - INFO - ✅ Bot started successfully: صيد انستا8 (@AAAK8BOT)
+2025-08-01 01:32:21,142 - factory_bot - INFO - 🆔 Bot ID: 8020231543
+2025-08-01 01:32:21,142 - factory_bot - INFO - Initializing factory...
+2025-08-01 01:32:21,347 - factory_bot - INFO - Factory state retrieved: True
+2025-08-01 01:32:21,347 - factory_bot - INFO - Factory state initialized: True
+2025-08-01 01:32:21,552 - factory_bot - INFO - Retrieved 0 bots with running status
+2025-08-01 01:32:21,552 - factory_bot - INFO - Successfully verified 0 running bots
+2025-08-01 01:32:21,552 - factory_bot - INFO - Found 0 bots to restore
+2025-08-01 01:32:21,552 - factory_bot - INFO - Factory initialization completed. Restored: 0, Failed: 0
+2025-08-01 01:32:21,552 - factory_bot - INFO - Factory initialization completed
+2025-08-01 01:32:21,552 - factory_bot - INFO - Bot Factory is ready and running!
