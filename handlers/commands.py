@@ -442,8 +442,15 @@ async def show_running_bots_handler(client, message):
         
         bot_list = "**🟢 البوتات المشتغلة:**\n\n"
         for i, bot in enumerate(running_bots, 1):
-            container_id = bot.get('container_id', 'غير محدد')
-            bot_list += f"{i}. @{bot['username']}\n   🐳 الحاوية: `{container_id[:12]}...`\n\n"
+            container_id = bot.get('container_id')
+            pid = bot.get('pid')
+            
+            if container_id:
+                bot_list += f"{i}. @{bot['username']}\n   🐳 الحاوية: `{container_id[:12]}...`\n\n"
+            elif pid:
+                bot_list += f"{i}. @{bot['username']}\n   🔧 العملية: `PID {pid}`\n\n"
+            else:
+                bot_list += f"{i}. @{bot['username']}\n   ⚠️ معرف غير محدد\n\n"
         
         await message.reply(bot_list)
     except Exception as e:
@@ -524,8 +531,17 @@ async def stooop_Allusers_handler(client, message):
                 await status_msg.edit(f"**🔄 جاري الإيقاف... ({i}/{len(running_bots)})**")
             
             container_id = bot.get("container_id")
+            pid = bot.get("pid")
+            
             if container_id:
                 success = stop_bot_process(container_id)
+                if success:
+                    update_bot_status(bot["username"], "stopped")
+                    stopped_count += 1
+                else:
+                    failed_count += 1
+            elif pid:
+                success = stop_bot_process(pid)
                 if success:
                     update_bot_status(bot["username"], "stopped")
                     stopped_count += 1

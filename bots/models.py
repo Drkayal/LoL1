@@ -312,13 +312,15 @@ def get_running_bots(max_retries=3):
                 bots = list(bots_collection.find({"status": "running"}))
                 logger.info(f"Retrieved {len(bots)} bots with running status")
                 
-                # التحقق من وجود الحاويات فعلياً
+                # التحقق من وجود الحاويات أو العمليات فعلياً
                 verified_running_bots = []
                 for bot in bots:
                     container_id = bot.get("container_id")
+                    pid = bot.get("pid")
+                    
                     if container_id:
+                        # التحقق من حاوية Docker
                         try:
-                            # التحقق من أن الحاوية تعمل
                             result = subprocess.run(
                                 ["docker", "ps", "--filter", f"id={container_id}", "--format", "{{.Status}}"],
                                 capture_output=True,
@@ -334,9 +336,26 @@ def get_running_bots(max_retries=3):
                             logger.warning(f"Failed to check container {container_id}: {str(e)}")
                             # في حالة فشل التحقق، نفترض أن البوت متوقف
                             update_bot_status(bot.get("username"), "stopped")
+                    elif pid:
+                        # التحقق من العملية المباشرة
+                        try:
+                            import psutil
+                            process = psutil.Process(pid)
+                            if process.is_running():
+                                verified_running_bots.append(bot)
+                            else:
+                                # العملية غير موجودة، تحديث الحالة
+                                logger.warning(f"Process {pid} for bot {bot.get('username')} is not running")
+                                update_bot_status(bot.get("username"), "stopped")
+                        except psutil.NoSuchProcess:
+                            logger.warning(f"Process {pid} for bot {bot.get('username')} not found")
+                            update_bot_status(bot.get("username"), "stopped")
+                        except Exception as e:
+                            logger.warning(f"Failed to check process {pid}: {str(e)}")
+                            update_bot_status(bot.get("username"), "stopped")
                     else:
-                        # لا يوجد معرف حاوية، تحديث الحالة
-                        logger.warning(f"Bot {bot.get('username')} has no container_id")
+                        # لا يوجد معرف حاوية أو عملية، تحديث الحالة
+                        logger.warning(f"Bot {bot.get('username')} has no container_id or pid")
                         update_bot_status(bot.get("username"), "stopped")
                 
                 logger.info(f"Successfully verified {len(verified_running_bots)} running bots")
