@@ -69,13 +69,22 @@ async def forbroacasts_handler(client, msg):
             await msg.reply("**⚠️ هذا البوت يعمل بالفعل**", quote=True)
             return
         
-        container_id = start_bot_process(validated_username)
-        if container_id:
+        process_id = start_bot_process(validated_username)
+        if process_id:
             if update_bot_status(validated_username, "running"):
-                bots_collection.update_one(
-                    {"username": validated_username},
-                    {"$set": {"container_id": container_id}}
-                )
+                # تحديد نوع المعرف وتحديث الحقل المناسب
+                if isinstance(process_id, str):
+                    # Container ID
+                    bots_collection.update_one(
+                        {"username": validated_username},
+                        {"$set": {"container_id": process_id}}
+                    )
+                elif isinstance(process_id, int):
+                    # PID
+                    bots_collection.update_one(
+                        {"username": validated_username},
+                        {"$set": {"pid": process_id}}
+                    )
                 await msg.reply(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**", quote=True)
             else:
                 await msg.reply(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**", quote=True)

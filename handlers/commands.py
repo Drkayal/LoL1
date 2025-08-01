@@ -435,22 +435,28 @@ async def show_running_bots_handler(client, message):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await message.reply("**❌ المصنع مغلق حالياً**")
+            return
+        
         running_bots = get_running_bots()
         if not running_bots:
             await message.reply("**❌ لا توجد بوتات مشتغلة**")
             return
         
-        bot_list = "**🟢 البوتات المشتغلة:**\n\n"
+        bot_list = f"**🟢 البوتات المشتغلة ({len(running_bots)} بوت):**\n\n"
         for i, bot in enumerate(running_bots, 1):
             container_id = bot.get('container_id')
             pid = bot.get('pid')
+            dev_id = bot.get('dev_id', 'غير محدد')
             
             if container_id:
-                bot_list += f"{i}. @{bot['username']}\n   🐳 الحاوية: `{container_id[:12]}...`\n\n"
+                bot_list += f"{i}. @{bot['username']}\n   🐳 الحاوية: `{container_id[:12]}...`\n   👤 المطور: `{dev_id}`\n\n"
             elif pid:
-                bot_list += f"{i}. @{bot['username']}\n   🔧 العملية: `PID {pid}`\n\n"
+                bot_list += f"{i}. @{bot['username']}\n   🔧 العملية: `PID {pid}`\n   👤 المطور: `{dev_id}`\n\n"
             else:
-                bot_list += f"{i}. @{bot['username']}\n   ⚠️ معرف غير محدد\n\n"
+                bot_list += f"{i}. @{bot['username']}\n   ⚠️ معرف غير محدد\n   👤 المطور: `{dev_id}`\n\n"
         
         await message.reply(bot_list)
     except Exception as e:
@@ -464,43 +470,65 @@ async def start_Allusers_handler(client, message):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
             return
         
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await message.reply("**❌ المصنع مغلق حالياً**")
+            return
+        
         all_bots = get_all_bots()
         if not all_bots:
             await message.reply("**❌ لا توجد بوتات مصنوعة**")
             return
         
+        # التحقق من وجود بوتات قابلة للتشغيل
+        startable_bots = [bot for bot in all_bots if bot.get("status") != "running"]
+        if not startable_bots:
+            await message.reply("**✅ جميع البوتات تعمل بالفعل**")
+            return
+        
         # إرسال رسالة بداية العملية
-        status_msg = await message.reply("**🔄 جاري تشغيل جميع البوتات...**")
+        status_msg = await message.reply(f"**🔄 جاري تشغيل {len(startable_bots)} بوت...**")
         
         started_count = 0
         failed_count = 0
-        already_running = 0
         
-        for i, bot in enumerate(all_bots, 1):
+        for i, bot in enumerate(startable_bots, 1):
             # تحديث رسالة الحالة كل 3 بوتات
             if i % 3 == 0:
-                await status_msg.edit(f"**🔄 جاري التشغيل... ({i}/{len(all_bots)})**")
-            
-            if bot.get("status") == "running":
-                already_running += 1
-                continue
+                await status_msg.edit(f"**🔄 جاري التشغيل... ({i}/{len(startable_bots)})**")
                 
-            container_id = start_bot_process(bot["username"])
-            if container_id:
+            process_id = start_bot_process(bot["username"])
+            if process_id:
                 update_bot_status(bot["username"], "running")
-                bots_collection.update_one(
-                    {"username": bot["username"]},
-                    {"$set": {"container_id": container_id}}
-                )
+                # تحديد نوع المعرف وتحديث الحقل المناسب
+                if isinstance(process_id, str):
+                    # Container ID
+                    bots_collection.update_one(
+                        {"username": bot["username"]},
+                        {"$set": {"container_id": process_id}}
+                    )
+                elif isinstance(process_id, int):
+                    # PID
+                    bots_collection.update_one(
+                        {"username": bot["username"]},
+                        {"$set": {"pid": process_id}}
+                    )
                 started_count += 1
             else:
                 failed_count += 1
+            
+            # تأخير بين البوتات لتجنب الحظر
+            if i < len(startable_bots):
+                await asyncio.sleep(1)
 
         # رسالة النتيجة النهائية
         result_text = f"**📊 نتائج تشغيل البوتات:**\n\n"
         result_text += f"✅ **تم تشغيل:** {started_count} بوت\n"
-        result_text += f"⚠️ **كانت تعمل:** {already_running} بوت\n"
         result_text += f"❌ **فشل التشغيل:** {failed_count} بوت\n"
+        result_text += f"📊 **إجمالي البوتات:** {len(all_bots)} بوت\n"
+        
+        if started_count == 0:
+            result_text = "**❌ لم يتم تشغيل أي بوت**"
         
         await status_msg.edit(result_text)
     except Exception as e:
@@ -512,6 +540,11 @@ async def stooop_Allusers_handler(client, message):
     try:
         if not is_dev(message.from_user.id):
             await message.reply("**❌ هذا الأمر يخص المطور فقط**")
+            return
+        
+        # التحقق من حالة المصنع
+        if get_factory_state():
+            await message.reply("**❌ المصنع مغلق حالياً**")
             return
         
         running_bots = get_running_bots()
@@ -550,11 +583,18 @@ async def stooop_Allusers_handler(client, message):
             else:
                 update_bot_status(bot["username"], "stopped")
                 stopped_count += 1
+            
+            # تأخير بين البوتات لتجنب الحظر
+            if i < len(running_bots):
+                await asyncio.sleep(0.5)
 
         # رسالة النتيجة النهائية
         result_text = f"**📊 نتائج إيقاف البوتات:**\n\n"
         result_text += f"✅ **تم إيقاف:** {stopped_count} بوت\n"
         result_text += f"❌ **فشل الإيقاف:** {failed_count} بوت\n"
+        
+        if stopped_count == 0:
+            result_text = "**❌ لم يتم إيقاف أي بوت**"
         
         await status_msg.edit(result_text)
     except Exception as e:
