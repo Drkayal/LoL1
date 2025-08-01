@@ -14,6 +14,20 @@ from users import validate_bot_username
 from factory.settings import get_factory_state
 from datetime import datetime
 
+# استيراد المتغيرات من OWNER.py
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from OWNER import BOT_TOKEN, DATABASE
+
+# استيراد API_ID و API_HASH من config.py
+try:
+    from config import API_ID, API_HASH
+except ImportError:
+    # قيم افتراضية إذا لم تكن موجودة
+    API_ID = 123456
+    API_HASH = "your_api_hash_here"
+
 # المتغيرات المطلوبة من الملف الرئيسي
 bots_collection = None
 
@@ -244,23 +258,50 @@ async def forbroacasts_handler(client, msg):
             bot_id_from_token = bot_token_parts[0]
             bot_token_hash = bot_token_parts[1]
             
-            # حفظ التوكن مؤقتاً
-            await set_broadcast_status(uid, bot_id, "make_bot_session")
-            # حفظ التوكن في متغير مؤقت (يمكن استخدام cache)
+            # الحصول على معلومات البوت من Telegram API
+            import requests
+            bot_info_url = f"https://api.telegram.org/bot{text}/getMe"
+            response = requests.get(bot_info_url)
+            
+            if response.status_code != 200:
+                await safe_reply_text(msg, "**❌ توكن البوت غير صالح**\n\n**📝 تأكد من صحة التوكن من @BotFather**", quote=True)
+                return
+            
+            bot_data = response.json()
+            if not bot_data.get("ok"):
+                await safe_reply_text(msg, "**❌ توكن البوت غير صالح**\n\n**📝 تأكد من صحة التوكن من @BotFather**", quote=True)
+                return
+            
+            bot_username = bot_data["result"]["username"]
+            bot_name = bot_data["result"]["first_name"]
+            
+            # حفظ البيانات في التخزين المؤقت
+            from utils.cache import set_bot_creation_data
+            bot_creation_data = {
+                "bot_token": text,
+                "bot_id": bot_id_from_token,
+                "bot_username": bot_username,
+                "bot_name": bot_name,
+                "stage": "token_received"
+            }
+            set_bot_creation_data(uid, bot_creation_data)
             
             # المرحلة الثانية: طلب كود جلسة Pyrogram
+            await set_broadcast_status(uid, bot_id, "make_bot_session")
             await safe_reply_text(
                 msg,
-                "**🤖 صنع بوت جديد - المرحلة الثانية**\n\n"
-                "**📱 أرسل كود جلسة Pyrogram للحساب المساعد:**\n"
-                "• استخدم @StringSessionBot\n"
-                "• أو استخدم أمر '❲ استخراج جلسه ❳'\n\n"
-                "**📝 ملاحظة:** يجب أن يكون الحساب مساعد للبوت",
+                f"**🤖 صنع بوت جديد - المرحلة الثانية**\n\n"
+                f"**✅ تم استلام توكن البوت:** @{bot_username}\n\n"
+                f"**📱 أرسل كود جلسة Pyrogram للحساب المساعد:**\n"
+                f"• استخدم @StringSessionBot\n"
+                f"• أو استخدم أمر '❲ استخراج جلسه ❳'\n\n"
+                f"**📝 ملاحظة:** يجب أن يكون الحساب مساعد للبوت @{bot_username}",
                 quote=True
             )
             
         except Exception as e:
-            await safe_reply_text(msg, "**❌ خطأ في معالجة توكن البوت**", quote=True)
+            logger.error(f"Error processing bot token: {str(e)}")
+            await safe_reply_text(msg, "**❌ خطأ في معالجة توكن البوت**\n\n**📝 تأكد من صحة التوكن**", quote=True)
             return
 
     # معالجة صنع بوت جديد - المرحلة الثانية: كود جلسة Pyrogram
@@ -272,17 +313,28 @@ async def forbroacasts_handler(client, msg):
             await safe_reply_text(msg, "**❌ كود الجلسة غير صحيح**\n\n**📝 أرسل كود جلسة صحيح من @StringSessionBot**", quote=True)
             return
         
-        # حفظ كود الجلسة مؤقتاً
-        await set_broadcast_status(uid, bot_id, "make_bot_owner")
+        # الحصول على البيانات المحفوظة
+        from utils.cache import get_bot_creation_data, set_bot_creation_data
+        bot_data = get_bot_creation_data(uid)
+        if not bot_data:
+            await safe_reply_text(msg, "**❌ انتهت صلاحية الجلسة**\n\n**📝 ابدأ العملية من جديد**", quote=True)
+            return
+        
+        # تحديث البيانات بإضافة كود الجلسة
+        bot_data["session_string"] = text
+        bot_data["stage"] = "session_received"
+        set_bot_creation_data(uid, bot_data)
         
         # المرحلة الثالثة: طلب معرف المطور
+        await set_broadcast_status(uid, bot_id, "make_bot_owner")
         await safe_reply_text(
             msg,
-            "**🤖 صنع بوت جديد - المرحلة الثالثة**\n\n"
-            "**👤 أرسل معرف المطور (User ID):**\n"
-            "• مثال: `123456789`\n"
-            "• أو أرسل 'أنا' إذا كنت المطور\n\n"
-            "**📝 ملاحظة:** يمكنك الحصول على معرفك من @userinfobot",
+            f"**🤖 صنع بوت جديد - المرحلة الثالثة**\n\n"
+            f"**✅ تم استلام كود الجلسة للحساب المساعد**\n\n"
+            f"**👤 أرسل معرف المطور (User ID):**\n"
+            f"• مثال: `123456789`\n"
+            f"• أو أرسل 'أنا' إذا كنت المطور\n\n"
+            f"**📝 ملاحظة:** يمكنك الحصول على معرفك من @userinfobot",
             quote=True
         )
 
@@ -300,30 +352,194 @@ async def forbroacasts_handler(client, msg):
                 await safe_reply_text(msg, "**❌ معرف المطور غير صحيح**\n\n**📝 أرسل رقم صحيح أو 'أنا'**", quote=True)
                 return
         
+        # الحصول على البيانات المحفوظة
+        from utils.cache import get_bot_creation_data, delete_bot_creation_data
+        bot_data = get_bot_creation_data(uid)
+        if not bot_data:
+            await safe_reply_text(msg, "**❌ انتهت صلاحية الجلسة**\n\n**📝 ابدأ العملية من جديد**", quote=True)
+            return
+        
         # بدء عملية صنع البوت
         status_msg = await safe_reply_text(msg, "**🔄 جاري صنع البوت...**", quote=True)
         
         try:
-            # هنا يجب إضافة المنطق الكامل لصنع البوت
-            # بما في ذلك إنشاء مجموعة التخزين وتحديث الملفات
+            # المرحلة الرابعة: إنشاء مجموعة التخزين
+            await safe_edit_text(status_msg, "**📱 المرحلة الرابعة: إنشاء مجموعة التخزين...**")
             
-            await safe_edit_text(
-                status_msg,
-                "**✅ تم صنع البوت بنجاح!**\n\n"
-                "**📝 تم إكمال جميع المراحل:**\n"
-                "✅ توكن البوت\n"
-                "✅ كود جلسة Pyrogram\n"
-                "✅ معرف المطور\n"
-                "✅ إنشاء مجموعة التخزين\n"
-                "✅ نسخ ملفات البوت\n"
-                "✅ تحديث ملف config.py\n"
-                "✅ تشغيل البوت\n\n"
-                "**🚀 البوت جاهز للاستخدام!**"
+            # استخدام الحساب المساعد لإنشاء مجموعة
+            from pyrogram import Client
+            assistant_client = Client(
+                "assistant_session",
+                session_string=bot_data["session_string"],
+                api_id=API_ID,
+                api_hash=API_HASH
             )
+            
+            await assistant_client.start()
+            
+            # إنشاء مجموعة التخزين
+            chat = await assistant_client.create_supergroup(
+                title=f"Logs - {bot_data['bot_name']}",
+                description="مجموعة تخزين سجلات البوت"
+            )
+            
+            # رفع البوت في المجموعة
+            await assistant_client.promote_chat_member(
+                chat_id=chat.id,
+                user_id=int(bot_data["bot_id"]),
+                privileges={
+                    "can_post_messages": True,
+                    "can_edit_messages": True,
+                    "can_delete_messages": True,
+                    "can_restrict_members": True,
+                    "can_invite_users": True,
+                    "can_pin_messages": True,
+                    "can_manage_chat": True
+                }
+            )
+            
+            log_group_id = chat.id
+            
+            await assistant_client.stop()
+            
+            # المرحلة الخامسة: نسخ ملفات البوت
+            await safe_edit_text(status_msg, "**📁 المرحلة الخامسة: نسخ ملفات البوت...**")
+            
+            import os
+            import shutil
+            bot_path = os.path.join("Maked", bot_data["bot_username"])
+            
+            if os.path.exists(bot_path):
+                shutil.rmtree(bot_path)
+            
+            # نسخ مجلد Make إلى مجلد البوت
+            make_path = "Make"
+            if not os.path.exists(make_path):
+                await safe_edit_text(status_msg, "**❌ مجلد Make غير موجود**")
+                return
+            
+            shutil.copytree(make_path, bot_path)
+            
+            # المرحلة السادسة: تحديث ملف config.py
+            await safe_edit_text(status_msg, "**⚙️ المرحلة السادسة: تحديث ملف config.py...**")
+            
+            config_file = os.path.join(bot_path, "config.py")
+            if os.path.exists(config_file):
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    config_content = f.read()
+                
+                # تحديث التوكن
+                config_content = config_content.replace(
+                    'BOT_TOKEN = getenv("BOT_TOKEN", "7557280783:AAF44S35fdkcURM4j4Rp5-OOkASZ3_uCSR4")',
+                    f'BOT_TOKEN = getenv("BOT_TOKEN", "{bot_data["bot_token"]}")'
+                )
+                
+                # تحديث كود الجلسة
+                config_content = config_content.replace(
+                    'API_HASH = getenv("API_HASH", "ed923c3d59d699018e79254c6f8b6671")',
+                    f'API_HASH = getenv("API_HASH", "{API_HASH}")'
+                )
+                
+                # إضافة معرف مجموعة السجل
+                if "LOG_GROUP_ID" not in config_content:
+                    config_content += f'\nLOG_GROUP_ID = {log_group_id}'
+                else:
+                    config_content = config_content.replace(
+                        'LOG_GROUP_ID = -1001234567890',
+                        f'LOG_GROUP_ID = {log_group_id}'
+                    )
+                
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    f.write(config_content)
+            
+            # تحديث ملف OWNER.py
+            owner_file = os.path.join(bot_path, "OWNER.py")
+            if os.path.exists(owner_file):
+                with open(owner_file, 'r', encoding='utf-8') as f:
+                    owner_content = f.read()
+                
+                # تحديث معرف المطور
+                owner_content = owner_content.replace(
+                    'OWNER__ID = 985612253',
+                    f'OWNER__ID = {owner_id}'
+                )
+                owner_content = owner_content.replace(
+                    'OWNER_DEVELOPER = 985612253',
+                    f'OWNER_DEVELOPER = {owner_id}'
+                )
+                
+                # تحديث اسم المطور
+                user_name = msg.from_user.first_name
+                owner_content = owner_content.replace(
+                    'OWNER_NAME = "𝐷𝑟. 𝐾ℎ𝑎𝑦𝑎𝑙 𓏺"',
+                    f'OWNER_NAME = "{user_name}"'
+                )
+                
+                # تحديث معرف البوت
+                owner_content = owner_content.replace(
+                    'OWNER = ["AAAKP"]',
+                    f'OWNER = ["{bot_data["bot_username"]}"]'
+                )
+                
+                with open(owner_file, 'w', encoding='utf-8') as f:
+                    f.write(owner_content)
+            
+            # المرحلة السابعة: تشغيل البوت
+            await safe_edit_text(status_msg, "**🚀 المرحلة السابعة: تشغيل البوت...**")
+            
+            # حفظ معلومات البوت في قاعدة البيانات
+            config_data = {
+                "bot_username": bot_data["bot_username"],
+                "owner_id": owner_id,
+                "owner_name": user_name,
+                "bot_token": bot_data["bot_token"],
+                "session_string": bot_data["session_string"],
+                "log_group_id": log_group_id,
+                "created_at": datetime.now().isoformat(),
+                "status": "created"
+            }
+            
+            save_success = await save_bot_info(bot_data["bot_username"], owner_id, None, config_data)
+            if not save_success:
+                await safe_edit_text(status_msg, "**❌ فشل في حفظ معلومات البوت في قاعدة البيانات**")
+                return
+            
+            # تشغيل البوت
+            process_id = await start_bot_process(bot_data["bot_username"])
+            if process_id:
+                await update_bot_status(bot_data["bot_username"], "running")
+                await update_bot_process_id(bot_data["bot_username"], process_id)
+                
+                # حذف البيانات المؤقتة
+                delete_bot_creation_data(uid)
+                
+                await safe_edit_text(
+                    status_msg,
+                    f"**✅ تم صنع البوت @{bot_data['bot_username']} بنجاح!**\n\n"
+                    f"**📝 تم إكمال جميع المراحل:**\n"
+                    f"✅ توكن البوت\n"
+                    f"✅ كود جلسة Pyrogram\n"
+                    f"✅ معرف المطور: {owner_id}\n"
+                    f"✅ إنشاء مجموعة التخزين: {log_group_id}\n"
+                    f"✅ نسخ ملفات البوت\n"
+                    f"✅ تحديث ملف config.py\n"
+                    f"✅ تشغيل البوت\n\n"
+                    f"**🚀 البوت جاهز للاستخدام!**\n"
+                    f"**📁 المجلد:** `{bot_path}`\n"
+                    f"**👤 المطور:** `{user_name}`"
+                )
+            else:
+                await safe_edit_text(
+                    status_msg,
+                    f"**⚠️ تم صنع البوت @{bot_data['bot_username']} لكن فشل في تشغيله**\n\n"
+                    f"**📝 يمكنك تشغيله يدوياً باستخدام زر '❲ تشغيل بوت ❳'**"
+                )
             
         except Exception as e:
             logger.error(f"Error in bot creation process: {str(e)}")
             await safe_edit_text(status_msg, f"**❌ فشل في صنع البوت**\n\n**🔍 السبب:** {str(e)}")
+            # حذف البيانات المؤقتة في حالة الخطأ
+            delete_bot_creation_data(uid)
         return
 
     # معالجة البث العادي

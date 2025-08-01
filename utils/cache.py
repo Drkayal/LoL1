@@ -146,3 +146,44 @@ class CacheManager:
 
 # إنشاء مدير التخزين المؤقت العام
 cache_manager = CacheManager(max_size=200, ttl=600)  # 200 عنصر، صلاحية 10 دقائق
+
+# وظائف خاصة بصنع البوت
+def set_bot_creation_data(user_id: int, data: dict) -> bool:
+    """
+    حفظ بيانات صنع البوت للمستخدم
+    
+    Args:
+        user_id: معرف المستخدم
+        data: البيانات المراد حفظها
+        
+    Returns:
+        True إذا تم الحفظ بنجاح
+    """
+    key = f"bot_creation_{user_id}"
+    return cache_manager.set(key, data)
+
+def get_bot_creation_data(user_id: int) -> Optional[dict]:
+    """
+    الحصول على بيانات صنع البوت للمستخدم
+    
+    Args:
+        user_id: معرف المستخدم
+        
+    Returns:
+        البيانات المحفوظة أو None
+    """
+    key = f"bot_creation_{user_id}"
+    return cache_manager.get(key)
+
+def delete_bot_creation_data(user_id: int) -> bool:
+    """
+    حذف بيانات صنع البوت للمستخدم
+    
+    Args:
+        user_id: معرف المستخدم
+        
+    Returns:
+        True إذا تم الحذف بنجاح
+    """
+    key = f"bot_creation_{user_id}"
+    return cache_manager.delete(key)
