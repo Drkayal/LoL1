@@ -36,7 +36,15 @@ class DatabaseManager:
         try:
             # إنشاء اتصال متزامن
             self.sync_client = MongoClient(self.mongo_uri)
-            self.sync_db = self.sync_client.get_database()
+            
+            # تحديد قاعدة البيانات الافتراضية
+            if "/" in self.mongo_uri and "?" in self.mongo_uri:
+                # استخراج اسم قاعدة البيانات من الرابط
+                db_name = self.mongo_uri.split("/")[-1].split("?")[0]
+                self.sync_db = self.sync_client[db_name]
+            else:
+                # استخدام قاعدة بيانات افتراضية
+                self.sync_db = self.sync_client["bot_factory"]
             
             # اختبار الاتصال المتزامن
             self.sync_client.admin.command('ping')
@@ -44,7 +52,15 @@ class DatabaseManager:
             
             # إنشاء اتصال غير متزامن
             self.async_client = AsyncIOMotorClient(self.mongo_uri)
-            self.async_db = self.async_client.get_database()
+            
+            # تحديد قاعدة البيانات الافتراضية
+            if "/" in self.mongo_uri and "?" in self.mongo_uri:
+                # استخراج اسم قاعدة البيانات من الرابط
+                db_name = self.mongo_uri.split("/")[-1].split("?")[0]
+                self.async_db = self.async_client[db_name]
+            else:
+                # استخدام قاعدة بيانات افتراضية
+                self.async_db = self.async_client["bot_factory"]
             
             logger.info("Asynchronous database connection established successfully")
             

@@ -1999,3 +1999,5 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 01:08:49,089 - factory_bot - WARNING - Attempt 2 failed to get bot info: 'NoneType' object has no attribute 'find_one'
 2025-08-01 01:08:50,090 - factory_bot - WARNING - Attempt 3 failed to get bot info: 'NoneType' object has no attribute 'find_one'
 2025-08-01 01:08:50,090 - factory_bot - ERROR - Failed to get bot info after 3 attempts
+2025-08-01 01:19:15,303 - factory_bot - ERROR - Failed to initialize database connections: No default database defined
+2025-08-01 01:19:22,519 - factory_bot - ERROR - Failed to initialize database connections: No default database defined
