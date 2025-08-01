@@ -1,10 +1,10 @@
 services:
-  - type: web
+  - type: worker
     name: bot-factory
     env: python
     plan: free
     buildCommand: pip install --upgrade pip && pip install -r requirements-minimal.txt
-    startCommand: python3 main.py
+    startCommand: chmod +x start.sh && ./start.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

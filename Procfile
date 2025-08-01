@@ -1,1 +1,1 @@
-worker: python3 main.py
+worker: chmod +x start.sh && ./start.sh

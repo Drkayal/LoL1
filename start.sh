@@ -11,13 +11,12 @@ if [ ! -f "main.py" ]; then
     exit 1
 fi
 
-if [ ! -f "config.py" ]; then
-    echo "❌ ملف config.py غير موجود!"
-    exit 1
-fi
-
 # إنشاء المجلدات المطلوبة
 mkdir -p Maked logs temp cache
+
+# تعيين متغيرات البيئة الافتراضية إذا لم تكن موجودة
+export PYTHONPATH="${PYTHONPATH}:${PWD}"
+export PYTHONUNBUFFERED=1
 
 # تشغيل البوت
 echo "✅ تشغيل البوت..."
