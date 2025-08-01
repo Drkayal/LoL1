@@ -141,6 +141,17 @@ class BotFactory:
             logger.info(f"broadcasts_collection: {self.broadcasts_collection}")
             logger.info(f"factory_settings: {self.factory_settings}")
             
+            # فحص إضافي للتأكد من التهيئة
+            if self.devs_collection is None:
+                logger.error("ERROR: self.devs_collection is None in setup_database")
+            else:
+                logger.info("SUCCESS: self.devs_collection is properly initialized")
+                
+            if self.users is None:
+                logger.error("ERROR: self.users is None in setup_database")
+            else:
+                logger.info("SUCCESS: self.users is properly initialized")
+            
             logger.info("Database setup completed successfully")
             
         except Exception as e:

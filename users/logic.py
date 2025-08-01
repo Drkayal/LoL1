@@ -40,6 +40,17 @@ def set_dependencies(owner_id, devs_coll, users_coll):
     logger.info(f"users collection: {users}")
     logger.info(f"devs collection: {devs}")
     logger.info(f"OWNER_ID: {OWNER_ID}")
+    
+    # فحص إضافي للتأكد من التهيئة
+    if devs is None:
+        logger.error("ERROR: devs is still None after set_dependencies")
+    else:
+        logger.info("SUCCESS: devs is properly initialized")
+    
+    if users is None:
+        logger.error("ERROR: users is still None after set_dependencies")
+    else:
+        logger.info("SUCCESS: users is properly initialized")
 
 async def validate_user_id(user_id) -> Tuple[bool, Optional[int]]:
     """
@@ -100,6 +111,9 @@ async def is_dev(user_id, max_retries=3):
         # التحقق من تهيئة المتغيرات
         if devs is None:
             logger.error("devs collection is not initialized")
+            logger.error(f"devs variable: {devs}")
+            logger.error(f"users variable: {users}")
+            logger.error(f"OWNER_ID variable: {OWNER_ID}")
             return False
             
         for attempt in range(max_retries):
