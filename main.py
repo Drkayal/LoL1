@@ -18,7 +18,6 @@ from OWNER import DATABASE, CHANNEL, GROUP, PHOTO, VIDEO, LOGS
 
 # استيراد Pyrogram
 from pyrogram import Client, idle
-from pyromod import listen
 
 # استيراد الأدوات المساعدة
 from utils import logger
