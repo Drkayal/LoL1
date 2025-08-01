@@ -18,6 +18,7 @@ from .models import (
     get_running_bots,
     get_bots_count,
     update_bot_container_id,
+    update_bot_process_id,
     set_collections
 )
 
@@ -36,5 +37,6 @@ __all__ = [
     'get_running_bots',
     'get_bots_count',
     'update_bot_container_id',
+    'update_bot_process_id',
     'set_collections'
 ]

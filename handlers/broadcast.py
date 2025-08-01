@@ -8,7 +8,7 @@ from pyrogram import Client, filters
 from pyrogram.errors import PeerIdInvalid
 from utils import logger
 from users import is_dev, validate_user_id, del_user
-from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info, save_bot_info
+from bots import start_bot_process, get_bot_info, update_bot_status, stop_bot_process, delete_bot_info, save_bot_info, update_bot_process_id
 from broadcast import get_broadcast_status, delete_broadcast_status
 from users import validate_bot_username
 from factory.settings import get_factory_state
@@ -86,19 +86,12 @@ async def forbroacasts_handler(client, msg):
         if process_id:
             if await update_bot_status(validated_username, "running"):
                 # تحديد نوع المعرف وتحديث الحقل المناسب
+                await update_bot_process_id(validated_username, process_id)
                 if isinstance(process_id, str):
                     # Container ID
-                    bots_collection.update_one(
-                        {"username": validated_username},
-                        {"$set": {"container_id": process_id}}
-                    )
                     await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🐳 **في حاوية Docker:** `{process_id[:12]}...`")
                 elif isinstance(process_id, int):
                     # PID
-                    bots_collection.update_one(
-                        {"username": validated_username},
-                        {"$set": {"pid": process_id}}
-                    )
                     await status_msg.edit(f"**✅ تم تشغيل البوت @{validated_username} بنجاح**\n🔧 **معرف العملية:** `PID {process_id}`")
             else:
                 await status_msg.edit(f"**⚠️ تم تشغيل البوت @{validated_username} لكن فشل تحديث الحالة**")

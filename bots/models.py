@@ -452,6 +452,59 @@ async def update_bot_container_id(bot_username, container_id, max_retries=3):
         logger.error(f"Error in update_bot_container_id function: {str(e)}")
         return False
 
+async def update_bot_process_id(bot_username, process_id, max_retries=3):
+    """
+    تحديث معرف العملية (Container ID أو PID) للبوت مع إعادة المحاولة
+    
+    Args:
+        bot_username: معرف البوت
+        process_id: معرف العملية (Container ID أو PID)
+        max_retries: عدد المحاولات الأقصى
+        
+    Returns:
+        bool: True إذا تم التحديث بنجاح، False خلاف ذلك
+    """
+    try:
+        is_valid, validated_username = await validate_bot_username(bot_username)
+        if not is_valid:
+            logger.error(f"Invalid bot username: {bot_username}")
+            return False
+        
+        for attempt in range(max_retries):
+            try:
+                if isinstance(process_id, str):
+                    # Container ID
+                    result = bots_collection.update_one(
+                        {"username": validated_username},
+                        {"$set": {"container_id": process_id}}
+                    )
+                elif isinstance(process_id, int):
+                    # PID
+                    result = bots_collection.update_one(
+                        {"username": validated_username},
+                        {"$set": {"pid": process_id}}
+                    )
+                else:
+                    logger.error(f"Invalid process_id type: {type(process_id)}")
+                    return False
+                
+                if result.modified_count > 0:
+                    logger.info(f"Successfully updated process ID for bot {validated_username}")
+                    return True
+                else:
+                    logger.warning(f"No document updated for bot {validated_username}")
+                    return False
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed to update process ID: {str(e)}")
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to update process ID after {max_retries} attempts")
+                    return False
+                await asyncio.sleep(1)
+        return False
+    except Exception as e:
+        logger.error(f"Error in update_bot_process_id function: {str(e)}")
+        return False
+
 async def get_factory_state(max_retries=3):
     """
     الحصول على حالة المصنع مع التخزين المؤقت وإعادة المحاولة
