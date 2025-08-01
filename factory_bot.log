@@ -2596,3 +2596,33 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 08:18:34,555 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
 2025-08-01 08:18:34,555 - factory_bot - INFO - Cleaned up 0 temporary files
 2025-08-01 08:18:34,555 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 08:24:07,275 - factory_bot - INFO - Bot Factory initialized successfully
+2025-08-01 08:24:07,275 - factory_bot - INFO - Starting Bot Factory...
+2025-08-01 08:24:09,912 - factory_bot - INFO - Synchronous database connection established successfully
+2025-08-01 08:24:09,913 - factory_bot - INFO - Asynchronous database connection established successfully
+2025-08-01 08:24:10,177 - factory_bot - INFO - Database collections initialized successfully
+2025-08-01 08:24:10,178 - factory_bot - INFO - Database setup completed successfully
+2025-08-01 08:24:10,178 - factory_bot - INFO - All collections are properly initialized
+2025-08-01 08:24:10,178 - factory_bot - INFO - set_dependencies called with:
+2025-08-01 08:24:10,178 - factory_bot - INFO - owner_id: [985612253]
+2025-08-01 08:24:10,178 - factory_bot - INFO - devs_coll: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:24:10,178 - factory_bot - INFO - users_coll: AsyncIOMotorCollection(Collection(Database(MongoClient(host='mongodb+srv://cluster0.ld2v7.mongodb.net', document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:24:10,178 - factory_bot - INFO - Dependencies set successfully
+2025-08-01 08:24:10,178 - factory_bot - INFO - users collection: AsyncIOMotorCollection(Collection(Database(MongoClient(host='mongodb+srv://cluster0.ld2v7.mongodb.net', document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:24:10,178 - factory_bot - INFO - devs collection: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:24:10,178 - factory_bot - INFO - OWNER_ID: [985612253]
+2025-08-01 08:24:10,178 - factory_bot - INFO - SUCCESS: devs is properly initialized
+2025-08-01 08:24:10,178 - factory_bot - INFO - SUCCESS: users is properly initialized
+2025-08-01 08:24:10,178 - factory_bot - INFO - Dependencies setup completed successfully
+2025-08-01 08:24:10,178 - factory_bot - INFO - Bot client created successfully
+2025-08-01 08:24:11,603 - factory_bot - INFO - ✅ Bot started successfully: صيد انستا8 (@AAAK8BOT)
+2025-08-01 08:24:11,603 - factory_bot - INFO - 🆔 Bot ID: 8020231543
+2025-08-01 08:24:11,603 - factory_bot - INFO - Initializing factory...
+2025-08-01 08:24:11,868 - factory_bot - INFO - Factory state retrieved: False
+2025-08-01 08:24:11,868 - factory_bot - INFO - Factory state initialized: False
+2025-08-01 08:24:12,133 - factory_bot - INFO - Retrieved 0 bots with running status
+2025-08-01 08:24:12,133 - factory_bot - INFO - Successfully verified 0 running bots
+2025-08-01 08:24:12,133 - factory_bot - INFO - Found 0 bots to restore
+2025-08-01 08:24:12,133 - factory_bot - INFO - Factory initialization completed. Restored: 0, Failed: 0
+2025-08-01 08:24:12,133 - factory_bot - INFO - Factory initialization completed
+2025-08-01 08:24:12,133 - factory_bot - INFO - Bot Factory is ready and running!
