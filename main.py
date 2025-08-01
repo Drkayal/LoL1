@@ -24,7 +24,7 @@ from pyromod import listen
 from utils import logger
 
 # استيراد مدير قاعدة البيانات
-from db import db_manager
+from db import db_manager, initialize_db_manager
 
 # استيراد دوال المصنع
 from bots import initialize_factory
@@ -88,9 +88,12 @@ class BotFactory:
     async def setup_database(self):
         """إعداد قاعدة البيانات والمجموعات"""
         try:
+            # تهيئة مدير قاعدة البيانات
+            self.db_manager = initialize_db_manager()
+            
             # الحصول على اتصالات قاعدة البيانات
-            self.db = db_manager.get_sync_db()
-            self.mongodb = db_manager.get_async_db()
+            self.db = self.db_manager.get_sync_db()
+            self.mongodb = self.db_manager.get_async_db()
             
             # تهيئة المجموعات
             self.users = self.mongodb.tgusersdb

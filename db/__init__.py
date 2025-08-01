@@ -6,6 +6,7 @@ Database Module - إدارة قاعدة البيانات
 from .manager import (
     DatabaseManager,
     db_manager,
+    initialize_db_manager,
     get_sync_db,
     get_async_db,
     close_connections

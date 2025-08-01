@@ -116,12 +116,9 @@ from handlers import (
     remove_dev_handler,
     list_devs_handler,
     onoff_handler,
-    maked_handler,
-    deletbot_handler,
     botat_handler,
     kinhsker_handler,
     update_factory_handler,
-    stop_specific_bot_handler,
     show_running_bots_handler,
     start_Allusers_handler,
     stooop_Allusers_handler,
@@ -153,18 +150,18 @@ ch = CHANNEL.replace("https://t.me/", "").replace("@", "")
 # مدير التأخير تم نقله إلى utils/rate_limit.py
 
 # تهيئة المجموعات باستخدام مدير قاعدة البيانات الجديد
-db = db_manager.get_sync_db()
-mongodb = db_manager.get_async_db()
+db = None
+mongodb = None
 
-users = mongodb.tgusersdb
-chats = mongodb.chats
-mkchats = db.chatss
+users = None
+chats = None
+mkchats = None
 blocked = []
-blockeddb = db.blocked
-broadcasts_collection = db["broadcasts"]
-devs_collection = db["devs"]
-bots_collection = db["bots"]
-factory_settings = db["factory_settings"]
+blockeddb = None
+broadcasts_collection = None
+devs_collection = None
+bots_collection = None
+factory_settings = None
 
 # حالة المصنع الافتراضية
 off = True

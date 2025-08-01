@@ -22,7 +22,7 @@ class DatabaseManager:
         Args:
             mongo_uri: رابط اتصال MongoDB (اختياري)
         """
-        self.mongo_uri = mongo_uri or os.getenv("MONGO_DB_URI", "mongodb://localhost:27017")
+        self.mongo_uri = mongo_uri or os.getenv("MONGO_DB_URI", "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/bot_factory?retryWrites=true&w=majority&appName=Cluster0")
         self.sync_client: Optional[MongoClient] = None
         self.async_client: Optional[AsyncIOMotorClient] = None
         self.sync_db = None
@@ -79,7 +79,7 @@ class DatabaseManager:
             DatabaseError: إذا فشل الاتصال
         """
         try:
-            if not self.sync_db:
+            if self.sync_db is None:
                 raise DatabaseError("Synchronous database connection not available")
             
             # اختبار الاتصال
@@ -101,7 +101,7 @@ class DatabaseManager:
             DatabaseError: إذا فشل الاتصال
         """
         try:
-            if not self.async_db:
+            if self.async_db is None:
                 raise DatabaseError("Asynchronous database connection not available")
             
             return self.async_db
@@ -220,18 +220,30 @@ class DatabaseManager:
                 "error": str(e)
             }
 
-# إنشاء مدير قاعدة البيانات العام
-db_manager = DatabaseManager()
+# إنشاء مدير قاعدة البيانات العام (بدون تهيئة فورية)
+db_manager = None
+
+def initialize_db_manager():
+    """تهيئة مدير قاعدة البيانات"""
+    global db_manager
+    if db_manager is None:
+        db_manager = DatabaseManager()
+    return db_manager
 
 # دوال مساعدة للوصول السريع
 def get_sync_db():
     """الحصول على قاعدة البيانات المتزامنة"""
+    if db_manager is None:
+        initialize_db_manager()
     return db_manager.get_sync_db()
 
 def get_async_db():
     """الحصول على قاعدة البيانات غير المتزامنة"""
+    if db_manager is None:
+        initialize_db_manager()
     return db_manager.get_async_db()
 
 def close_connections():
     """إغلاق جميع اتصالات قاعدة البيانات"""
-    db_manager.close_connections()
+    if db_manager:
+        db_manager.close_connections()
