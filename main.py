@@ -8,6 +8,9 @@ import asyncio
 import sys
 import os
 from pathlib import Path
+import threading
+from flask import Flask, jsonify
+import time
 
 # إضافة المجلد الحالي إلى مسار Python
 sys.path.append(str(Path(__file__).parent))
@@ -54,6 +57,33 @@ from Maker.Makr import cleanup_database_connections
 import atexit
 atexit.register(cleanup_database_connections)
 
+# إنشاء تطبيق Flask للويب
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    """الصفحة الرئيسية"""
+    return jsonify({
+        "status": "running",
+        "service": "Bot Factory Maker",
+        "owner": OWNER_NAME,
+        "timestamp": time.time()
+    })
+
+@app.route('/health')
+def health():
+    """فحص صحة التطبيق"""
+    return jsonify({
+        "status": "healthy",
+        "service": "Bot Factory Maker",
+        "uptime": time.time()
+    })
+
+def run_flask():
+    """تشغيل خادم Flask في thread منفصل"""
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
+
 class BotFactory:
     """فئة مصنع البوتات الرئيسية"""
     
@@ -99,10 +129,10 @@ class BotFactory:
             self.chats = self.mongodb.chats
             self.mkchats = self.db.chatss
             self.blockeddb = self.db.blocked
-            self.broadcasts_collection = self.db["broadcasts"]
-            self.devs_collection = self.db["devs"]
-            self.bots_collection = self.db["bots"]
-            self.factory_settings = self.db["factory_settings"]
+            self.broadcasts_collection = self.db.broadcasts
+            self.devs_collection = self.db.devs
+            self.bots_collection = self.db.bots
+            self.factory_settings = self.db.factory_settings
             
             logger.info("Database setup completed successfully")
             
@@ -113,24 +143,26 @@ class BotFactory:
     def setup_dependencies(self):
         """إعداد التبعيات لجميع الوحدات"""
         try:
-            # تعيين التبعيات لمجلد users
-            set_users_dependencies(OWNER_ID, self.devs_collection, self.users)
+            # إعداد تبعيات المستخدمين
+            set_users_dependencies(OWNER_ID, self.users)
             
-            # تعيين المجموعات لمجلد db
-            set_db_collections(self.broadcasts_collection, self.bots_collection, self.factory_settings)
+            # إعداد تبعيات قاعدة البيانات
+            set_db_collections(self.users, self.chats, self.mkchats, self.blockeddb)
             
-            # تعيين المجموعات لمجلد bots
-            set_bots_collections(self.bots_collection, self.factory_settings)
+            # إعداد تبعيات البوتات
+            set_bots_collections(self.bots_collection)
             
-            # تعيين المجموعات لمجلد broadcast
+            # إعداد تبعيات البث
             set_broadcast_collections(self.broadcasts_collection)
             
-            # تعيين المجموعات لمجلد factory
+            # إعداد تبعيات المصنع
             set_factory_collections(self.factory_settings)
             
-            # تعيين التبعيات لمعالجات الأوامر
+            # إعداد تبعيات الأوامر
             set_commands_dependencies(OWNER_ID, self.bots_collection)
-            set_broadcast_dependencies(self.bots_collection)
+            
+            # إعداد تبعيات البث
+            set_broadcast_dependencies(OWNER_ID, self.bots_collection)
             
             logger.info("Dependencies setup completed successfully")
             
@@ -139,16 +171,15 @@ class BotFactory:
             raise
     
     async def create_bot(self):
-        """إنشاء وتكوين البوت"""
+        """إنشاء البوت"""
         try:
-            # إنشاء البوت مع الإعدادات المطلوبة
+            # إنشاء البوت مع الإعدادات
             self.bot = Client(
-                "bot_maker",
+                "factory_bot",
                 api_id=API_ID,
                 api_hash=API_HASH,
                 bot_token=BOT_TOKEN,
-                plugins=dict(root="Maker"),
-                in_memory=True
+                plugins=dict(root="handlers")
             )
             
             logger.info("Bot client created successfully")
@@ -242,6 +273,11 @@ class BotFactory:
 
 async def main():
     """الدالة الرئيسية"""
+    # بدء خادم Flask في thread منفصل
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    
+    # تشغيل مصنع البوتات
     factory = BotFactory()
     await factory.run()
 

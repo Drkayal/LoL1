@@ -1,30 +1,11 @@
 services:
-  - type: worker
-    name: bot-factory
+  - type: web
+    name: bot-factory-maker
     env: python
-    plan: free
-    buildCommand: pip install --upgrade pip && pip install -r requirements-minimal.txt
-    startCommand: chmod +x start.sh && ./start.sh
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: API_ID
-        value: "17490746"
-      - key: API_HASH
-        value: "ed923c3d59d699018e79254c6f8b6671"
-      - key: BOT_TOKEN
-        value: "8020231543:AAHFLDS8a77eqGA045YZFV8uQjvr34IvWrM"
-      - key: MONGO_DB_URI
-        value: "mongodb+srv://huSeen96:Huseenslah96@cluster0.ld2v7.mongodb.net/bot_factory?retryWrites=true&w=majority&appName=Cluster0"
-      - key: OWNER_ID
-        value: "985612253"
-      - key: CHANNEL
-        value: "https://t.me/K55DD"
-      - key: GROUP
-        value: "https://t.me/YMMYN"
-      - key: PHOTO
-        value: "https://t.me/MusicxXxYousef/90"
-      - key: VIDEO
-        value: "https://t.me/MusicxXxYousef/91"
-      - key: LOGS
-        value: "xjjfjfhh"
+        value: 3.9.0
+      - key: PORT
+        value: 8080

@@ -15,5 +15,8 @@ psutil>=5.8.0
 # Environment variables
 python-dotenv>=0.19.0
 
+# Web server for Render.com
+Flask>=2.0.0
+
 # Additional dependencies for deployment
 gunicorn>=20.1.0
