@@ -14,6 +14,10 @@ fi
 # إنشاء المجلدات المطلوبة
 mkdir -p Maked logs temp cache
 
+# تثبيت المتطلبات
+echo "📦 تثبيت المتطلبات..."
+pip install -r requirements-minimal.txt
+
 # تعيين متغيرات البيئة الافتراضية إذا لم تكن موجودة
 export PYTHONPATH="${PYTHONPATH}:${PWD}"
 export PYTHONUNBUFFERED=1

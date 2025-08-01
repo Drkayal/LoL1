@@ -1,1 +1,1 @@
-web: python main.py
+web: pip install -r requirements-minimal.txt && python main.py
