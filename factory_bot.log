@@ -2911,3 +2911,102 @@ ValueError: Peer id invalid: -1002727115068
 2025-08-01 08:26:13,993 - factory_bot - INFO - Attempt 3: validated_id: 985612253
 2025-08-01 08:26:14,261 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
 2025-08-01 08:26:14,261 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:48,396 - factory_bot - INFO - is_dev called for user_id: 985612253
+2025-08-01 08:26:48,397 - factory_bot - INFO - devs variable at start: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:48,397 - factory_bot - INFO - users variable at start: AsyncIOMotorCollection(Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True, driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:26:48,397 - factory_bot - INFO - OWNER_ID variable at start: [985612253]
+2025-08-01 08:26:48,397 - factory_bot - INFO - Attempt 1: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:48,397 - factory_bot - INFO - Attempt 1: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:48,397 - factory_bot - INFO - Attempt 1: validated_id: 985612253
+2025-08-01 08:26:48,664 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:49,666 - factory_bot - INFO - Attempt 2: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:49,666 - factory_bot - INFO - Attempt 2: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:49,666 - factory_bot - INFO - Attempt 2: validated_id: 985612253
+2025-08-01 08:26:49,933 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:50,935 - factory_bot - INFO - Attempt 3: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:50,935 - factory_bot - INFO - Attempt 3: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:50,935 - factory_bot - INFO - Attempt 3: validated_id: 985612253
+2025-08-01 08:26:51,204 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:51,204 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:51,356 - factory_bot - INFO - is_dev called for user_id: 8020231543
+2025-08-01 08:26:51,356 - factory_bot - INFO - devs variable at start: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:51,356 - factory_bot - INFO - users variable at start: AsyncIOMotorCollection(Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True, driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:26:51,357 - factory_bot - INFO - OWNER_ID variable at start: [985612253]
+2025-08-01 08:26:51,357 - factory_bot - INFO - Attempt 1: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:51,357 - factory_bot - INFO - Attempt 1: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:51,357 - factory_bot - INFO - Attempt 1: validated_id: 8020231543
+2025-08-01 08:26:51,624 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:51,625 - factory_bot - INFO - is_dev called for user_id: 985612253
+2025-08-01 08:26:51,625 - factory_bot - INFO - devs variable at start: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:51,625 - factory_bot - INFO - users variable at start: AsyncIOMotorCollection(Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True, driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:26:51,625 - factory_bot - INFO - OWNER_ID variable at start: [985612253]
+2025-08-01 08:26:51,625 - factory_bot - INFO - Attempt 1: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:51,625 - factory_bot - INFO - Attempt 1: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:51,625 - factory_bot - INFO - Attempt 1: validated_id: 985612253
+2025-08-01 08:26:51,893 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:52,635 - factory_bot - INFO - Attempt 2: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:52,635 - factory_bot - INFO - Attempt 2: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:52,635 - factory_bot - INFO - Attempt 2: validated_id: 8020231543
+2025-08-01 08:26:52,903 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:52,904 - factory_bot - INFO - Attempt 2: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:52,904 - factory_bot - INFO - Attempt 2: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:52,904 - factory_bot - INFO - Attempt 2: validated_id: 985612253
+2025-08-01 08:26:53,171 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:53,905 - factory_bot - INFO - Attempt 3: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:53,905 - factory_bot - INFO - Attempt 3: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:53,905 - factory_bot - INFO - Attempt 3: validated_id: 8020231543
+2025-08-01 08:26:54,173 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:54,173 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:54,173 - factory_bot - INFO - is_dev called for user_id: 8020231543
+2025-08-01 08:26:54,173 - factory_bot - INFO - devs variable at start: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:54,173 - factory_bot - INFO - users variable at start: AsyncIOMotorCollection(Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True, driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:26:54,173 - factory_bot - INFO - OWNER_ID variable at start: [985612253]
+2025-08-01 08:26:54,173 - factory_bot - INFO - Attempt 1: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:54,173 - factory_bot - INFO - Attempt 1: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:54,173 - factory_bot - INFO - Attempt 1: validated_id: 8020231543
+2025-08-01 08:26:54,441 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:54,442 - factory_bot - INFO - Attempt 3: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:54,442 - factory_bot - INFO - Attempt 3: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:54,442 - factory_bot - INFO - Attempt 3: validated_id: 985612253
+2025-08-01 08:26:54,710 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:54,710 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:54,710 - factory_bot - INFO - is_dev called for user_id: 985612253
+2025-08-01 08:26:54,710 - factory_bot - INFO - devs variable at start: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:54,710 - factory_bot - INFO - users variable at start: AsyncIOMotorCollection(Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=False, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True, driver=DriverInfo(name='Motor', version='3.7.1', platform='asyncio')), 'bot_factory'), 'tgusersdb'))
+2025-08-01 08:26:54,710 - factory_bot - INFO - OWNER_ID variable at start: [985612253]
+2025-08-01 08:26:54,710 - factory_bot - INFO - Attempt 1: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:54,710 - factory_bot - INFO - Attempt 1: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:54,710 - factory_bot - INFO - Attempt 1: validated_id: 985612253
+2025-08-01 08:26:54,978 - factory_bot - WARNING - Attempt 1 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:55,442 - factory_bot - INFO - Attempt 2: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:55,442 - factory_bot - INFO - Attempt 2: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:55,442 - factory_bot - INFO - Attempt 2: validated_id: 8020231543
+2025-08-01 08:26:55,710 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:55,979 - factory_bot - INFO - Attempt 2: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:55,979 - factory_bot - INFO - Attempt 2: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:55,980 - factory_bot - INFO - Attempt 2: validated_id: 985612253
+2025-08-01 08:26:56,247 - factory_bot - WARNING - Attempt 2 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:56,711 - factory_bot - INFO - Attempt 3: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:56,711 - factory_bot - INFO - Attempt 3: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:56,711 - factory_bot - INFO - Attempt 3: validated_id: 8020231543
+2025-08-01 08:26:56,979 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:56,979 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:57,248 - factory_bot - INFO - Attempt 3: devs type: <class 'pymongo.synchronous.collection.Collection'>
+2025-08-01 08:26:57,248 - factory_bot - INFO - Attempt 3: devs value: Collection(Database(MongoClient(host=['cluster0-shard-00-01.ld2v7.mongodb.net:27017', 'cluster0-shard-00-00.ld2v7.mongodb.net:27017', 'cluster0-shard-00-02.ld2v7.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, retrywrites=True, w='majority', appname='Cluster0', authsource='admin', replicaset='atlas-uzbfxu-shard-0', tls=True), 'bot_factory'), 'devs')
+2025-08-01 08:26:57,248 - factory_bot - INFO - Attempt 3: validated_id: 985612253
+2025-08-01 08:26:57,516 - factory_bot - WARNING - Attempt 3 failed to check dev: object NoneType can't be used in 'await' expression
+2025-08-01 08:26:57,516 - factory_bot - ERROR - Failed to check dev after 3 attempts
+2025-08-01 08:26:57,516 - factory_bot - INFO - Bot stopped successfully
+2025-08-01 08:26:57,517 - factory_bot - INFO - Bot Factory shutdown completed
+2025-08-01 08:26:57,786 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 08:26:58,052 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 08:26:58,052 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 08:26:58,052 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 08:26:58,052 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 08:26:58,052 - factory_bot - INFO - Cache cleared successfully
+2025-08-01 08:26:58,052 - factory_bot - INFO - Synchronous database connection closed
+2025-08-01 08:26:58,052 - factory_bot - INFO - Asynchronous database connection closed
+2025-08-01 08:26:58,052 - factory_bot - INFO - Database connections closed successfully
+2025-08-01 08:26:58,052 - factory_bot - INFO - تم حذف 0 ملف مؤقت من أصل 0
+2025-08-01 08:26:58,052 - factory_bot - INFO - Cleaned up 0 temporary files
+2025-08-01 08:26:58,052 - factory_bot - INFO - Cache cleared successfully
