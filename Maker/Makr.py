@@ -225,23 +225,25 @@ import atexit
 atexit.register(cleanup_database_connections)
 
 # تعيين التبعيات لمجلد users
-set_dependencies(OWNER_ID, devs_collection, users)
+# تم نقل هذا الاستدعاء إلى main.py لتجنب التكرار
+# set_dependencies(OWNER_ID, devs_collection, users)
 
 # تعيين المجموعات لمجلد db
-set_db_collections(broadcasts_collection, bots_collection, factory_settings)
+# تم نقل هذه الاستدعاءات إلى main.py لتجنب التكرار
+# set_db_collections(broadcasts_collection, bots_collection, factory_settings)
 
 # تعيين المجموعات لمجلد bots
-set_bots_collections(bots_collection, factory_settings)
+# set_bots_collections(bots_collection, factory_settings)
 
 # تعيين المجموعات لمجلد broadcast
-set_broadcast_collections(broadcasts_collection)
+# set_broadcast_collections(broadcasts_collection)
 
 # تعيين المجموعات لمجلد factory
-set_factory_collections(factory_settings)
+# set_factory_collections(factory_settings)
 
 # تعيين التبعيات لمعالجات الأوامر
-from handlers.commands import set_dependencies as set_commands_dependencies
-from handlers.broadcast import set_dependencies as set_broadcast_dependencies
+# from handlers.commands import set_dependencies as set_commands_dependencies
+# from handlers.broadcast import set_dependencies as set_broadcast_dependencies
 
-set_commands_dependencies(OWNER_ID, bots_collection)
-set_broadcast_dependencies(bots_collection)
+# set_commands_dependencies(OWNER_ID, bots_collection)
+# set_broadcast_dependencies(bots_collection)
