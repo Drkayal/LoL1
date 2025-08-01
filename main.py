@@ -144,13 +144,13 @@ class BotFactory:
         """إعداد التبعيات لجميع الوحدات"""
         try:
             # إعداد تبعيات المستخدمين
-            set_users_dependencies(OWNER_ID, self.users)
+            set_users_dependencies(OWNER_ID, self.devs_collection, self.users)
             
             # إعداد تبعيات قاعدة البيانات
-            set_db_collections(self.users, self.chats, self.mkchats, self.blockeddb)
+            set_db_collections(self.broadcasts_collection, self.bots_collection, self.factory_settings)
             
             # إعداد تبعيات البوتات
-            set_bots_collections(self.bots_collection)
+            set_bots_collections(self.bots_collection, self.factory_settings)
             
             # إعداد تبعيات البث
             set_broadcast_collections(self.broadcasts_collection)
@@ -162,7 +162,7 @@ class BotFactory:
             set_commands_dependencies(OWNER_ID, self.bots_collection)
             
             # إعداد تبعيات البث
-            set_broadcast_dependencies(OWNER_ID, self.bots_collection)
+            set_broadcast_dependencies(self.bots_collection)
             
             logger.info("Dependencies setup completed successfully")
             
